@@ -1,0 +1,6 @@
+# Máy Windows: chạy HTTP ở cổng 80, Cloudflare Tunnel lo HTTPS.
+# Lên VPS: đặt CADDY_SITE=api.tenmien.vn trong .env để Caddy tự lấy chứng chỉ.
+{$CADDY_SITE::80} {
+	encode gzip
+	reverse_proxy api:3000
+}

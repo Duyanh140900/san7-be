@@ -1,0 +1,27 @@
+# Bí mật
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+key.properties
+google-services.json
+GoogleService-Info.plist
+.mcp.json
+
+# Node
+node_modules/
+dist/
+coverage/
+*.log
+
+# Dữ liệu cục bộ
+backups/
+.data/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

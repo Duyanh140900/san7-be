@@ -1,0 +1,172 @@
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { AppError } from '../common/errors.js';
+import { Prisma } from '../generated/prisma/client.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import {
+  generateInviteCode,
+  INVITE_CODE_PATTERN,
+  normalizeInviteCode,
+} from './invite-code.js';
+import type {
+  CreateTeamDto,
+  MembershipDto,
+  TeamDto,
+  TeamInvitePreviewDto,
+} from './teams.dto.js';
+
+const INVITE_TTL_DAYS = 30;
+const CREST_COLORS = [
+  '#0066CC',
+  '#248A3D',
+  '#C4000F',
+  '#FF9500',
+  '#272729',
+  '#5E5CE6',
+];
+
+@Injectable()
+export class TeamsService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  /** Tạo đội: người tạo thành đội trưởng (active) ngay, trong cùng một transaction. */
+  async create(userId: string, dto: CreateTeamDto): Promise<TeamDto> {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const team = await this.prisma.$transaction(async (tx) => {
+          const created = await tx.team.create({
+            data: {
+              name: dto.name.trim(),
+              area: dto.area.trim(),
+              level: dto.level,
+              crestColor:
+                dto.crestColor?.toUpperCase() ?? pickCrestColor(dto.name),
+              inviteCode: generateInviteCode(),
+              inviteExpiresAt: new Date(
+                Date.now() + INVITE_TTL_DAYS * 86_400_000,
+              ),
+              createdById: userId,
+            },
+          });
+          await tx.teamMember.create({
+            data: {
+              teamId: created.id,
+              userId,
+              role: 'captain',
+              status: 'active',
+              joinedAt: new Date(),
+            },
+          });
+          return created;
+        });
+        return toTeamDto(team);
+      } catch (e) {
+        // Trùng mã mời (rất hiếm): thử mã khác
+        if (isUniqueViolation(e, 'invite_code')) continue;
+        throw e;
+      }
+    }
+    throw new AppError(
+      HttpStatus.CONFLICT,
+      'invite_code_exhausted',
+      'Không tạo được mã mời, thử lại',
+    );
+  }
+
+  async previewInvite(code: string): Promise<TeamInvitePreviewDto> {
+    const team = await this.findByInvite(code);
+    const memberCount = await this.prisma.teamMember.count({
+      where: { teamId: team.id, status: 'active' },
+    });
+    return {
+      teamId: team.id,
+      name: team.name,
+      crestColor: team.crestColor,
+      area: team.area,
+      level: team.level,
+      memberCount,
+    };
+  }
+
+  /** Vào đội bằng mã mời: tạo yêu cầu chờ đội trưởng duyệt. */
+  async join(userId: string, code: string): Promise<MembershipDto> {
+    const team = await this.findByInvite(code);
+    const existing = await this.prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId: team.id, userId } },
+    });
+    if (existing) {
+      throw new AppError(
+        HttpStatus.CONFLICT,
+        existing.status === 'active' ? 'already_member' : 'join_pending',
+        existing.status === 'active'
+          ? 'Bạn đã ở trong đội này'
+          : 'Bạn đã gửi yêu cầu, đang chờ đội trưởng duyệt',
+      );
+    }
+    const member = await this.prisma.teamMember.create({
+      data: { teamId: team.id, userId, role: 'member', status: 'pending' },
+    });
+    return {
+      teamId: team.id,
+      teamName: team.name,
+      role: member.role,
+      status: member.status,
+    };
+  }
+
+  private async findByInvite(code: string) {
+    const normalized = normalizeInviteCode(code);
+    const notFound = new AppError(
+      HttpStatus.NOT_FOUND,
+      'invite_not_found',
+      'Mã mời không đúng',
+    );
+    if (!INVITE_CODE_PATTERN.test(normalized)) throw notFound;
+    const team = await this.prisma.team.findUnique({
+      where: { inviteCode: normalized },
+    });
+    if (!team) throw notFound;
+    if (team.inviteExpiresAt && team.inviteExpiresAt.getTime() < Date.now()) {
+      throw new AppError(
+        HttpStatus.GONE,
+        'invite_expired',
+        'Mã mời đã hết hạn, xin đội trưởng mã mới',
+      );
+    }
+    return team;
+  }
+}
+
+function toTeamDto(t: {
+  id: string;
+  name: string;
+  crestColor: string;
+  area: string;
+  level: TeamDto['level'];
+  inviteCode: string;
+  inviteExpiresAt: Date | null;
+}): TeamDto {
+  return {
+    id: t.id,
+    name: t.name,
+    crestColor: t.crestColor,
+    area: t.area,
+    level: t.level,
+    inviteCode: t.inviteCode,
+    inviteExpiresAt: t.inviteExpiresAt,
+  };
+}
+
+function pickCrestColor(name: string): string {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return CREST_COLORS[h % CREST_COLORS.length];
+}
+
+function isUniqueViolation(e: unknown, field: string): boolean {
+  if (
+    !(e instanceof Prisma.PrismaClientKnownRequestError) ||
+    e.code !== 'P2002'
+  )
+    return false;
+  return JSON.stringify(e.meta ?? {}).includes(field);
+}

@@ -1,0 +1,135 @@
+// Sân 7: mô hình dữ liệu. Quy ước: khoá chính uuid, thời gian timestamptz,
+// tiền là bigint VND, tên bảng/cột snake_case.
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  moduleFormat    = "esm"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [postgis]
+}
+
+enum Position {
+  goalkeeper
+  defender
+  midfielder
+  forward
+}
+
+enum TeamLevel {
+  sieu_yeu
+  yeu
+  tby
+  tb
+  tbk
+  gioi
+}
+
+enum TeamRole {
+  captain
+  vice
+  treasurer
+  member
+}
+
+enum MemberStatus {
+  pending
+  active
+}
+
+enum Platform {
+  android
+  ios
+  web
+}
+
+model User {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  googleSub   String    @unique @map("google_sub")
+  email       String
+  name        String
+  avatarUrl   String?   @map("avatar_url")
+  position    Position?
+  shirtNumber Int?      @map("shirt_number") @db.SmallInt
+  area        String?
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  devices       Device[]
+  memberships   TeamMember[]
+  refreshTokens RefreshToken[]
+  teamsCreated  Team[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  /// sha256 của token, không lưu token gốc
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Device {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  fcmToken  String   @unique @map("fcm_token")
+  platform  Platform
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("devices")
+}
+
+model Team {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  /// màu huy hiệu dạng #RRGGBB
+  crestColor      String    @map("crest_color")
+  area            String
+  level           TeamLevel
+  inviteCode      String    @unique @map("invite_code")
+  inviteExpiresAt DateTime? @map("invite_expires_at") @db.Timestamptz(6)
+  createdById     String    @map("created_by") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  createdBy User         @relation(fields: [createdById], references: [id])
+  members   TeamMember[]
+
+  @@index([createdById])
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId    String       @map("team_id") @db.Uuid
+  userId    String       @map("user_id") @db.Uuid
+  role      TeamRole     @default(member)
+  status    MemberStatus @default(pending)
+  /// thời điểm được duyệt vào đội (null khi còn chờ)
+  joinedAt  DateTime?    @map("joined_at") @db.Timestamptz(6)
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+  @@map("team_members")
+}
