@@ -15,7 +15,7 @@ function setup() {
   };
   const prisma = {
     $transaction: vi.fn((fn: (t: typeof tx) => unknown) => fn(tx)),
-    team: { findUnique: vi.fn() },
+    team: { findUnique: vi.fn(), findUniqueOrThrow: vi.fn(), update: vi.fn() },
     teamMember: {
       findUnique: vi.fn(),
       create: vi.fn((args: { data: Record<string, unknown> }) =>
@@ -141,5 +141,54 @@ describe('TeamsService', () => {
     expect(prisma.teamMember.count).toHaveBeenCalledWith({
       where: { teamId: 't1', status: 'active' },
     });
+  });
+
+  const teamRow = {
+    id: 't1',
+    name: 'FC CG',
+    crestColor: '#0066CC',
+    area: 'Cầu Giấy',
+    level: 'tb',
+    createdAt: new Date(),
+    monthlyDue: 200_000n,
+    inviteCode: 'CG7-2486',
+    inviteExpiresAt: null,
+  };
+
+  it('chi tiết đội: chỉ đội trưởng/phó đội thấy mã mời, tiền đổi sang số', async () => {
+    const { service, prisma } = setup();
+    prisma.team.findUniqueOrThrow.mockResolvedValue(teamRow);
+    const asVice = await service.detail({
+      teamId: 't1',
+      userId: 'v',
+      role: 'vice',
+    });
+    expect(asVice.inviteCode).toBe('CG7-2486');
+    expect(asVice.monthlyDue).toBe(200_000);
+    expect(asVice.memberCount).toBe(12);
+    const asMember = await service.detail({
+      teamId: 't1',
+      userId: 'm',
+      role: 'member',
+    });
+    expect(asMember.inviteCode).toBeUndefined();
+    expect(asMember.myRole).toBe('member');
+  });
+
+  it('tạo mã mời mới: đổi mã và hạn 7 ngày', async () => {
+    const { service, prisma } = setup();
+    prisma.team.update.mockImplementation(
+      (args: { data: { inviteCode: string; inviteExpiresAt: Date } }) =>
+        Promise.resolve({ ...teamRow, ...args.data }),
+    );
+    const r = await service.regenerateInvite({
+      teamId: 't1',
+      userId: 'c',
+      role: 'captain',
+    });
+    expect(r.inviteCode).toMatch(/^[A-Z0-9]{3}-\d{4}$/);
+    const days = (r.inviteExpiresAt.getTime() - Date.now()) / 86_400_000;
+    expect(days).toBeGreaterThan(6.9);
+    expect(days).toBeLessThan(7.1);
   });
 });

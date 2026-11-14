@@ -8,7 +8,8 @@ import { NestFactory } from '@nestjs/core';
 
 process.env.DATABASE_URL ??=
   'postgresql://openapi:openapi@localhost:5432/openapi';
-process.env.JWT_ACCESS_SECRET ??= 'openapi-export-only';
+process.env.JWT_ACCESS_SECRET ??=
+  'openapi-export-only-not-a-real-secret-0000000000';
 process.env.GOOGLE_WEB_CLIENT_ID ??= 'openapi-export-only';
 
 const { AppModule } = await import('./app.module.js');

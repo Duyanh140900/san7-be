@@ -36,6 +36,10 @@ scripts/   gen-api-client (.ps1/.sh)
 - **Client Dart sinh bằng `swagger_parser`** (dio + plain, không cần build_runner, không cần Java) thay cho openapi-generator; cấu hình ở `app/swagger_parser.yaml`. Đổi API xong chạy `scripts/gen-api-client.ps1`.
 - Lỗi API có định dạng thống nhất `{ statusCode, code, message, details? }` (`backend/src/common/errors.ts`); service ném `AppError(status, code, message)` với message tiếng Việt.
 - Refresh token: chuỗi ngẫu nhiên, lưu sha256, xoay vòng mỗi lần dùng; dùng lại token đã thu hồi → thu hồi mọi phiên của user.
+- **Endpoint của đội** (`/teams/:teamId/...`): gắn `@TeamScoped()` ở controller (guard thành viên active + khai báo `teamId` cho OpenAPI) và `@TeamRoles(...)` ở endpoint ghi; lấy người gọi bằng `@CurrentMember()`. Quyền: captain/vice quản lý thành viên + lịch, captain/treasurer quản lý quỹ. App có `TeamRolePermissions` khớp với các quyền này.
+- **Tiền** lưu `BigInt` trong Prisma, trả ra API bằng `toMoney()` (số nguyên). Số dư quỹ `teams.fund_balance` cập nhật trong cùng transaction với khoản thu/chi/phạt (`balanceEffect`).
+- **Realtime**: Socket.IO ở `/v1/socket`, auth `{ token }`; service gọi `RealtimeService.toTeam(...)` sau khi ghi xong. App: `teamRealtimeSyncProvider` (watch ở `AppShell`) tự invalidate provider khi có sự kiện.
+- **Swagger**: trường `string | null` phải ghi rõ `@ApiPropertyOptional({ type: String })`, nếu không client Dart sinh ra model rỗng.
 - Android: `kotlin.incremental=false` trong `app/android/gradle.properties` (project ở ổ D:, pub cache ở ổ C: làm hỏng cache incremental).
 
 ## Lệnh hay dùng

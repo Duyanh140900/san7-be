@@ -24,12 +24,34 @@ abstract final class Labels {
   };
 
   static String role(TeamRole r) => switch (r) {
-    TeamRoleKnown(value: TeamRoleValue.captain) => 'Đội trưởng',
-    TeamRoleKnown(value: TeamRoleValue.vice) => 'Đội phó',
-    TeamRoleKnown(value: TeamRoleValue.treasurer) => 'Thủ quỹ',
-    TeamRoleKnown(value: TeamRoleValue.member) => 'Thành viên',
+    TeamRoleKnown(:final value) => roleOf(value),
     TeamRoleUnknown(:final rawValue) => rawValue,
   };
+
+  static String roleOf(TeamRoleValue v) => switch (v) {
+    TeamRoleValue.captain => 'Đội trưởng',
+    TeamRoleValue.vice => 'Phó đội',
+    TeamRoleValue.treasurer => 'Thủ quỹ',
+    TeamRoleValue.member => 'Thành viên',
+  };
+
+  /// Thứ tự trong bộ chọn vai trò (như bản vẽ màn 19).
+  static const rolePicker = [
+    TeamRoleValue.member,
+    TeamRoleValue.vice,
+    TeamRoleValue.treasurer,
+    TeamRoleValue.captain,
+  ];
+
+  static String? position(Position? p) => switch (p) {
+    PositionKnown(:final value) => positions.firstWhere((e) => e.$1 == value).$2,
+    PositionUnknown(:final rawValue) => rawValue,
+    null => null,
+  };
+
+  /// "Tiền đạo · số 9"
+  static String playerLine(Position? p, int? shirtNumber) =>
+      [?position(p), if (shirtNumber != null) 'số $shirtNumber'].join(' · ');
 
   /// Khu vực Hà Nội (giai đoạn đầu). Sau này lấy từ API.
   static const areas = <String>[

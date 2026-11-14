@@ -8,6 +8,13 @@ abstract final class Routes {
   static const feed = '/feed';
   static const pitches = '/pitches';
   static const team = '/team';
+  static const teamMembers = '/team/members';
+  static const teamSchedule = '/team/schedule';
+  static const teamFunds = '/team/funds';
+  static const teamFundNew = '/team/funds/new';
+  static const teamFundsAll = '/team/funds/all';
+  static const teamEventNew = '/team/schedule/new';
+  static String teamEvent(String id) => '/team/events/$id';
   static const honors = '/honors';
   static const postNew = '/post/new';
 }

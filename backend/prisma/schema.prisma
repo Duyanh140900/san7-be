@@ -41,6 +41,24 @@ enum MemberStatus {
   active
 }
 
+enum EventKind {
+  match
+  internal
+  other
+}
+
+enum AttendanceStatus {
+  go
+  maybe
+  no
+}
+
+enum FundType {
+  income
+  expense
+  fine
+}
+
 enum Platform {
   android
   ios
@@ -63,6 +81,10 @@ model User {
   memberships   TeamMember[]
   refreshTokens RefreshToken[]
   teamsCreated  Team[]
+  attendances   Attendance[]
+  eventsCreated Event[]
+  fundTxMember  FundTransaction[] @relation("FundMember")
+  fundTxCreated FundTransaction[] @relation("FundCreator")
 
   @@map("users")
 }
@@ -105,12 +127,19 @@ model Team {
   level           TeamLevel
   inviteCode      String    @unique @map("invite_code")
   inviteExpiresAt DateTime? @map("invite_expires_at") @db.Timestamptz(6)
+  /// quỹ tháng mỗi người (VND), 0 = không thu quỹ tháng
+  monthlyDue      BigInt    @default(0) @map("monthly_due")
+  /// số dư quỹ (VND), cập nhật trong transaction mỗi khi thêm/xoá khoản
+  fundBalance     BigInt    @default(0) @map("fund_balance")
   createdById     String    @map("created_by") @db.Uuid
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  createdBy User         @relation(fields: [createdById], references: [id])
-  members   TeamMember[]
+  createdBy    User              @relation(fields: [createdById], references: [id])
+  members      TeamMember[]
+  events       Event[]
+  transactions FundTransaction[]
+  fineRules    FineRule[]
 
   @@index([createdById])
   @@map("teams")
@@ -132,4 +161,93 @@ model TeamMember {
   @@unique([teamId, userId])
   @@index([userId])
   @@map("team_members")
+}
+
+/// Lịch đội: trận, đá nội bộ, sự kiện khác. Trận gắn với kèo/đối thủ từ M2.
+model Event {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId      String    @map("team_id") @db.Uuid
+  kind        EventKind
+  title       String
+  startAt     DateTime  @map("start_at") @db.Timestamptz(6)
+  endAt       DateTime  @map("end_at") @db.Timestamptz(6)
+  location    String?
+  note        String?
+  /// số người tối thiểu cần đi
+  minPlayers  Int?      @map("min_players") @db.SmallInt
+  createdById String    @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  team         Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy    User              @relation(fields: [createdById], references: [id])
+  attendances  Attendance[]
+  transactions FundTransaction[]
+
+  @@index([teamId, startAt])
+  @@index([createdById])
+  @@map("events")
+}
+
+model Attendance {
+  eventId   String           @map("event_id") @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  status    AttendanceStatus
+  note      String?
+  updatedAt DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+  @@index([userId])
+  @@map("attendances")
+}
+
+/// Thu / chi / phạt. Tiền là số nguyên VND. Phạt chưa nộp (paid = false) không tính vào số dư.
+model FundTransaction {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId      String    @map("team_id") @db.Uuid
+  type        FundType
+  amount      BigInt
+  category    String
+  /// người nộp (thu), người chi (chi), người bị phạt (phạt)
+  memberId    String?   @map("member_id") @db.Uuid
+  eventId     String?   @map("event_id") @db.Uuid
+  /// kỳ quỹ tháng dạng YYYY-MM (chỉ với khoản quỹ tháng)
+  period      String?
+  /// các khoản tạo cùng một lần (nhiều người nộp)
+  batchId     String?   @map("batch_id") @db.Uuid
+  note        String?
+  paid        Boolean   @default(true)
+  /// thời điểm tiền thực vào/ra quỹ (null = phạt chưa nộp); dùng cho thống kê theo tháng
+  paidAt      DateTime? @map("paid_at") @db.Timestamptz(6)
+  createdById String    @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  team      Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  member    User?  @relation("FundMember", fields: [memberId], references: [id], onDelete: SetNull)
+  event     Event? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  createdBy User   @relation("FundCreator", fields: [createdById], references: [id])
+
+  @@index([teamId, createdAt])
+  @@index([teamId, period])
+  @@index([teamId, paidAt])
+  @@index([memberId])
+  @@index([eventId])
+  @@index([createdById])
+  @@map("fund_transactions")
+}
+
+model FineRule {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId    String   @map("team_id") @db.Uuid
+  name      String
+  amount    BigInt
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@map("fine_rules")
 }

@@ -1,0 +1,43 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../api/san7_api.dart';
+import '../../../core/api/api_call.dart';
+import '../../../core/api/api_client.dart';
+
+/// Quỹ đội: tổng quan, khoản thu/chi/phạt, luật phạt.
+class FundsRepository {
+  FundsRepository(this._api);
+  final San7Api _api;
+
+  Future<FundSummaryDto> summary(String teamId) =>
+      apiCall(() => _api.funds.fundsSummary(teamId: teamId));
+
+  Future<FundTxPageDto> transactions(String teamId, {String? cursor}) =>
+      apiCall(() => _api.funds.fundsList(teamId: teamId, cursor: cursor, limit: 20));
+
+  Future<List<FundTxDto>> create(String teamId, CreateFundTxDto body) =>
+      apiCall(() => _api.funds.fundsCreate(teamId: teamId, body: body));
+
+  Future<FundTxDto> markFinePaid(String teamId, String txId) =>
+      apiCall(() => _api.funds.fundsMarkFinePaid(teamId: teamId, txId: txId));
+
+  Future<void> remove(String teamId, String txId) =>
+      apiCall(() => _api.funds.fundsRemove(teamId: teamId, txId: txId));
+
+  Future<List<FineRuleDto>> fineRules(String teamId) =>
+      apiCall(() => _api.funds.fundsFineRules(teamId: teamId));
+
+  Future<FineRuleDto> createFineRule(String teamId, String name, int amount) => apiCall(
+    () => _api.funds.fundsCreateFineRule(
+      teamId: teamId,
+      body: CreateFineRuleDto(name: name, amount: amount),
+    ),
+  );
+
+  Future<void> removeFineRule(String teamId, String ruleId) =>
+      apiCall(() => _api.funds.fundsRemoveFineRule(teamId: teamId, ruleId: ruleId));
+}
+
+final fundsRepositoryProvider = Provider<FundsRepository>(
+  (ref) => FundsRepository(ref.watch(apiProvider)),
+);
