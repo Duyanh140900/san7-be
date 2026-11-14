@@ -5,6 +5,7 @@ import {
   type OpenAPIObject,
 } from '@nestjs/swagger';
 import { AllExceptionsFilter, ErrorBody } from './common/errors.js';
+import { OmitNullInterceptor } from './common/omit-null.interceptor.js';
 
 /** Cấu hình dùng chung cho server thật, test e2e và script xuất OpenAPI. */
 export function setupApp(app: INestApplication): void {
@@ -18,6 +19,7 @@ export function setupApp(app: INestApplication): void {
     }),
   );
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalInterceptors(new OmitNullInterceptor());
 }
 
 export function buildOpenApi(app: INestApplication): OpenAPIObject {

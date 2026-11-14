@@ -449,11 +449,9 @@
             "type": "string"
           },
           "avatarUrl": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "position": {
-            "nullable": true,
             "allOf": [
               {
                 "$ref": "#/components/schemas/Position"
@@ -461,12 +459,10 @@
             ]
           },
           "shirtNumber": {
-            "type": "integer",
-            "nullable": true
+            "type": "integer"
           },
           "area": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "profileCompleted": {
             "type": "boolean",
@@ -656,8 +652,7 @@
           },
           "inviteExpiresAt": {
             "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "format": "date-time"
           }
         },
         "required": [

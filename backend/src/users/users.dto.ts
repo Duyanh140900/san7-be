@@ -32,13 +32,11 @@ export class MeDto {
   @ApiProperty({ format: 'uuid' }) id: string;
   @ApiProperty() email: string;
   @ApiProperty() name: string;
-  @ApiPropertyOptional({ type: String, nullable: true }) avatarUrl:
-    string | null;
-  @ApiPropertyOptional({ enum: Position, enumName: 'Position', nullable: true })
+  @ApiPropertyOptional({ type: String }) avatarUrl: string | null;
+  @ApiPropertyOptional({ enum: Position, enumName: 'Position' })
   position: Position | null;
-  @ApiPropertyOptional({ type: 'integer', nullable: true }) shirtNumber:
-    number | null;
-  @ApiPropertyOptional({ type: String, nullable: true }) area: string | null;
+  @ApiPropertyOptional({ type: 'integer' }) shirtNumber: number | null;
+  @ApiPropertyOptional({ type: String }) area: string | null;
   @ApiProperty({ description: 'Đã điền hồ sơ cầu thủ (bước 2 màn 12)' })
   profileCompleted: boolean;
   @ApiProperty({ type: [MyTeamDto] }) teams: MyTeamDto[];

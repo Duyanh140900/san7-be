@@ -57,7 +57,7 @@ export class TeamDto {
   @ApiProperty() area: string;
   @ApiProperty({ enum: TeamLevel, enumName: 'TeamLevel' }) level: TeamLevel;
   @ApiProperty() inviteCode: string;
-  @ApiPropertyOptional({ type: String, format: 'date-time', nullable: true })
+  @ApiPropertyOptional({ type: String, format: 'date-time' })
   inviteExpiresAt: Date | null;
 }
 

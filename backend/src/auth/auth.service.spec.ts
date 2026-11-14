@@ -18,13 +18,11 @@ describe('AuthService.loginWithGoogle', () => {
       }),
     };
     const tokens = {
-      issue: vi
-        .fn()
-        .mockResolvedValue({
-          accessToken: 'at',
-          accessTokenExpiresIn: 900,
-          refreshToken: 'rt',
-        }),
+      issue: vi.fn().mockResolvedValue({
+        accessToken: 'at',
+        accessTokenExpiresIn: 900,
+        refreshToken: 'rt',
+      }),
     };
     const me = { id: 'u1', profileCompleted: false, teams: [] };
     const users = { getMe: vi.fn().mockResolvedValue(me) };

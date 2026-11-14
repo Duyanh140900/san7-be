@@ -1,0 +1,38 @@
+import '../auth/auth_controller.dart';
+
+abstract final class Routes {
+  static const splash = '/splash';
+  static const welcome = '/welcome';
+  static const onboardingProfile = '/onboarding/profile';
+  static const onboardingTeam = '/onboarding/team';
+  static const feed = '/feed';
+  static const pitches = '/pitches';
+  static const team = '/team';
+  static const honors = '/honors';
+  static const postNew = '/post/new';
+}
+
+/// Quyết định điều hướng theo trạng thái đăng nhập (luồng màn 12).
+/// Trả về null nếu được ở lại trang hiện tại.
+String? authRedirect(AuthState auth, String location) {
+  bool at(String path) => location == path;
+
+  switch (auth) {
+    case AuthUnknown():
+      return at(Routes.splash) ? null : Routes.splash;
+    case AuthSignedOut():
+      return at(Routes.welcome) ? null : Routes.welcome;
+    case AuthSignedIn() when auth.needsProfile:
+      return at(Routes.onboardingProfile) ? null : Routes.onboardingProfile;
+    case AuthSignedIn() when auth.needsTeam:
+      // Cho phép quay lại sửa hồ sơ ở bước 2
+      if (at(Routes.onboardingTeam) || at(Routes.onboardingProfile)) return null;
+      return Routes.onboardingTeam;
+    case AuthSignedIn():
+      // Chưa có đội nhưng đã bấm "Để sau": vẫn được mở lại bước vào đội từ tab Đội
+      if (at(Routes.onboardingTeam) && auth.me.teams.isEmpty) return null;
+      final inOnboarding =
+          at(Routes.splash) || at(Routes.welcome) || location.startsWith('/onboarding');
+      return inOnboarding ? Routes.feed : null;
+  }
+}
