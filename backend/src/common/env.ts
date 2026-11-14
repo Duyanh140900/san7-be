@@ -9,6 +9,8 @@ export interface Env {
   REFRESH_TOKEN_TTL_DAYS: number;
   GOOGLE_WEB_CLIENT_ID: string;
   LOG_LEVEL: string;
+  /** JSON service account Firebase (base64 hoặc thô); rỗng = tắt push */
+  FIREBASE_SERVICE_ACCOUNT: string;
 }
 
 const REQUIRED = [
@@ -39,5 +41,6 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     REFRESH_TOKEN_TTL_DAYS: Number(raw.REFRESH_TOKEN_TTL_DAYS ?? 30),
     GOOGLE_WEB_CLIENT_ID: String(raw.GOOGLE_WEB_CLIENT_ID),
     LOG_LEVEL: String(raw.LOG_LEVEL ?? 'info'),
+    FIREBASE_SERVICE_ACCOUNT: String(raw.FIREBASE_SERVICE_ACCOUNT ?? ''),
   };
 }

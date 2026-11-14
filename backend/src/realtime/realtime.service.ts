@@ -23,7 +23,7 @@ export class RealtimeService {
     this.server?.in(`user:${userId}`).socketsLeave(`team:${teamId}`);
   }
 
-  toUser(userId: string, event: string, payload: Record<string, unknown>) {
+  toUser(userId: string, event: string, payload: object) {
     this.server?.to(`user:${userId}`).emit(event, payload);
   }
 }

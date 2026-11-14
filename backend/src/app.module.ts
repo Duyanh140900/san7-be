@@ -9,7 +9,10 @@ import { validateEnv } from './common/env.js';
 import { FundsModule } from './funds/funds.module.js';
 import { HealthController } from './health/health.controller.js';
 import { MembersModule } from './members/members.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
+import { PostsModule } from './posts/posts.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { QueueModule } from './queue/queue.module.js';
 import { RealtimeModule } from './realtime/realtime.module.js';
 import { TeamsModule } from './teams/teams.module.js';
 import { UsersModule } from './users/users.module.js';
@@ -39,6 +42,7 @@ import { UsersModule } from './users/users.module.js';
     }),
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 120 }]),
     PrismaModule,
+    QueueModule,
     AuthModule,
     UsersModule,
     TeamsModule,
@@ -46,6 +50,8 @@ import { UsersModule } from './users/users.module.js';
     AttendanceModule,
     FundsModule,
     RealtimeModule,
+    NotificationsModule,
+    PostsModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
