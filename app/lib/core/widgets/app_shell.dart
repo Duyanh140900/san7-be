@@ -1,18 +1,22 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../realtime/realtime_client.dart';
 import '../router/auth_redirect.dart';
 import '../theme/tokens.dart';
 import 'app_icon.dart';
 
 /// Khung có thanh tab 5 mục: Bảng tin, Đặt sân, [+ Đăng kèo], Đội, Bảng vàng.
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.shell});
 
   final StatefulNavigationShell shell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Giữ kết nối realtime khi đang ở trong app
+    ref.watch(teamRealtimeSyncProvider);
     return Scaffold(
       body: shell,
       bottomNavigationBar: AppTabBar(

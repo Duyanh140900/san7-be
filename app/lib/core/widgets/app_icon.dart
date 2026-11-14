@@ -19,7 +19,16 @@ enum AppIcons {
   qr(
     '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2"/>',
   ),
-  ball('<circle cx="12" cy="12" r="8"/><path d="m12 7 3.5 2.5-1.3 4h-4.4l-1.3-4z"/>');
+  ball('<circle cx="12" cy="12" r="8"/><path d="m12 7 3.5 2.5-1.3 4h-4.4l-1.3-4z"/>'),
+  more(
+    '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
+  ),
+  search('<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>'),
+  chevronRight('<path d="m9 5 7 7-7 7"/>'),
+  arrowUp('<path d="M12 19V5M6 11l6-6 6 6"/>'),
+  warning('<path d="M12 4 3 20h18z"/><path d="M12 10v4M12 17h.01"/>'),
+  cup('<path d="M7 3h10l-1 18H8z"/><path d="M7.5 9h9"/>'),
+  calendar('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>');
 
   const AppIcons(this.body);
   final String body;

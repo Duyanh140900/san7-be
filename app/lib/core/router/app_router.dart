@@ -2,12 +2,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../features/attendance/presentation/create_event_screen.dart';
+import '../../features/attendance/presentation/schedule_page.dart';
 import '../../features/auth/presentation/onboarding_screens.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/feed/presentation/feed_screen.dart';
+import '../../features/funds/presentation/add_fund_tx_screen.dart';
+import '../../features/funds/presentation/fund_transactions_screen.dart';
+import '../../features/funds/presentation/funds_page.dart';
 import '../../features/honors/presentation/honors_screen.dart';
 import '../../features/pitches/presentation/pitches_screen.dart';
 import '../../features/post_create/presentation/post_create_screen.dart';
+import '../../features/team/presentation/members_page.dart';
 import '../../features/team/presentation/team_screen.dart';
 import '../auth/auth_controller.dart';
 import '../widgets/app_shell.dart';
@@ -33,6 +39,28 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (_, _) =>
             const MaterialPage(fullscreenDialog: true, child: PostCreateScreen()),
       ),
+      // Màn toàn màn hình của tab Đội (đặt trước shell để khớp trước /team/...)
+      GoRoute(
+        path: Routes.teamFundNew,
+        pageBuilder: (_, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: AddFundTxScreen(
+            args: state.extra is AddFundTxArgs
+                ? state.extra! as AddFundTxArgs
+                : const AddFundTxArgs(),
+          ),
+        ),
+      ),
+      GoRoute(path: Routes.teamFundsAll, builder: (_, _) => const FundTransactionsScreen()),
+      GoRoute(
+        path: Routes.teamEventNew,
+        pageBuilder: (_, _) =>
+            const MaterialPage(fullscreenDialog: true, child: CreateEventScreen()),
+      ),
+      GoRoute(
+        path: '/team/events/:eventId',
+        builder: (_, state) => EventDetailScreen(eventId: state.pathParameters['eventId']!),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(shell: shell),
         branches: [
@@ -43,7 +71,26 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [GoRoute(path: Routes.pitches, builder: (_, _) => const PitchesScreen())],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: Routes.team, builder: (_, _) => const TeamScreen())],
+            routes: [
+              GoRoute(
+                path: Routes.team,
+                pageBuilder: (_, _) => const NoTransitionPage(child: TeamScreen()),
+                routes: [
+                  GoRoute(
+                    path: 'members',
+                    pageBuilder: (_, _) => const NoTransitionPage(child: MembersPage()),
+                  ),
+                  GoRoute(
+                    path: 'schedule',
+                    pageBuilder: (_, _) => const NoTransitionPage(child: SchedulePage()),
+                  ),
+                  GoRoute(
+                    path: 'funds',
+                    pageBuilder: (_, _) => const NoTransitionPage(child: FundsPage()),
+                  ),
+                ],
+              ),
+            ],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: Routes.honors, builder: (_, _) => const HonorsScreen())],
