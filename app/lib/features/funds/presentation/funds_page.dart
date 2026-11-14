@@ -263,6 +263,7 @@ class _DuesCard extends StatelessWidget {
   void _showUnpaid(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
+      useRootNavigator: true,
       backgroundColor: AppColors.surface,
       isScrollControlled: true,
       builder: (sheet) => SafeArea(

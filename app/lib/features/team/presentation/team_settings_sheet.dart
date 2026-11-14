@@ -16,6 +16,7 @@ import '../team_providers.dart';
 Future<void> showTeamSettings(BuildContext context, TeamDetailDto team) {
   return showModalBottomSheet<void>(
     context: context,
+    useRootNavigator: true,
     backgroundColor: AppColors.surface,
     builder: (_) => _TeamSettingsSheet(team: team, hostContext: context),
   );
@@ -46,7 +47,7 @@ class _TeamSettingsSheet extends ConsumerWidget {
               ),
               onTap: () {
                 Navigator.pop(context);
-                _editMonthlyDue(hostContext, ref);
+                _editMonthlyDue(hostContext);
               },
             ),
           if (role.canManageFunds)
@@ -57,6 +58,7 @@ class _TeamSettingsSheet extends ConsumerWidget {
                 Navigator.pop(context);
                 showModalBottomSheet<void>(
                   context: hostContext,
+                  useRootNavigator: true,
                   backgroundColor: AppColors.surface,
                   isScrollControlled: true,
                   builder: (_) => _FineRulesSheet(teamId: team.id),
@@ -68,7 +70,7 @@ class _TeamSettingsSheet extends ConsumerWidget {
               title: const Text('Rời đội', style: TextStyle(color: AppColors.red)),
               onTap: () {
                 Navigator.pop(context);
-                _leave(hostContext, ref);
+                _leave(hostContext);
               },
             ),
           ListTile(
@@ -83,44 +85,29 @@ class _TeamSettingsSheet extends ConsumerWidget {
     );
   }
 
-  Future<void> _editMonthlyDue(BuildContext context, WidgetRef ref) async {
-    final ctrl = TextEditingController(
-      text: team.monthlyDue > 0 ? MoneyInputFormatter.formatAmount(team.monthlyDue) : '',
-    );
+  /// Sheet đã đóng khi hàm chạy tiếp sau dialog → đọc provider qua container của màn gọi,
+  /// không dùng WidgetRef của sheet (đã bị huỷ).
+  Future<void> _editMonthlyDue(BuildContext context) async {
+    final container = ProviderScope.containerOf(context, listen: false);
     final value = await showDialog<int>(
       context: context,
-      builder: (dialog) => AlertDialog(
-        title: const Text('Quỹ tháng mỗi người'),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          inputFormatters: const [MoneyInputFormatter(max: 10000000)],
-          decoration: const InputDecoration(hintText: '0 = không thu', suffixText: 'đ'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialog), child: const Text('Huỷ')),
-          TextButton(
-            onPressed: () => Navigator.pop(dialog, MoneyInputFormatter.parse(ctrl.text)),
-            child: const Text('Lưu'),
-          ),
-        ],
-      ),
+      builder: (_) => _MonthlyDueDialog(initial: team.monthlyDue),
     );
-    ctrl.dispose();
     if (value == null || !context.mounted) return;
     final ok = await runAction(
       context,
-      () => ref.read(teamRepositoryProvider).update(team.id, UpdateTeamDto(monthlyDue: value)),
+      () =>
+          container.read(teamRepositoryProvider).update(team.id, UpdateTeamDto(monthlyDue: value)),
       success: value > 0 ? 'Quỹ tháng: ${Fmt.money(value)}/người' : 'Đã tắt quỹ tháng',
     );
     if (ok) {
-      ref.invalidate(teamDetailProvider(team.id));
-      ref.invalidate(fundSummaryProvider(team.id));
+      container.invalidate(teamDetailProvider(team.id));
+      container.invalidate(fundSummaryProvider(team.id));
     }
   }
 
-  Future<void> _leave(BuildContext context, WidgetRef ref) async {
+  Future<void> _leave(BuildContext context) async {
+    final container = ProviderScope.containerOf(context, listen: false);
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
@@ -137,10 +124,10 @@ class _TeamSettingsSheet extends ConsumerWidget {
     if (ok != true || !context.mounted) return;
     final done = await runAction(
       context,
-      () => ref.read(teamRepositoryProvider).leave(team.id),
+      () => container.read(teamRepositoryProvider).leave(team.id),
       success: 'Đã rời ${team.name}',
     );
-    if (done) await ref.read(authControllerProvider.notifier).reloadMe();
+    if (done) await container.read(authControllerProvider.notifier).reloadMe();
   }
 }
 
@@ -264,4 +251,44 @@ class _FineRulesSheetState extends ConsumerState<_FineRulesSheet> {
       ),
     );
   }
+}
+
+/// Hộp thoại nhập quỹ tháng. Tự giữ và huỷ ô nhập (huỷ sớm sẽ lỗi khi hộp thoại đang đóng).
+class _MonthlyDueDialog extends StatefulWidget {
+  const _MonthlyDueDialog({required this.initial});
+  final int initial;
+
+  @override
+  State<_MonthlyDueDialog> createState() => _MonthlyDueDialogState();
+}
+
+class _MonthlyDueDialogState extends State<_MonthlyDueDialog> {
+  late final _ctrl = TextEditingController(
+    text: widget.initial > 0 ? MoneyInputFormatter.formatAmount(widget.initial) : '',
+  );
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Quỹ tháng mỗi người'),
+    content: TextField(
+      controller: _ctrl,
+      autofocus: true,
+      keyboardType: TextInputType.number,
+      inputFormatters: const [MoneyInputFormatter(max: 10000000)],
+      decoration: const InputDecoration(hintText: '0 = không thu', suffixText: 'đ'),
+    ),
+    actions: [
+      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Huỷ')),
+      TextButton(
+        onPressed: () => Navigator.pop(context, MoneyInputFormatter.parse(_ctrl.text)),
+        child: const Text('Lưu'),
+      ),
+    ],
+  );
 }

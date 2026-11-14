@@ -123,8 +123,12 @@ final teamRealtimeSyncProvider = Provider<void>((ref) {
       case 'members.changed':
         ref.invalidate(membersProvider(teamId));
         ref.invalidate(teamDetailProvider(teamId));
-        // Vai trò của tôi có thể vừa đổi
-        ref.read(authControllerProvider.notifier).reloadMe().ignore();
+        // Chỉ tải lại /me khi thay đổi liên quan tới chính tôi (vai trò, bị mời ra)
+        final auth = ref.read(authControllerProvider);
+        final affected = (data['userIds'] as List?)?.cast<String>();
+        if (auth is AuthSignedIn && (affected == null || affected.contains(auth.me.id))) {
+          ref.read(authControllerProvider.notifier).reloadMe().ignore();
+        }
     }
   });
   ref.onDispose(sub.cancel);

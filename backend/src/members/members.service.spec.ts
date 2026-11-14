@@ -25,7 +25,7 @@ function setup() {
       delete: vi.fn(),
     },
   };
-  const realtime = { toTeam: vi.fn() };
+  const realtime = { toTeam: vi.fn(), evictFromTeam: vi.fn() };
   const service = new MembersService(
     prisma as unknown as PrismaService,
     realtime as unknown as RealtimeService,
@@ -80,7 +80,9 @@ describe('MembersService', () => {
       where: { teamId_userId: { teamId: 't1', userId: 'cap' } },
       data: { role: 'vice' },
     });
-    expect(realtime.toTeam).toHaveBeenCalledWith('t1', 'members.changed', {});
+    expect(realtime.toTeam).toHaveBeenCalledWith('t1', 'members.changed', {
+      userIds: ['m', 'cap'],
+    });
   });
 
   it('tự đổi vai trò của mình → 400', async () => {
@@ -94,5 +96,14 @@ describe('MembersService', () => {
     const { service, prisma } = setup();
     await expect(service.leave(captain)).rejects.toMatchObject({ status: 409 });
     expect(prisma.teamMember.delete).not.toHaveBeenCalled();
+  });
+
+  it('mời ra khỏi đội: đẩy socket của người đó ra khỏi room đội', async () => {
+    const { service, realtime } = setup();
+    await service.remove(captain, 'm');
+    expect(realtime.evictFromTeam).toHaveBeenCalledWith('m', 't1');
+    expect(realtime.toTeam).toHaveBeenCalledWith('t1', 'members.changed', {
+      userIds: ['m'],
+    });
   });
 });

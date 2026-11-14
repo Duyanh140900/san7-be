@@ -61,7 +61,7 @@ export class MembersService {
       data: { status: 'active', joinedAt: new Date() },
     });
     if (count === 0) throw this.requestNotFound();
-    this.changed(me.teamId);
+    this.changed(me.teamId, [userId]);
   }
 
   async reject(me: TeamMembership, userId: string): Promise<void> {
@@ -69,7 +69,7 @@ export class MembersService {
       where: { teamId: me.teamId, userId, status: 'pending' },
     });
     if (count === 0) throw this.requestNotFound();
-    this.changed(me.teamId);
+    this.changed(me.teamId, [userId]);
   }
 
   /** Đổi vai trò (chỉ đội trưởng). Trao quyền đội trưởng thì người trao thành đội phó. */
@@ -98,7 +98,10 @@ export class MembersService {
         });
       }
     });
-    this.changed(me.teamId);
+    this.changed(
+      me.teamId,
+      role === 'captain' ? [userId, me.userId] : [userId],
+    );
   }
 
   /** Đội trưởng mời một thành viên ra khỏi đội. */
@@ -114,7 +117,8 @@ export class MembersService {
       where: { teamId: me.teamId, userId, status: 'active' },
     });
     if (count === 0) throw this.memberNotFound();
-    this.changed(me.teamId);
+    this.realtime.evictFromTeam(userId, me.teamId);
+    this.changed(me.teamId, [userId]);
   }
 
   async leave(me: TeamMembership): Promise<void> {
@@ -128,11 +132,13 @@ export class MembersService {
     await this.prisma.teamMember.delete({
       where: { teamId_userId: { teamId: me.teamId, userId: me.userId } },
     });
-    this.changed(me.teamId);
+    this.realtime.evictFromTeam(me.userId, me.teamId);
+    this.changed(me.teamId, [me.userId]);
   }
 
-  private changed(teamId: string) {
-    this.realtime.toTeam(teamId, 'members.changed', {});
+  /** userIds: người bị ảnh hưởng (app của họ tải lại /me). */
+  private changed(teamId: string, userIds: string[]) {
+    this.realtime.toTeam(teamId, 'members.changed', { userIds });
   }
 
   private requestNotFound() {

@@ -21,6 +21,7 @@ function setup() {
       delete: vi.fn(),
     },
     team: { update: vi.fn() },
+    $queryRaw: vi.fn().mockResolvedValue([]),
   };
   const prisma = {
     $transaction: vi.fn((fn: (t: typeof tx) => unknown) => fn(tx)),

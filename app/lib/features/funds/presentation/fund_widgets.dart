@@ -112,6 +112,7 @@ class FundTxRow extends ConsumerWidget {
     final unpaidFine = type == FundTypeValue.fine && !tx.paid;
     final choice = await showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       backgroundColor: AppColors.surface,
       builder: (context) => SafeArea(
         child: Column(

@@ -105,11 +105,8 @@ export class FundsService {
           by: ['type'],
           where: {
             teamId: me.teamId,
-            createdAt: { gte: start },
-            OR: [
-              { type: { in: ['income', 'expense'] } },
-              { type: 'fine', paid: true },
-            ],
+            // Tính theo lúc tiền vào/ra quỹ: phạt nộp tháng này tính vào tháng này
+            paidAt: { gte: start },
           },
           _sum: { amount: true },
         }),
@@ -232,6 +229,9 @@ export class FundsService {
         if (!ok) throw this.bad('event_not_in_team', 'Lịch không thuộc đội');
       }
       if (dto.period) {
+        // Khoá theo (đội, kỳ) trong transaction: hai người ghi quỹ tháng cùng lúc không bị trùng
+        // (hàm trả về void, Prisma không đọc được → chọn hằng số)
+        await tx.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(hashtext(${`${me.teamId}:${dto.period}`}))`;
         const dup = await tx.fundTransaction.findMany({
           where: {
             teamId: me.teamId,
@@ -269,6 +269,7 @@ export class FundsService {
             batchId,
             note: dto.note ?? null,
             paid,
+            paidAt: paid ? new Date() : null,
             createdById: me.userId,
           },
           select: { id: true },
@@ -298,7 +299,7 @@ export class FundsService {
     const row = await this.prisma.$transaction(async (tx) => {
       const { count } = await tx.fundTransaction.updateMany({
         where: { id: txId, teamId: me.teamId, type: 'fine', paid: false },
-        data: { paid: true },
+        data: { paid: true, paidAt: new Date() },
       });
       if (count === 0) {
         throw new AppError(

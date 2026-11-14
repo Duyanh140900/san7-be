@@ -18,6 +18,11 @@ export class RealtimeService {
     this.server?.to(`team:${teamId}`).emit(event, { teamId, ...payload });
   }
 
+  /** Đưa mọi socket của user ra khỏi room đội (bị mời ra / rời đội). */
+  evictFromTeam(userId: string, teamId: string) {
+    this.server?.in(`user:${userId}`).socketsLeave(`team:${teamId}`);
+  }
+
   toUser(userId: string, event: string, payload: Record<string, unknown>) {
     this.server?.to(`user:${userId}`).emit(event, payload);
   }

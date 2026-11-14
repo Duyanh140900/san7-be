@@ -206,22 +206,24 @@ model Attendance {
 
 /// Thu / chi / phạt. Tiền là số nguyên VND. Phạt chưa nộp (paid = false) không tính vào số dư.
 model FundTransaction {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  teamId      String   @map("team_id") @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId      String    @map("team_id") @db.Uuid
   type        FundType
   amount      BigInt
   category    String
   /// người nộp (thu), người chi (chi), người bị phạt (phạt)
-  memberId    String?  @map("member_id") @db.Uuid
-  eventId     String?  @map("event_id") @db.Uuid
+  memberId    String?   @map("member_id") @db.Uuid
+  eventId     String?   @map("event_id") @db.Uuid
   /// kỳ quỹ tháng dạng YYYY-MM (chỉ với khoản quỹ tháng)
   period      String?
   /// các khoản tạo cùng một lần (nhiều người nộp)
-  batchId     String?  @map("batch_id") @db.Uuid
+  batchId     String?   @map("batch_id") @db.Uuid
   note        String?
-  paid        Boolean  @default(true)
-  createdById String   @map("created_by") @db.Uuid
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  paid        Boolean   @default(true)
+  /// thời điểm tiền thực vào/ra quỹ (null = phạt chưa nộp); dùng cho thống kê theo tháng
+  paidAt      DateTime? @map("paid_at") @db.Timestamptz(6)
+  createdById String    @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
   team      Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   member    User?  @relation("FundMember", fields: [memberId], references: [id], onDelete: SetNull)
@@ -230,6 +232,7 @@ model FundTransaction {
 
   @@index([teamId, createdAt])
   @@index([teamId, period])
+  @@index([teamId, paidAt])
   @@index([memberId])
   @@index([eventId])
   @@index([createdById])

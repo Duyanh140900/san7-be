@@ -402,6 +402,7 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
     final myId = auth is AuthSignedIn ? auth.me.id : null;
     return showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       backgroundColor: AppColors.surface,
       isScrollControlled: true,
       builder: (sheet) => SafeArea(
@@ -430,6 +431,7 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
   Future<void> _pickEvent(List<EventSummaryDto> events) async {
     final id = await showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       backgroundColor: AppColors.surface,
       builder: (sheet) => SafeArea(
         child: ListView(
