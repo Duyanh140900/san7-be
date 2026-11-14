@@ -2,6 +2,9 @@ import { Trim } from '../common/trim.js';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
+  IsInt,
+  Max,
+  Min,
   IsOptional,
   IsString,
   Length,
@@ -70,4 +73,62 @@ export class MembershipDto {
   @ApiProperty({ enum: TeamRole, enumName: 'TeamRole' }) role: TeamRole;
   @ApiProperty({ enum: MemberStatus, enumName: 'MemberStatus' })
   status: MemberStatus;
+}
+
+export class TeamDetailDto {
+  @ApiProperty({ format: 'uuid' }) id: string;
+  @ApiProperty() name: string;
+  @ApiProperty() crestColor: string;
+  @ApiProperty() area: string;
+  @ApiProperty({ enum: TeamLevel, enumName: 'TeamLevel' }) level: TeamLevel;
+  @ApiProperty({ type: String, format: 'date-time' }) createdAt: Date;
+  @ApiProperty({ type: 'integer' }) memberCount: number;
+  @ApiProperty({ enum: TeamRole, enumName: 'TeamRole' }) myRole: TeamRole;
+  @ApiProperty({
+    type: 'integer',
+    description: 'Quỹ tháng mỗi người (VND), 0 = không thu',
+  })
+  monthlyDue: number;
+  @ApiPropertyOptional({ description: 'Chỉ đội trưởng/đội phó thấy' })
+  inviteCode?: string;
+  @ApiPropertyOptional({ type: String, format: 'date-time' })
+  inviteExpiresAt?: Date | null;
+}
+
+export class UpdateTeamDto {
+  @ApiPropertyOptional({ minLength: 2, maxLength: 50 })
+  @IsOptional()
+  @Trim()
+  @IsString()
+  @Length(2, 50)
+  name?: string;
+
+  @ApiPropertyOptional({ maxLength: 50 })
+  @IsOptional()
+  @Trim()
+  @IsString()
+  @Length(1, 50)
+  area?: string;
+
+  @ApiPropertyOptional({ enum: TeamLevel, enumName: 'TeamLevel' })
+  @IsOptional()
+  @IsEnum(TeamLevel)
+  level?: TeamLevel;
+
+  @ApiPropertyOptional({ example: '#0066CC' })
+  @IsOptional()
+  @Matches(/^#[0-9A-Fa-f]{6}$/)
+  crestColor?: string;
+
+  @ApiPropertyOptional({ type: 'integer', minimum: 0, maximum: 10_000_000 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(10_000_000)
+  monthlyDue?: number;
+}
+
+export class InviteDto {
+  @ApiProperty() inviteCode: string;
+  @ApiProperty({ type: String, format: 'date-time' }) inviteExpiresAt: Date;
 }

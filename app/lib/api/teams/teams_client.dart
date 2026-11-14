@@ -5,10 +5,13 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
 import 'models/create_team_dto.dart' as models show CreateTeamDto;
+import 'models/invite_dto.dart' as models show InviteDto;
 import 'models/join_team_dto.dart' as models show JoinTeamDto;
 import 'models/membership_dto.dart' as models show MembershipDto;
+import 'models/team_detail_dto.dart' as models show TeamDetailDto;
 import 'models/team_dto.dart' as models show TeamDto;
 import 'models/team_invite_preview_dto.dart' as models show TeamInvitePreviewDto;
+import 'models/update_team_dto.dart' as models show UpdateTeamDto;
 
 class TeamsClient {
   TeamsClient(this._transport);
@@ -112,5 +115,105 @@ class TeamsClient {
       cancelToken: cancelToken,
     );
     return models.MembershipDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.TeamDetailDto> teamDetailDetail({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId),
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.TeamDetailDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.TeamDetailDto> teamDetailUpdate({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+    required models.UpdateTeamDto body,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "PATCH",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId),
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.TeamDetailDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.InviteDto> teamDetailRegenerateInvite({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 201),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/invite",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.InviteDto.fromJson(response.data as Map<String, Object?>);
   }
 }

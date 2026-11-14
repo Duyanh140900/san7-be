@@ -7,14 +7,19 @@ import {
   INVITE_CODE_PATTERN,
   normalizeInviteCode,
 } from './invite-code.js';
+import { toMoney } from '../common/money.js';
+import type { TeamMembership } from '../common/team-member.guard.js';
 import type {
   CreateTeamDto,
+  InviteDto,
   MembershipDto,
+  TeamDetailDto,
   TeamDto,
   TeamInvitePreviewDto,
+  UpdateTeamDto,
 } from './teams.dto.js';
 
-const INVITE_TTL_DAYS = 30;
+const INVITE_TTL_DAYS = 7;
 const CREST_COLORS = [
   '#0066CC',
   '#248A3D',
@@ -61,6 +66,73 @@ export class TeamsService {
         return toTeamDto(team);
       } catch (e) {
         // Trùng mã mời (rất hiếm): thử mã khác
+        if (isUniqueViolation(e, 'invite_code')) continue;
+        throw e;
+      }
+    }
+    throw new AppError(
+      HttpStatus.CONFLICT,
+      'invite_code_exhausted',
+      'Không tạo được mã mời, thử lại',
+    );
+  }
+
+  async detail(me: TeamMembership): Promise<TeamDetailDto> {
+    const team = await this.prisma.team.findUniqueOrThrow({
+      where: { id: me.teamId },
+    });
+    const memberCount = await this.prisma.teamMember.count({
+      where: { teamId: me.teamId, status: 'active' },
+    });
+    const canInvite = me.role === 'captain' || me.role === 'vice';
+    return {
+      id: team.id,
+      name: team.name,
+      crestColor: team.crestColor,
+      area: team.area,
+      level: team.level,
+      createdAt: team.createdAt,
+      memberCount,
+      myRole: me.role,
+      monthlyDue: toMoney(team.monthlyDue),
+      inviteCode: canInvite ? team.inviteCode : undefined,
+      inviteExpiresAt: canInvite ? team.inviteExpiresAt : undefined,
+    };
+  }
+
+  async update(me: TeamMembership, dto: UpdateTeamDto): Promise<TeamDetailDto> {
+    await this.prisma.team.update({
+      where: { id: me.teamId },
+      data: {
+        name: dto.name,
+        area: dto.area,
+        level: dto.level,
+        crestColor: dto.crestColor?.toUpperCase(),
+        monthlyDue:
+          dto.monthlyDue === undefined ? undefined : BigInt(dto.monthlyDue),
+      },
+    });
+    return this.detail(me);
+  }
+
+  /** Tạo mã mời mới (mã cũ hết hiệu lực ngay). */
+  async regenerateInvite(me: TeamMembership): Promise<InviteDto> {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const team = await this.prisma.team.update({
+          where: { id: me.teamId },
+          data: {
+            inviteCode: generateInviteCode(),
+            inviteExpiresAt: new Date(
+              Date.now() + INVITE_TTL_DAYS * 86_400_000,
+            ),
+          },
+        });
+        return {
+          inviteCode: team.inviteCode,
+          inviteExpiresAt: team.inviteExpiresAt!,
+        };
+      } catch (e) {
         if (isUniqueViolation(e, 'invite_code')) continue;
         throw e;
       }
