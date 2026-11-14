@@ -12,7 +12,6 @@ import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/team_crest.dart';
-import '../../notifications/data/notifications_repository.dart';
 import '../../team/team_providers.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
@@ -121,8 +120,6 @@ class _RequestDetailScreenState extends ConsumerState<RequestDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final detail = ref.watch(requestDetailProvider(_key));
-    // Có thông báo mới (đội kia vừa chấp nhận/huỷ...) thì tải lại
-    ref.listen(unreadCountProvider, (_, _) => ref.invalidate(requestDetailProvider(_key)));
     return Scaffold(
       body: SafeArea(
         bottom: false,

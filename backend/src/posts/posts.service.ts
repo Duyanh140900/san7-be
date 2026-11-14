@@ -3,6 +3,7 @@ import { AppError } from '../common/errors.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import {
+  resolveRequestNotifications,
   teamManagerIds,
   writeNotifications,
 } from '../notifications/notification-writer.js';
@@ -223,6 +224,11 @@ export class PostsService {
         where: { id: { in: pending.map((r) => r.id) } },
         data: { status: 'declined', respondedAt: now },
       });
+      await resolveRequestNotifications(
+        tx,
+        pending.map((r) => r.id),
+        now,
+      );
       const rows = [];
       for (const r of pending) {
         rows.push(

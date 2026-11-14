@@ -6,6 +6,7 @@ import type { TeamMembership } from '../common/team-member.guard.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import type { NotificationRow } from '../notifications/notification-writer.js';
 import {
+  resolveRequestNotifications,
   teamManagerIds,
   writeNotifications,
 } from '../notifications/notification-writer.js';
@@ -93,6 +94,7 @@ export async function expireRequest(
       data: { status: 'expired' },
     });
     if (count === 0) return [];
+    await resolveRequestNotifications(tx, [requestId], now);
     return writeNotifications(tx, {
       userIds: await teamManagerIds(tx, r.teamId),
       type: 'request.expired',
@@ -378,6 +380,11 @@ export class RequestsService {
         });
       }
 
+      await resolveRequestNotifications(
+        tx,
+        [r.id, ...others.map((o) => o.id)],
+        now,
+      );
       const notes: NotificationRow[] = await writeNotifications(tx, {
         userIds: await teamManagerIds(tx, r.teamId),
         type: 'request.accepted',
@@ -435,6 +442,7 @@ export class RequestsService {
           'Yêu cầu đã hết hạn hoặc đã được trả lời',
         );
       }
+      await resolveRequestNotifications(tx, [r.id], now);
       return writeNotifications(tx, {
         userIds: await teamManagerIds(tx, r.teamId),
         type: 'request.declined',
@@ -466,6 +474,7 @@ export class RequestsService {
           'Yêu cầu đã hết hạn hoặc đã được trả lời',
         );
       }
+      await resolveRequestNotifications(tx, [r.id], now);
       return writeNotifications(tx, {
         userIds: await teamManagerIds(tx, r.post.teamId),
         type: 'request.cancelled',

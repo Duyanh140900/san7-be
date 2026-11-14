@@ -151,7 +151,10 @@ class _Body extends ConsumerWidget {
 
     // Đội tôi đã gửi yêu cầu
     final mine = detail.myRequest;
-    if (mine != null && !(mine.status == RequestStatus.cancelled && canRequest)) {
+    // Yêu cầu cũ đã kết thúc mà kèo vẫn mở: cho gửi lại
+    final finished =
+        mine != null && !mine.status.isPending && mine.status != RequestStatus.accepted;
+    if (mine != null && !(finished && canRequest)) {
       final pending = mine.status.isPending;
       return [
         StatusBanner(

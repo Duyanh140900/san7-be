@@ -88,6 +88,7 @@ function setup() {
       ),
     },
     notification: {
+      updateMany: vi.fn(),
       createManyAndReturn: vi.fn(
         (args: { data: { userId: string; type: string }[] }) =>
           Promise.resolve(
@@ -245,6 +246,10 @@ describe('RequestsService.accept', () => {
       ['mgr-gst', 'request.accepted'],
       ['mgr-other', 'request.declined'],
     ]);
+    // thông báo 'muốn nhận kèo' của cả hai yêu cầu không còn nhắc xác nhận
+    expect(tx.notification.updateMany.mock.calls[0][0].where.OR).toHaveLength(
+      2,
+    );
     expect(realtime.toTeam).toHaveBeenCalledWith('own', 'events.changed', {});
     expect(realtime.toTeam).toHaveBeenCalledWith('gst', 'events.changed', {});
     expect(notifications.dispatch).toHaveBeenCalledTimes(1);

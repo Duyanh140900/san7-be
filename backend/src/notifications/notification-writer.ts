@@ -70,3 +70,25 @@ export async function teamManagerIds(
   });
   return rows.map((r) => r.userId);
 }
+
+/**
+ * Yêu cầu nhận kèo đã có kết quả (chấp nhận, từ chối, huỷ, hết hạn): đánh dấu đã đọc
+ * thông báo "request.received" của nó để app không còn nhắc xác nhận.
+ */
+export async function resolveRequestNotifications(
+  db: Pick<Prisma.TransactionClient, 'notification'>,
+  requestIds: string[],
+  now: Date,
+): Promise<void> {
+  if (requestIds.length === 0) return;
+  await db.notification.updateMany({
+    where: {
+      type: 'request.received',
+      readAt: null,
+      OR: requestIds.map((id) => ({
+        payload: { path: ['requestId'], equals: id },
+      })),
+    },
+    data: { readAt: now },
+  });
+}

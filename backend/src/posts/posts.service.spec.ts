@@ -133,6 +133,7 @@ function setup() {
     },
     teamMember: { findMany: vi.fn().mockResolvedValue([{ userId: 'mgr' }]) },
     notification: {
+      updateMany: vi.fn(),
       createManyAndReturn: vi.fn((a: { data: unknown[] }) =>
         Promise.resolve(a.data),
       ),
