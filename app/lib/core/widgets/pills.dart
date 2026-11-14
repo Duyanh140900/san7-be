@@ -95,3 +95,39 @@ class SectionLabel extends StatelessWidget {
     );
   }
 }
+
+/// Chip lọc nền trắng, chọn thì nền đen (như bản vẽ).
+class FilterPill extends StatelessWidget {
+  const FilterPill({super.key, required this.label, required this.selected, required this.onTap});
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(right: 8),
+    child: Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? AppColors.text : AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: selected ? Colors.white : AppColors.text,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}

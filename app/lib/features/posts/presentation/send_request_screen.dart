@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -87,37 +86,7 @@ class _FormState extends ConsumerState<_Form> {
   }
 
   Future<void> _pickCustom() async {
-    final ctrl = TextEditingController(text: '$_customWin');
-    final v = await showDialog<int>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Đề xuất tỷ lệ'),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(3),
-          ],
-          decoration: const InputDecoration(
-            labelText: 'Đội thắng trả (%)',
-            helperText: 'Đội thua trả phần còn lại',
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Huỷ')),
-          TextButton(
-            onPressed: () {
-              final n = int.tryParse(ctrl.text);
-              if (n != null && n >= 0 && n <= 100) Navigator.pop(ctx, n);
-            },
-            child: const Text('Xong'),
-          ),
-        ],
-      ),
-    );
-    ctrl.dispose();
+    final v = await showRatioDialog(context, title: 'Đề xuất tỷ lệ', initial: _customWin);
     if (v != null) {
       setState(() {
         _customWin = v;

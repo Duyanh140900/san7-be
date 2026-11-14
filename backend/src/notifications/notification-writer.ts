@@ -92,3 +92,37 @@ export async function resolveRequestNotifications(
     data: { readAt: now },
   });
 }
+
+/**
+ * Gửi cùng một loại thông báo tới đội trưởng/phó của nhiều đội, mỗi đội một payload.
+ * Một truy vấn lấy người nhận + một lệnh ghi (dùng khi từ chối hàng loạt yêu cầu).
+ */
+export async function notifyTeamManagers(
+  db: Db,
+  targets: { teamId: string; payload: NotificationPayload }[],
+  msg: Omit<NotifyInput, 'userIds' | 'payload'>,
+): Promise<NotificationRow[]> {
+  if (targets.length === 0) return [];
+  const managers = await db.teamMember.findMany({
+    where: {
+      teamId: { in: [...new Set(targets.map((t) => t.teamId))] },
+      status: 'active',
+      role: { in: ['captain', 'vice'] },
+    },
+    select: { userId: true, teamId: true },
+  });
+  const data = targets.flatMap((t) =>
+    managers
+      .filter((m) => m.teamId === t.teamId)
+      .map((m) => ({
+        userId: m.userId,
+        type: msg.type,
+        category: msg.category,
+        title: msg.title,
+        body: msg.body,
+        payload: t.payload as Prisma.InputJsonObject,
+      })),
+  );
+  if (data.length === 0) return [];
+  return db.notification.createManyAndReturn({ data });
+}

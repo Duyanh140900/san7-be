@@ -8,6 +8,7 @@ import '../../../core/labels.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/pills.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../posts_providers.dart';
 import 'post_widgets.dart';
@@ -199,28 +200,7 @@ class _Body extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             children: [
               for (final s in _Sort.values)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => onSort(s),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: s == sort ? AppColors.text : AppColors.surface,
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                      ),
-                      child: Text(
-                        s.label,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: s == sort ? Colors.white : AppColors.text,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                FilterPill(label: s.label, selected: s == sort, onTap: () => onSort(s)),
             ],
           ),
         ),
@@ -301,7 +281,7 @@ class _Table extends StatelessWidget {
   final bool highlightFirst;
 
   static const _labelW = 96.0;
-  static const _hl = Color(0xFFF2F7FD);
+  static const _hl = AppColors.primaryTint;
 
   @override
   Widget build(BuildContext context) {
@@ -317,7 +297,7 @@ class _Table extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
                 color: highlightFirst && col == 0 ? _hl : null,
-                border: border ? const Border(bottom: BorderSide(color: Color(0xFFF0F0F0))) : null,
+                border: border ? const Border(bottom: BorderSide(color: AppColors.divider)) : null,
               ),
               child: child,
             );
@@ -327,7 +307,7 @@ class _Table extends StatelessWidget {
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.only(left: 14),
           decoration: BoxDecoration(
-            border: border ? const Border(bottom: BorderSide(color: Color(0xFFF0F0F0))) : null,
+            border: border ? const Border(bottom: BorderSide(color: AppColors.divider)) : null,
           ),
           child: Text(text, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
         );

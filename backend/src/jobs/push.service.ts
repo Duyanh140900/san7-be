@@ -36,16 +36,26 @@ export class PushService {
 
   private getMessaging(): Promise<Messaging | null> {
     this.messaging ??= (async () => {
-      const account = parseServiceAccount(
-        this.config.get('FIREBASE_SERVICE_ACCOUNT'),
-      );
-      if (!account) {
-        this.logger.warn('Chưa cấu hình FIREBASE_SERVICE_ACCOUNT, bỏ qua push');
+      try {
+        const account = parseServiceAccount(
+          this.config.get('FIREBASE_SERVICE_ACCOUNT'),
+        );
+        if (!account) {
+          this.logger.warn(
+            'Chưa cấu hình FIREBASE_SERVICE_ACCOUNT, bỏ qua push',
+          );
+          return null;
+        }
+        const { cert, initializeApp } = await import('firebase-admin/app');
+        const { getMessaging } = await import('firebase-admin/messaging');
+        return getMessaging(initializeApp({ credential: cert(account) }));
+      } catch (e) {
+        // Cấu hình sai không tự hết khi thử lại: báo một lần, tắt push tới khi khởi động lại
+        this.logger.error(
+          `FIREBASE_SERVICE_ACCOUNT không hợp lệ, tắt push: ${String(e)}`,
+        );
         return null;
       }
-      const { cert, initializeApp } = await import('firebase-admin/app');
-      const { getMessaging } = await import('firebase-admin/messaging');
-      return getMessaging(initializeApp({ credential: cert(account) }));
     })();
     return this.messaging;
   }

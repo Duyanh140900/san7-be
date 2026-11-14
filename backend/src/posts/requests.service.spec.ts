@@ -75,6 +75,7 @@ function setup() {
       ),
       update: vi.fn(),
       updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+      updateManyAndReturn: vi.fn().mockResolvedValue([]),
     },
     match: { create: vi.fn().mockResolvedValue({ id: 'm1' }) },
     event: {
@@ -83,8 +84,14 @@ function setup() {
       ),
     },
     teamMember: {
-      findMany: vi.fn((args: { where: { teamId: string } }) =>
-        Promise.resolve([{ userId: `mgr-${args.where.teamId}` }]),
+      findMany: vi.fn(
+        (args: { where: { teamId: string | { in: string[] } } }) => {
+          const t = args.where.teamId;
+          const ids = typeof t === 'string' ? [t] : t.in;
+          return Promise.resolve(
+            ids.map((id) => ({ userId: `mgr-${id}`, teamId: id })),
+          );
+        },
       ),
     },
     notification: {
@@ -207,13 +214,16 @@ describe('RequestsService.accept', () => {
     const { service, tx, realtime, notifications } = setup();
     tx.matchRequest.findUnique.mockResolvedValue({ postId: 'p1' });
     tx.matchRequest.findUniqueOrThrow.mockResolvedValue(request());
-    tx.matchRequest.findMany.mockResolvedValue([{ id: 'r2', teamId: 'other' }]);
+    tx.matchRequest.updateManyAndReturn.mockResolvedValue([
+      { id: 'r2', teamId: 'other' },
+    ]);
 
     const res = await service.accept(owner, 'r1');
 
     expect(tx.$queryRaw).toHaveBeenCalled();
-    expect(tx.matchRequest.update).toHaveBeenCalledWith({
-      where: { id: 'r1' },
+    // nhận có điều kiện: chỉ khi yêu cầu còn chờ
+    expect(tx.matchRequest.updateMany).toHaveBeenCalledWith({
+      where: expect.objectContaining({ id: 'r1', status: 'pending' }),
       data: expect.objectContaining({ status: 'accepted' }),
     });
     expect(tx.post.update).toHaveBeenCalledWith({
@@ -238,10 +248,12 @@ describe('RequestsService.accept', () => {
         matchId: 'm1',
       }),
     ]);
-    expect(tx.matchRequest.updateMany).toHaveBeenCalledWith({
-      where: { id: { in: ['r2'] } },
-      data: expect.objectContaining({ status: 'declined' }),
-    });
+    expect(tx.matchRequest.updateManyAndReturn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ postId: 'p1', status: 'pending' }),
+        data: expect.objectContaining({ status: 'declined' }),
+      }),
+    );
     expect(notes(tx).map((n) => [n.userId, n.type])).toEqual([
       ['mgr-gst', 'request.accepted'],
       ['mgr-other', 'request.declined'],
@@ -295,6 +307,19 @@ describe('RequestsService.accept', () => {
       status: 404,
     });
     expect(tx.match.create).not.toHaveBeenCalled();
+  });
+
+  it('đội gửi vừa huỷ ngay lúc chấp nhận → 409, không tạo trận', async () => {
+    const { service, tx } = setup();
+    tx.matchRequest.findUnique.mockResolvedValue({ postId: 'p1' });
+    tx.matchRequest.findUniqueOrThrow.mockResolvedValue(request());
+    tx.matchRequest.updateMany.mockResolvedValue({ count: 0 });
+    await expect(service.accept(owner, 'r1')).rejects.toMatchObject({
+      status: 409,
+      response: { code: 'request_not_pending' },
+    });
+    expect(tx.match.create).not.toHaveBeenCalled();
+    expect(tx.post.update).not.toHaveBeenCalled();
   });
 });
 

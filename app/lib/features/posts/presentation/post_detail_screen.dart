@@ -163,7 +163,7 @@ class _Body extends ConsumerWidget {
               : mine.status == RequestStatus.accepted
               ? BannerTone.success
               : BannerTone.neutral,
-          icon: pending ? const AppIcon(AppIcons.clock, color: Color(0xFF7A5A00)) : null,
+          icon: pending ? const AppIcon(AppIcons.clock, color: AppColors.warnText) : null,
           child: Text(
             pending
                 ? '${mine.teamName} đã gửi nhận kèo. Tự huỷ sau ${Fmt.remaining(mine.expiresAt.difference(DateTime.now()))} nếu không được trả lời.'
@@ -232,7 +232,7 @@ class _PitchRow extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
     decoration: BoxDecoration(
-      border: Border.all(color: const Color(0xFFF0F0F0)),
+      border: Border.all(color: AppColors.divider),
       borderRadius: BorderRadius.circular(12),
     ),
     child: Row(
@@ -241,7 +241,7 @@ class _PitchRow extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFF2F8F46),
+            color: AppColors.pitch,
             borderRadius: BorderRadius.circular(10),
           ),
           alignment: Alignment.center,

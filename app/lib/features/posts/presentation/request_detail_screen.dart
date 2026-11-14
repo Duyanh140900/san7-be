@@ -38,7 +38,13 @@ class _RequestDetailScreenState extends ConsumerState<RequestDetailScreen> {
     super.initState();
     // Đếm ngược thời gian tự huỷ
     _tick = Timer.periodic(const Duration(seconds: 30), (_) {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      // Hết hạn do worker ghi nên không có realtime: tự tải lại khi quá giờ
+      final d = ref.read(requestDetailProvider(_key)).value;
+      if (d != null && d.request.status.isPending && d.request.expiresAt.isBefore(DateTime.now())) {
+        ref.invalidate(requestDetailProvider(_key));
+      }
+      setState(() {});
     });
   }
 
@@ -193,7 +199,8 @@ class _RequestDetailScreenState extends ConsumerState<RequestDetailScreen> {
         ],
       );
     }
-    if (!owner && d.post.status.isOpen) {
+    final canResend = ref.watch(managedTeamsProvider).any((t) => t.teamId == widget.teamId);
+    if (!owner && d.post.status.isOpen && canResend) {
       return BottomActionBar(
         children: [
           SoftButton(
@@ -366,7 +373,7 @@ class _StatusBanner extends StatelessWidget {
     return switch (r.status) {
       RequestStatusKnown(value: RequestStatusValue.pending) => StatusBanner(
         tone: BannerTone.waiting,
-        icon: const AppIcon(AppIcons.clock, color: Color(0xFF7A5A00)),
+        icon: const AppIcon(AppIcons.clock, color: AppColors.warnText),
         child: Text.rich(
           TextSpan(
             children: [
@@ -452,7 +459,7 @@ class _Kv extends StatelessWidget {
     constraints: const BoxConstraints(minHeight: 40),
     padding: const EdgeInsets.symmetric(vertical: 8),
     decoration: const BoxDecoration(
-      border: Border(bottom: BorderSide(color: Color(0xFFF0F0F0))),
+      border: Border(bottom: BorderSide(color: AppColors.divider)),
     ),
     child: Row(
       children: [

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -13,8 +14,8 @@ import '../../../core/widgets/team_crest.dart';
 /// Màu nhãn theo loại kèo (như bản vẽ màn 1).
 ({Color bg, Color fg}) postTypeColors(PostType t) => switch (t) {
   PostTypeKnown(value: PostTypeValue.recruit) => (
-    bg: const Color(0xFFFDF0E6),
-    fg: const Color(0xFFA04800),
+    bg: AppColors.orangeSoft,
+    fg: AppColors.orangeText,
   ),
   PostTypeKnown(value: PostTypeValue.passPitch) => (
     bg: AppColors.greenSoft,
@@ -212,7 +213,7 @@ class StatusBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, border) = switch (tone) {
-      BannerTone.waiting => (const Color(0xFFFFF6D6), const Color(0xFF7A5A00), null),
+      BannerTone.waiting => (AppColors.warnSoft, AppColors.warnText, null),
       BannerTone.success => (AppColors.greenSoft, AppColors.greenSoftText, null),
       BannerTone.neutral => (AppColors.background, AppColors.text, AppColors.border),
     };
@@ -316,4 +317,44 @@ class DetailHeader extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// Hộp thoại nhập tỷ lệ đội thắng trả (%); đội thua trả phần còn lại. Trả null nếu huỷ.
+Future<int?> showRatioDialog(
+  BuildContext context, {
+  required String title,
+  required int initial,
+}) async {
+  final ctrl = TextEditingController(text: '$initial');
+  final v = await showDialog<int>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: TextField(
+        controller: ctrl,
+        autofocus: true,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(3),
+        ],
+        decoration: const InputDecoration(
+          labelText: 'Đội thắng trả (%)',
+          helperText: 'Đội thua trả phần còn lại',
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Huỷ')),
+        TextButton(
+          onPressed: () {
+            final n = int.tryParse(ctrl.text);
+            if (n != null && n >= 0 && n <= 100) Navigator.pop(ctx, n);
+          },
+          child: const Text('Xong'),
+        ),
+      ],
+    ),
+  );
+  ctrl.dispose();
+  return v;
 }

@@ -128,10 +128,11 @@ function setup() {
     $queryRaw: vi.fn(),
     post: { findUnique: vi.fn(), update: vi.fn() },
     matchRequest: {
-      findMany: vi.fn().mockResolvedValue([]),
-      updateMany: vi.fn(),
+      updateManyAndReturn: vi.fn().mockResolvedValue([]),
     },
-    teamMember: { findMany: vi.fn().mockResolvedValue([{ userId: 'mgr' }]) },
+    teamMember: {
+      findMany: vi.fn().mockResolvedValue([{ userId: 'mgr', teamId: 'g1' }]),
+    },
     notification: {
       updateMany: vi.fn(),
       createManyAndReturn: vi.fn((a: { data: unknown[] }) =>
@@ -220,13 +221,15 @@ describe('PostsService', () => {
       pitchName: null,
       team: { name: 'FC' },
     });
-    tx.matchRequest.findMany.mockResolvedValue([{ id: 'r1', teamId: 'g1' }]);
+    tx.matchRequest.updateManyAndReturn.mockResolvedValue([
+      { id: 'r1', teamId: 'g1' },
+    ]);
     await service.close(me, 'p1');
     expect(tx.post.update).toHaveBeenCalledWith({
       where: { id: 'p1' },
       data: { status: 'closed' },
     });
-    expect(tx.matchRequest.updateMany).toHaveBeenCalled();
+    expect(tx.matchRequest.updateManyAndReturn).toHaveBeenCalled();
     expect(notifications.dispatch).toHaveBeenCalledWith([
       expect.objectContaining({ userId: 'mgr', type: 'post.closed' }),
     ]);

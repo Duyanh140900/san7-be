@@ -8,6 +8,7 @@ import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/pills.dart';
 import '../../posts/presentation/post_widgets.dart';
 import '../data/notifications_repository.dart';
 
@@ -86,27 +87,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         scrollDirection: Axis.horizontal,
                         children: [
                           for (final f in _filters)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: GestureDetector(
-                                onTap: () => setState(() => _category = f.$1),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: _category == f.$1 ? AppColors.text : AppColors.surface,
-                                    borderRadius: BorderRadius.circular(AppRadius.pill),
-                                  ),
-                                  child: Text(
-                                    f.$2,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: _category == f.$1 ? Colors.white : AppColors.text,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                            FilterPill(
+                              label: f.$2,
+                              selected: _category == f.$1,
+                              onTap: () => setState(() => _category = f.$1),
                             ),
                         ],
                       ),
@@ -190,7 +174,7 @@ class _List extends StatelessWidget {
                 child: Column(
                   children: [
                     for (final (i, n) in list.indexed) ...[
-                      if (i > 0) const Divider(height: 1, color: Color(0xFFF0F0F0)),
+                      if (i > 0) const Divider(height: 1, color: AppColors.divider),
                       _Row(n: n, onTap: () => onOpen(n)),
                     ],
                   ],
@@ -209,10 +193,10 @@ Widget _icon(NotificationDto n) {
   final (bg, fg, icon) = switch (n.type) {
     'request.accepted' => (AppColors.greenSoft, AppColors.greenSoftText, AppIcons.checkCircle),
     'request.received' => (AppColors.primarySoft, AppColors.primarySoftText, AppIcons.ball),
-    'request.expired' => (const Color(0xFFFFF6D6), const Color(0xFF7A5A00), AppIcons.clock),
+    'request.expired' => (AppColors.warnSoft, AppColors.warnText, AppIcons.clock),
     _ when n.category == NotificationCategory.fund => (
-      const Color(0xFFFDF0E6),
-      const Color(0xFFA04800),
+      AppColors.orangeSoft,
+      AppColors.orangeText,
       AppIcons.wallet,
     ),
     _ => (AppColors.background, AppColors.text, AppIcons.bell),

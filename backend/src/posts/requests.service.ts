@@ -6,6 +6,7 @@ import type { TeamMembership } from '../common/team-member.guard.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import type { NotificationRow } from '../notifications/notification-writer.js';
 import {
+  notifyTeamManagers,
   resolveRequestNotifications,
   teamManagerIds,
   writeNotifications,
@@ -306,10 +307,17 @@ export class RequestsService {
         );
       }
 
-      await tx.matchRequest.update({
-        where: { id: r.id },
+      // Có điều kiện: từ chối/huỷ/hết hạn không khoá hàng kèo nên có thể vừa đổi trạng thái
+      const { count: taken } = await tx.matchRequest.updateMany({
+        where: { id: r.id, ...livePending(now) },
         data: { status: 'accepted', respondedAt: now },
       });
+      if (taken === 0) {
+        throw this.conflict(
+          'request_not_pending',
+          'Yêu cầu đã hết hạn hoặc đã được trả lời',
+        );
+      }
       await tx.post.update({
         where: { id: post.id },
         data: { status: 'matched' },
@@ -369,16 +377,12 @@ export class RequestsService {
         requesterEventId = requesterEvent.id;
       }
 
-      const others = await tx.matchRequest.findMany({
+      // Chỉ những yêu cầu thực sự được đổi trạng thái mới nhận thông báo
+      const others = await tx.matchRequest.updateManyAndReturn({
         where: { postId: post.id, id: { not: r.id }, ...livePending(now) },
+        data: { status: 'declined', respondedAt: now },
         select: { id: true, teamId: true },
       });
-      if (others.length) {
-        await tx.matchRequest.updateMany({
-          where: { id: { in: others.map((o) => o.id) } },
-          data: { status: 'declined', respondedAt: now },
-        });
-      }
 
       await resolveRequestNotifications(
         tx,
@@ -399,18 +403,21 @@ export class RequestsService {
           eventId: requesterEventId,
         },
       });
-      for (const o of others) {
-        notes.push(
-          ...(await writeNotifications(tx, {
-            userIds: await teamManagerIds(tx, o.teamId),
+      notes.push(
+        ...(await notifyTeamManagers(
+          tx,
+          others.map((o) => ({
+            teamId: o.teamId,
+            payload: { postId: post.id, requestId: o.id, teamId: o.teamId },
+          })),
+          {
             type: 'request.declined',
             category: 'match',
             title: `Kèo của ${post.team.name} đã có đối`,
             body: `${postLine(post)} · Thử nhận kèo khác trên Bảng tin`,
-            payload: { postId: post.id, requestId: o.id, teamId: o.teamId },
-          })),
-        );
-      }
+          },
+        )),
+      );
       return {
         notes,
         requesterTeamId: r.teamId,

@@ -10,6 +10,7 @@ import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/pills.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../../notifications/data/notifications_repository.dart';
 import '../../posts/posts_providers.dart';
@@ -133,18 +134,18 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
                 children: [
-                  _Chip(
+                  FilterPill(
                     label: 'Tất cả',
                     selected: filter.type == null,
                     onTap: () => ref.read(feedFilterProvider.notifier).setType(null),
                   ),
                   for (final t in Labels.postTypes)
-                    _Chip(
+                    FilterPill(
                       label: t.$2,
                       selected: filter.type == t.$1,
                       onTap: () => ref.read(feedFilterProvider.notifier).setType(t.$1),
                     ),
-                  _Chip(
+                  FilterPill(
                     label: '${filter.area ?? 'Mọi khu vực'} ▾',
                     selected: filter.area != null,
                     onTap: _pickArea,
@@ -224,42 +225,6 @@ class _IconCircle extends StatelessWidget {
                 ),
               ),
           ],
-        ),
-      ),
-    ),
-  );
-}
-
-/// Chip lọc nền trắng, chọn thì nền đen (như bản vẽ).
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label, required this.selected, required this.onTap});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 8),
-    child: Semantics(
-      button: true,
-      selected: selected,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? AppColors.text : AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: selected ? Colors.white : AppColors.text,
-            ),
-          ),
         ),
       ),
     ),

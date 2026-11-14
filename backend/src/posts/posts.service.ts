@@ -3,9 +3,8 @@ import { AppError } from '../common/errors.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import {
+  notifyTeamManagers,
   resolveRequestNotifications,
-  teamManagerIds,
-  writeNotifications,
 } from '../notifications/notification-writer.js';
 import { NotificationsService } from '../notifications/notifications.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -215,34 +214,30 @@ export class PostsService {
         where: { id: postId },
         data: { status: 'closed' },
       });
-      const pending = await tx.matchRequest.findMany({
+      const pending = await tx.matchRequest.updateManyAndReturn({
         where: { postId, ...livePending(now) },
+        data: { status: 'declined', respondedAt: now },
         select: { id: true, teamId: true },
       });
       if (pending.length === 0) return [];
-      await tx.matchRequest.updateMany({
-        where: { id: { in: pending.map((r) => r.id) } },
-        data: { status: 'declined', respondedAt: now },
-      });
       await resolveRequestNotifications(
         tx,
         pending.map((r) => r.id),
         now,
       );
-      const rows = [];
-      for (const r of pending) {
-        rows.push(
-          ...(await writeNotifications(tx, {
-            userIds: await teamManagerIds(tx, r.teamId),
-            type: 'post.closed',
-            category: 'match',
-            title: `${post.team.name} đã đóng kèo`,
-            body: postLine(post),
-            payload: { postId, requestId: r.id, teamId: r.teamId },
-          })),
-        );
-      }
-      return rows;
+      return notifyTeamManagers(
+        tx,
+        pending.map((r) => ({
+          teamId: r.teamId,
+          payload: { postId, requestId: r.id, teamId: r.teamId },
+        })),
+        {
+          type: 'post.closed',
+          category: 'match',
+          title: `${post.team.name} đã đóng kèo`,
+          body: postLine(post),
+        },
+      );
     });
     await this.notifications.dispatch(notes);
   }
