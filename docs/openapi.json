@@ -1,0 +1,778 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "operationId": "Health_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/auth/google": {
+      "post": {
+        "operationId": "Auth_google",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/refresh": {
+      "post": {
+        "operationId": "Auth_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPairDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "operationId": "Auth_logout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "Users_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      },
+      "patch": {
+        "operationId": "Users_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/v1/me/devices": {
+      "post": {
+        "operationId": "Users_registerDevice",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDeviceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/v1/teams": {
+      "post": {
+        "operationId": "Teams_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/invites/{code}": {
+      "get": {
+        "operationId": "Teams_previewInvite",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamInvitePreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/join": {
+      "post": {
+        "operationId": "Teams_join",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinTeamDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MembershipDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Sân 7 API",
+    "description": "API cho app Sân 7: cáp kèo, đặt sân, quản lý đội",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "HealthDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "db": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "db"
+        ]
+      },
+      "GoogleLoginDto": {
+        "type": "object",
+        "properties": {
+          "idToken": {
+            "type": "string",
+            "description": "ID token lấy từ google_sign_in (serverClientId = Web client ID)"
+          }
+        },
+        "required": [
+          "idToken"
+        ]
+      },
+      "Position": {
+        "type": "string",
+        "enum": [
+          "goalkeeper",
+          "defender",
+          "midfielder",
+          "forward"
+        ]
+      },
+      "TeamLevel": {
+        "type": "string",
+        "enum": [
+          "sieu_yeu",
+          "yeu",
+          "tby",
+          "tb",
+          "tbk",
+          "gioi"
+        ]
+      },
+      "TeamRole": {
+        "type": "string",
+        "enum": [
+          "captain",
+          "vice",
+          "treasurer",
+          "member"
+        ]
+      },
+      "MemberStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "active"
+        ]
+      },
+      "MyTeamDto": {
+        "type": "object",
+        "properties": {
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "crestColor": {
+            "type": "string",
+            "example": "#0066CC"
+          },
+          "area": {
+            "type": "string"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamRole"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MemberStatus"
+              }
+            ]
+          }
+        },
+        "required": [
+          "teamId",
+          "name",
+          "crestColor",
+          "area",
+          "level",
+          "role",
+          "status"
+        ]
+      },
+      "MeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string"
+          },
+          "position": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              }
+            ]
+          },
+          "shirtNumber": {
+            "type": "integer"
+          },
+          "area": {
+            "type": "string"
+          },
+          "profileCompleted": {
+            "type": "boolean",
+            "description": "Đã điền hồ sơ cầu thủ (bước 2 màn 12)"
+          },
+          "teams": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyTeamDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "profileCompleted",
+          "teams"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "accessTokenExpiresIn": {
+            "type": "integer",
+            "description": "Thời hạn access token (giây)"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/MeDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "accessTokenExpiresIn",
+          "refreshToken",
+          "user"
+        ]
+      },
+      "RefreshDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "TokenPairDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "accessTokenExpiresIn": {
+            "type": "integer",
+            "description": "Thời hạn access token (giây)"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accessToken",
+          "accessTokenExpiresIn",
+          "refreshToken"
+        ]
+      },
+      "UpdateMeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "position": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              }
+            ]
+          },
+          "shirtNumber": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          },
+          "area": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Cầu Giấy"
+          }
+        }
+      },
+      "Platform": {
+        "type": "string",
+        "enum": [
+          "android",
+          "ios",
+          "web"
+        ]
+      },
+      "RegisterDeviceDto": {
+        "type": "object",
+        "properties": {
+          "fcmToken": {
+            "type": "string"
+          },
+          "platform": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Platform"
+              }
+            ]
+          }
+        },
+        "required": [
+          "fcmToken",
+          "platform"
+        ]
+      },
+      "CreateTeamDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50,
+            "example": "FC Cầu Giấy"
+          },
+          "area": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Cầu Giấy"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "crestColor": {
+            "type": "string",
+            "example": "#0066CC"
+          }
+        },
+        "required": [
+          "name",
+          "area",
+          "level"
+        ]
+      },
+      "TeamDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "crestColor": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "inviteCode": {
+            "type": "string"
+          },
+          "inviteExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "crestColor",
+          "area",
+          "level",
+          "inviteCode"
+        ]
+      },
+      "TeamInvitePreviewDto": {
+        "type": "object",
+        "properties": {
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "crestColor": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "memberCount": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "teamId",
+          "name",
+          "crestColor",
+          "area",
+          "level",
+          "memberCount"
+        ]
+      },
+      "JoinTeamDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "CG7-2486"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "MembershipDto": {
+        "type": "object",
+        "properties": {
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamName": {
+            "type": "string"
+          },
+          "role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamRole"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MemberStatus"
+              }
+            ]
+          }
+        },
+        "required": [
+          "teamId",
+          "teamName",
+          "role",
+          "status"
+        ]
+      },
+      "ErrorBody": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 400
+          },
+          "code": {
+            "type": "string",
+            "example": "validation_failed",
+            "description": "Mã lỗi ổn định để app xử lý"
+          },
+          "message": {
+            "type": "string",
+            "example": "Dữ liệu không hợp lệ"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "statusCode",
+          "code",
+          "message"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+# Sinh client API từ ../docs/openapi.json vào lib/api (không sửa tay).
+# Chạy lại: ../scripts/gen-api-client.ps1
+swagger_parser:
+  schema_path: ../docs/openapi.json
+  output_directory: lib/api
+  generation:
+    root_api_class_name: San7Api
+    http_client: dio
+    serializer: plain
+    unknown_enum_values: preserve
+    generate_docs: true
+    page_width: 80
