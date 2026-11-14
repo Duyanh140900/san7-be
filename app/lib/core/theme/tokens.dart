@@ -23,6 +23,21 @@ abstract final class AppColors {
   static const redBright = Color(0xFFD70015);
   static const orange = Color(0xFFFF9500);
   static const darkCard = Color(0xFF272729);
+
+  /// Dải "đang chờ" (vàng) và nhãn cam (tuyển người, quỹ) trong bản vẽ
+  static const warnSoft = Color(0xFFFFF6D6);
+  static const warnText = Color(0xFF7A5A00);
+  static const orangeSoft = Color(0xFFFDF0E6);
+  static const orangeText = Color(0xFFA04800);
+
+  /// Nền cột được gợi ý (màn so sánh)
+  static const primaryTint = Color(0xFFF2F7FD);
+
+  /// Đường kẻ trong nhóm
+  static const divider = Color(0xFFF0F0F0);
+
+  /// Màu cỏ sân (ảnh sân giả lập)
+  static const pitch = Color(0xFF2F8F46);
 }
 
 abstract final class AppRadius {

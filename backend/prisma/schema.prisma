@@ -59,6 +59,46 @@ enum FundType {
   fine
 }
 
+enum PostType {
+  find_opponent
+  recruit
+  pass_pitch
+}
+
+enum PostDeal {
+  split
+  loser_pays
+  drinks
+  friendly
+}
+
+enum PostStatus {
+  open
+  matched
+  closed
+}
+
+enum RequestStatus {
+  pending
+  accepted
+  declined
+  expired
+  cancelled
+}
+
+enum MatchStatus {
+  scheduled
+  finished
+  cancelled
+}
+
+enum NotificationCategory {
+  match
+  booking
+  team
+  fund
+}
+
 enum Platform {
   android
   ios
@@ -85,6 +125,9 @@ model User {
   eventsCreated Event[]
   fundTxMember  FundTransaction[] @relation("FundMember")
   fundTxCreated FundTransaction[] @relation("FundCreator")
+  posts         Post[]
+  requestsSent  MatchRequest[]
+  notifications Notification[]
 
   @@map("users")
 }
@@ -140,6 +183,10 @@ model Team {
   events       Event[]
   transactions FundTransaction[]
   fineRules    FineRule[]
+  posts        Post[]
+  requests     MatchRequest[]
+  homeMatches  Match[]           @relation("HomeTeam")
+  awayMatches  Match[]           @relation("AwayTeam")
 
   @@index([createdById])
   @@map("teams")
@@ -175,16 +222,20 @@ model Event {
   note        String?
   /// số người tối thiểu cần đi
   minPlayers  Int?      @map("min_players") @db.SmallInt
+  /// trận sinh ra khi chốt kèo (mỗi đội một event cùng matchId)
+  matchId     String?   @map("match_id") @db.Uuid
   createdById String    @map("created_by") @db.Uuid
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   team         Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
   createdBy    User              @relation(fields: [createdById], references: [id])
+  match        Match?            @relation(fields: [matchId], references: [id], onDelete: SetNull)
   attendances  Attendance[]
   transactions FundTransaction[]
 
   @@index([teamId, startAt])
+  @@index([matchId])
   @@index([createdById])
   @@map("events")
 }
@@ -250,4 +301,110 @@ model FineRule {
 
   @@index([teamId])
   @@map("fine_rules")
+}
+
+/// Kèo trên Bảng tin: tìm đối, tuyển người, pass sân.
+model Post {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId        String     @map("team_id") @db.Uuid
+  authorId      String     @map("author_id") @db.Uuid
+  type          PostType
+  startAt       DateTime   @map("start_at") @db.Timestamptz(6)
+  endAt         DateTime   @map("end_at") @db.Timestamptz(6)
+  /// tên sân gõ tay (M3 thêm pitch_id, booking_id)
+  pitchName     String?    @map("pitch_name")
+  /// khu vực của kèo (mặc định lấy khu vực đội) để lọc Bảng tin
+  area          String
+  level         TeamLevel
+  deal          PostDeal?
+  /// tỷ lệ chia tiền sân đội thắng – đội thua (%), chỉ khi deal = split
+  ratioWin      Int?       @map("ratio_win") @db.SmallInt
+  ratioLose     Int?       @map("ratio_lose") @db.SmallInt
+  /// tiền sân (VND) để tính mỗi đội trả bao nhiêu; với pass sân là giá nhượng
+  pitchPrice    BigInt?    @map("pitch_price")
+  /// tuyển người: vị trí cần và số người
+  positions     Position[]
+  playersNeeded Int?       @map("players_needed") @db.SmallInt
+  body          String?
+  status        PostStatus @default(open)
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  team     Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  author   User           @relation(fields: [authorId], references: [id])
+  requests MatchRequest[]
+  match    Match?
+
+  @@index([status, startAt])
+  @@index([teamId, createdAt])
+  @@index([authorId])
+  @@map("posts")
+}
+
+/// Yêu cầu nhận kèo của một đội. Tự hết hạn sau 2 giờ (hoặc khi tới giờ đá).
+model MatchRequest {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId      String        @map("post_id") @db.Uuid
+  teamId      String        @map("team_id") @db.Uuid
+  createdById String        @map("created_by") @db.Uuid
+  peopleCount Int           @map("people_count") @db.SmallInt
+  /// tỷ lệ đề xuất; vắng = đồng ý tỷ lệ của kèo
+  ratioWin    Int?          @map("ratio_win") @db.SmallInt
+  ratioLose   Int?          @map("ratio_lose") @db.SmallInt
+  message     String?
+  status      RequestStatus @default(pending)
+  expiresAt   DateTime      @map("expires_at") @db.Timestamptz(6)
+  respondedAt DateTime?     @map("responded_at") @db.Timestamptz(6)
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  post      Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  team      Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  @@index([postId, status])
+  @@index([teamId, status])
+  @@index([createdById])
+  @@map("match_requests")
+}
+
+/// Trận giữa hai đội (chốt từ kèo). Kết quả, thống kê thêm ở M4.
+model Match {
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId     String?     @unique @map("post_id") @db.Uuid
+  homeTeamId String      @map("home_team_id") @db.Uuid
+  awayTeamId String      @map("away_team_id") @db.Uuid
+  startAt    DateTime    @map("start_at") @db.Timestamptz(6)
+  endAt      DateTime    @map("end_at") @db.Timestamptz(6)
+  location   String?
+  status     MatchStatus @default(scheduled)
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  post     Post?   @relation(fields: [postId], references: [id], onDelete: SetNull)
+  homeTeam Team    @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
+  awayTeam Team    @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
+  events   Event[]
+
+  @@index([homeTeamId, startAt])
+  @@index([awayTeamId, startAt])
+  @@map("matches")
+}
+
+/// Thông báo trong app. Đẩy qua FCM do worker gửi sau khi commit.
+model Notification {
+  id        String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String               @map("user_id") @db.Uuid
+  /// loại ổn định, vd request.received, request.accepted
+  type      String
+  category  NotificationCategory
+  title     String
+  body      String
+  /// dữ liệu để app điều hướng: postId, requestId, teamId...
+  payload   Json                 @default("{}")
+  readAt    DateTime?            @map("read_at") @db.Timestamptz(6)
+  createdAt DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("notifications")
 }

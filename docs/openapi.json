@@ -1280,6 +1280,560 @@
           "funds"
         ]
       }
+    },
+    "/v1/notifications": {
+      "get": {
+        "operationId": "Notifications_list",
+        "parameters": [
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/NotificationCategory"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 30,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/v1/notifications/unread-count": {
+      "get": {
+        "operationId": "Notifications_unreadCount",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadCountDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/v1/notifications/read": {
+      "post": {
+        "operationId": "Notifications_markRead",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkReadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/v1/feed": {
+      "get": {
+        "operationId": "Posts_feed",
+        "parameters": [
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/PostType"
+            }
+          },
+          {
+            "name": "area",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 50,
+              "example": "Cầu Giấy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 30,
+              "default": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedPageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/posts/{postId}": {
+      "get": {
+        "operationId": "Posts_detail",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/posts": {
+      "post": {
+        "operationId": "TeamPosts_create",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/posts/{postId}/close": {
+      "post": {
+        "operationId": "TeamPosts_close",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/posts/{postId}/requests": {
+      "get": {
+        "operationId": "TeamPosts_listRequests",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MatchRequestDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      },
+      "post": {
+        "operationId": "TeamPosts_sendRequest",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyRequestDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/requests/{requestId}": {
+      "get": {
+        "operationId": "TeamPosts_requestDetail",
+        "parameters": [
+          {
+            "name": "requestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/requests/{requestId}/accept": {
+      "post": {
+        "operationId": "TeamPosts_accept",
+        "parameters": [
+          {
+            "name": "requestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/requests/{requestId}/decline": {
+      "post": {
+        "operationId": "TeamPosts_decline",
+        "parameters": [
+          {
+            "name": "requestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/requests/{requestId}/cancel": {
+      "post": {
+        "operationId": "TeamPosts_cancel",
+        "parameters": [
+          {
+            "name": "requestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
     }
   },
   "info": {
@@ -2504,6 +3058,649 @@
           "name",
           "amount"
         ]
+      },
+      "NotificationCategory": {
+        "type": "string",
+        "enum": [
+          "match",
+          "booking",
+          "team",
+          "fund"
+        ]
+      },
+      "NotificationPayloadDto": {
+        "type": "object",
+        "properties": {
+          "postId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Đội của người nhận mà thông báo liên quan"
+          },
+          "matchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "NotificationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "example": "request.received"
+          },
+          "category": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NotificationCategory"
+              }
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/NotificationPayloadDto"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "category",
+          "title",
+          "body",
+          "payload",
+          "read",
+          "createdAt"
+        ]
+      },
+      "NotificationPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Truyền lại để lấy trang sau"
+          },
+          "unreadCount": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "unreadCount"
+        ]
+      },
+      "UnreadCountDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "count"
+        ]
+      },
+      "MarkReadDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "description": "Vắng = đánh dấu tất cả đã đọc",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PostType": {
+        "type": "string",
+        "enum": [
+          "find_opponent",
+          "recruit",
+          "pass_pitch"
+        ]
+      },
+      "TeamBriefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "crestColor": {
+            "type": "string",
+            "example": "#0066CC"
+          },
+          "area": {
+            "type": "string"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "crestColor",
+          "area",
+          "level"
+        ]
+      },
+      "PostDeal": {
+        "type": "string",
+        "enum": [
+          "split",
+          "loser_pays",
+          "drinks",
+          "friendly"
+        ]
+      },
+      "PostStatus": {
+        "type": "string",
+        "enum": [
+          "open",
+          "matched",
+          "closed"
+        ]
+      },
+      "PostDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostType"
+              }
+            ]
+          },
+          "team": {
+            "$ref": "#/components/schemas/TeamBriefDto"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pitchName": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "deal": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostDeal"
+              }
+            ]
+          },
+          "ratioWin": {
+            "type": "integer"
+          },
+          "ratioLose": {
+            "type": "integer"
+          },
+          "pitchPrice": {
+            "type": "integer"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Position"
+            }
+          },
+          "playersNeeded": {
+            "type": "integer"
+          },
+          "body": {
+            "type": "string"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostStatus"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestCount": {
+            "type": "integer",
+            "description": "Số yêu cầu nhận kèo đang chờ"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "team",
+          "startAt",
+          "endAt",
+          "area",
+          "level",
+          "positions",
+          "status",
+          "createdAt",
+          "requestCount"
+        ]
+      },
+      "FeedPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PostDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Truyền lại để lấy trang sau"
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "RequestStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "accepted",
+          "declined",
+          "expired",
+          "cancelled"
+        ]
+      },
+      "MyRequestDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamName": {
+            "type": "string"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RequestStatus"
+              }
+            ]
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "teamId",
+          "teamName",
+          "status",
+          "expiresAt"
+        ]
+      },
+      "PostDetailDto": {
+        "type": "object",
+        "properties": {
+          "post": {
+            "$ref": "#/components/schemas/PostDto"
+          },
+          "canManage": {
+            "type": "boolean",
+            "description": "Tôi là đội trưởng/phó của đội đăng kèo"
+          },
+          "myRequest": {
+            "description": "Yêu cầu gần nhất của một đội tôi quản lý cho kèo này",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MyRequestDto"
+              }
+            ]
+          },
+          "requestTeams": {
+            "description": "Các đội đang chờ (tối đa 5, để hiện avatar)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamBriefDto"
+            }
+          }
+        },
+        "required": [
+          "post",
+          "canManage",
+          "requestTeams"
+        ]
+      },
+      "CreatePostDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostType"
+              }
+            ]
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pitchName": {
+            "type": "string",
+            "maxLength": 120,
+            "example": "Sân bóng Phúc La"
+          },
+          "area": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Vắng = khu vực của đội"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "deal": {
+            "description": "Bắt buộc với kèo tìm đối",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostDeal"
+              }
+            ]
+          },
+          "ratioWin": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Phần trăm đội thắng trả (chỉ khi chia tiền sân)"
+          },
+          "ratioLose": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "pitchPrice": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000,
+            "description": "Tiền sân (VND); với pass sân là giá nhượng"
+          },
+          "positions": {
+            "type": "array",
+            "description": "Tuyển người: các vị trí cần",
+            "items": {
+              "$ref": "#/components/schemas/Position"
+            }
+          },
+          "playersNeeded": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "type",
+          "startAt",
+          "endAt",
+          "level"
+        ]
+      },
+      "RequestTeamDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "crestColor": {
+            "type": "string",
+            "example": "#0066CC"
+          },
+          "area": {
+            "type": "string"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "memberCount": {
+            "type": "integer"
+          },
+          "matchesPlayed": {
+            "type": "integer",
+            "description": "Số trận đã đá trên Sân 7"
+          },
+          "headToHead": {
+            "type": "integer",
+            "description": "Số lần đã gặp đội đăng kèo"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "crestColor",
+          "area",
+          "level",
+          "memberCount",
+          "matchesPlayed",
+          "headToHead"
+        ]
+      },
+      "MatchRequestDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "postId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "description": "Đã tính hết hạn theo giờ hiện tại",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RequestStatus"
+              }
+            ]
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "peopleCount": {
+            "type": "integer"
+          },
+          "ratioWin": {
+            "type": "integer"
+          },
+          "ratioLose": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "team": {
+            "$ref": "#/components/schemas/RequestTeamDto"
+          }
+        },
+        "required": [
+          "id",
+          "postId",
+          "status",
+          "expiresAt",
+          "createdAt",
+          "peopleCount",
+          "team"
+        ]
+      },
+      "SendRequestDto": {
+        "type": "object",
+        "properties": {
+          "peopleCount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "example": 9
+          },
+          "ratioWin": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Tỷ lệ đề xuất khác; vắng = đồng ý tỷ lệ của kèo"
+          },
+          "ratioLose": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "peopleCount"
+        ]
+      },
+      "RequestDetailDto": {
+        "type": "object",
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/MatchRequestDto"
+          },
+          "post": {
+            "$ref": "#/components/schemas/PostDto"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "requester"
+            ],
+            "description": "Tôi xem với tư cách đội đăng kèo hay đội gửi yêu cầu"
+          },
+          "canRespond": {
+            "type": "boolean",
+            "description": "Được chấp nhận/từ chối (owner) hoặc huỷ (requester)"
+          },
+          "otherPending": {
+            "description": "Các đội khác đang chờ cùng kèo (chỉ owner thấy)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamBriefDto"
+            }
+          },
+          "eventId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Lịch đội của tôi sau khi chốt"
+          }
+        },
+        "required": [
+          "request",
+          "post",
+          "side",
+          "canRespond",
+          "otherPending"
+        ]
+      },
+      "AcceptResultDto": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Lịch trận trong đội của tôi (vắng với pass sân)"
+          }
+        }
       },
       "ErrorBody": {
         "type": "object",

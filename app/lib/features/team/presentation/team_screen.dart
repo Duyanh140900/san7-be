@@ -10,6 +10,7 @@ import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/team_crest.dart';
 import '../../../core/widgets/tab_page.dart';
 import '../../attendance/presentation/event_widgets.dart';
 import '../team_providers.dart';
@@ -122,55 +123,6 @@ class _TeamHeader extends StatelessWidget {
       ],
     );
   }
-}
-
-/// Huy hiệu đội hình khiên (clip-path như bản vẽ).
-class TeamCrest extends StatelessWidget {
-  const TeamCrest({super.key, required this.name, required this.color, this.width = 68});
-  final String name;
-  final String color;
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = Color(int.tryParse('FF${color.replaceFirst('#', '')}', radix: 16) ?? 0xFF0066CC);
-    final words = name.split(RegExp(r'\s+')).where((w) => w.isNotEmpty && w.toUpperCase() != 'FC');
-    final label = words.isEmpty
-        ? Fmt.initials(name)
-        : words.take(2).map((w) => String.fromCharCode(w.runes.first)).join().toUpperCase();
-    return ClipPath(
-      clipper: _ShieldClipper(),
-      child: Container(
-        width: width,
-        height: width * 76 / 68,
-        color: c,
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: width * 0.32,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ShieldClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size s) => Path()
-    ..moveTo(s.width * 0.5, 0)
-    ..lineTo(s.width, s.height * 0.14)
-    ..lineTo(s.width, s.height * 0.60)
-    ..lineTo(s.width * 0.5, s.height)
-    ..lineTo(0, s.height * 0.60)
-    ..lineTo(0, s.height * 0.14)
-    ..close();
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
 /// Thành tích mùa: số liệu thật có từ chặng M4 (kết quả trận).

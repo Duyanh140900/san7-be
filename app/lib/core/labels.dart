@@ -68,4 +68,54 @@ abstract final class Labels {
     'Tây Hồ',
     'Hoàn Kiếm',
   ];
+
+  /// Tên đầy đủ của trình độ: "TB (Trung bình)".
+  static String levelLong(TeamLevel l) => switch (l) {
+    TeamLevelKnown(value: TeamLevelValue.tby) => 'TBY (Trung bình yếu)',
+    TeamLevelKnown(value: TeamLevelValue.tb) => 'TB (Trung bình)',
+    TeamLevelKnown(value: TeamLevelValue.tbk) => 'TBK (Trung bình khá)',
+    _ => level(l),
+  };
+
+  static const postTypes = <(PostTypeValue, String)>[
+    (PostTypeValue.findOpponent, 'Tìm đối'),
+    (PostTypeValue.recruit, 'Tuyển người'),
+    (PostTypeValue.passPitch, 'Pass sân'),
+  ];
+
+  static String postType(PostType t) => switch (t) {
+    PostTypeKnown(:final value) => postTypes.firstWhere((e) => e.$1 == value).$2,
+    PostTypeUnknown(:final rawValue) => rawValue,
+  };
+
+  static const deals = <(PostDealValue, String)>[
+    (PostDealValue.split, 'Chia tiền sân'),
+    (PostDealValue.loserPays, 'Thua trả sân'),
+    (PostDealValue.drinks, 'Kèo nước'),
+    (PostDealValue.friendly, 'Giao hữu'),
+  ];
+
+  static String? deal(PostDeal? d) => switch (d) {
+    PostDealKnown(:final value) => deals.firstWhere((e) => e.$1 == value).$2,
+    PostDealUnknown(:final rawValue) => rawValue,
+    null => null,
+  };
+
+  /// "40 – 60" hoặc tên kèo khi không chia theo tỷ lệ.
+  static String? ratio(int? win, int? lose, [PostDeal? deal]) {
+    if (deal case PostDealKnown(value: PostDealValue.drinks || PostDealValue.friendly)) {
+      return Labels.deal(deal);
+    }
+    if (win == null || lose == null) return Labels.deal(deal);
+    return '$win – $lose';
+  }
+
+  static String requestStatus(RequestStatus s) => switch (s) {
+    RequestStatusKnown(value: RequestStatusValue.pending) => 'Đang chờ xác nhận',
+    RequestStatusKnown(value: RequestStatusValue.accepted) => 'Đã chốt kèo',
+    RequestStatusKnown(value: RequestStatusValue.declined) => 'Đã bị từ chối',
+    RequestStatusKnown(value: RequestStatusValue.expired) => 'Đã hết hạn',
+    RequestStatusKnown(value: RequestStatusValue.cancelled) => 'Đã huỷ',
+    RequestStatusUnknown(:final rawValue) => rawValue,
+  };
 }
