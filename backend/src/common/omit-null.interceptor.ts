@@ -20,7 +20,12 @@ export class OmitNullInterceptor implements NestInterceptor {
 
 export function omitNull(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(omitNull);
-  if (value instanceof Date || value === null || typeof value !== 'object') {
+  // Chỉ đi vào object thường; Date, Decimal, Buffer... giữ nguyên để toJSON của chúng chạy
+  if (
+    value === null ||
+    typeof value !== 'object' ||
+    Object.getPrototypeOf(value) !== Object.prototype
+  ) {
     return value;
   }
   const out: Record<string, unknown> = {};

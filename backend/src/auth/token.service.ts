@@ -7,6 +7,9 @@ import type { Env } from '../common/env.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { TokenPairDto } from './auth.dto.js';
 
+/** Khoảng cho phép dùng lại refresh token vừa xoay vòng mà không bị coi là lộ. */
+export const REUSE_GRACE_MS = 30_000;
+
 export function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
@@ -66,7 +69,10 @@ export class TokenService {
     );
     if (!existing) throw invalid;
     if (existing.revokedAt) {
-      await this.revokeAll(existing.userId);
+      // Vừa thu hồi trong vài giây: thường là app gửi lại vì mất phản hồi
+      // hoặc hai request song song, không phải token bị lộ.
+      const recent = Date.now() - existing.revokedAt.getTime() < REUSE_GRACE_MS;
+      if (!recent) await this.revokeAll(existing.userId);
       throw invalid;
     }
     if (existing.expiresAt.getTime() <= Date.now()) throw invalid;

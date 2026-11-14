@@ -2,7 +2,12 @@ import { JwtService } from '@nestjs/jwt';
 import type { ConfigService } from '@nestjs/config';
 import type { Env } from '../common/env.js';
 import type { PrismaService } from '../prisma/prisma.service.js';
-import { hashToken, TokenService, ttlToSeconds } from './token.service.js';
+import {
+  hashToken,
+  REUSE_GRACE_MS,
+  TokenService,
+  ttlToSeconds,
+} from './token.service.js';
 
 function setup() {
   const tx = {
@@ -71,12 +76,12 @@ describe('TokenService', () => {
     );
   });
 
-  it('rotate: token đã thu hồi bị dùng lại → thu hồi mọi phiên của user', async () => {
+  it('rotate: token đã thu hồi từ lâu bị dùng lại → thu hồi mọi phiên của user', async () => {
     const { service, prisma } = setup();
     prisma.refreshToken.findUnique.mockResolvedValue({
       id: 'rt1',
       userId: 'u1',
-      revokedAt: new Date(),
+      revokedAt: new Date(Date.now() - REUSE_GRACE_MS - 1000),
       expiresAt: new Date(Date.now() + 60_000),
     });
     await expect(
@@ -87,6 +92,20 @@ describe('TokenService', () => {
     expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { userId: 'u1', revokedAt: null } }),
     );
+  });
+
+  it('rotate: token vừa xoay vòng bị gửi lại (mất phản hồi) → 401 nhưng không thu hồi hết', async () => {
+    const { service, prisma } = setup();
+    prisma.refreshToken.findUnique.mockResolvedValue({
+      id: 'rt1',
+      userId: 'u1',
+      revokedAt: new Date(Date.now() - 2000),
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    await expect(
+      service.rotate('retry-token-retry-token'),
+    ).rejects.toMatchObject({ status: 401 });
+    expect(prisma.refreshToken.updateMany).not.toHaveBeenCalled();
   });
 
   it('rotate: token hết hạn hoặc không tồn tại → 401', async () => {

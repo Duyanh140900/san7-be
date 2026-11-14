@@ -1,3 +1,4 @@
+import { Trim } from '../common/trim.js';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
@@ -15,11 +16,13 @@ import {
 
 export class CreateTeamDto {
   @ApiProperty({ minLength: 2, maxLength: 50, example: 'FC Cầu Giấy' })
+  @Trim()
   @IsString()
   @Length(2, 50)
   name: string;
 
   @ApiProperty({ maxLength: 50, example: 'Cầu Giấy' })
+  @Trim()
   @IsString()
   @Length(1, 50)
   area: string;

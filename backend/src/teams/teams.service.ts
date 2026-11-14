@@ -93,18 +93,31 @@ export class TeamsService {
     const existing = await this.prisma.teamMember.findUnique({
       where: { teamId_userId: { teamId: team.id, userId } },
     });
+    const pendingError = new AppError(
+      HttpStatus.CONFLICT,
+      'join_pending',
+      'Bạn đã gửi yêu cầu, đang chờ đội trưởng duyệt',
+    );
     if (existing) {
-      throw new AppError(
-        HttpStatus.CONFLICT,
-        existing.status === 'active' ? 'already_member' : 'join_pending',
-        existing.status === 'active'
-          ? 'Bạn đã ở trong đội này'
-          : 'Bạn đã gửi yêu cầu, đang chờ đội trưởng duyệt',
-      );
+      if (existing.status === 'active') {
+        throw new AppError(
+          HttpStatus.CONFLICT,
+          'already_member',
+          'Bạn đã ở trong đội này',
+        );
+      }
+      throw pendingError;
     }
-    const member = await this.prisma.teamMember.create({
-      data: { teamId: team.id, userId, role: 'member', status: 'pending' },
-    });
+    let member;
+    try {
+      member = await this.prisma.teamMember.create({
+        data: { teamId: team.id, userId, role: 'member', status: 'pending' },
+      });
+    } catch (e) {
+      // Bấm hai lần liên tiếp: request sau trùng (team_id, user_id)
+      if (isUniqueViolation(e, 'team_id')) throw pendingError;
+      throw e;
+    }
     return {
       teamId: team.id,
       teamName: team.name,

@@ -1,3 +1,4 @@
+import { Trim } from '../common/trim.js';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
@@ -45,6 +46,7 @@ export class MeDto {
 export class UpdateMeDto {
   @ApiPropertyOptional({ minLength: 1, maxLength: 50 })
   @IsOptional()
+  @Trim()
   @IsString()
   @Length(1, 50)
   name?: string;
@@ -63,6 +65,7 @@ export class UpdateMeDto {
 
   @ApiPropertyOptional({ maxLength: 50, example: 'Cầu Giấy' })
   @IsOptional()
+  @Trim()
   @IsString()
   @MaxLength(50)
   area?: string;

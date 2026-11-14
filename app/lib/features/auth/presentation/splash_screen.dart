@@ -1,14 +1,34 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: AppLogo()));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authControllerProvider);
+    final offline = auth is AuthUnknown && auth.offline;
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const AppLogo(),
+            if (offline) ...[
+              const SizedBox(height: 20),
+              const Text(
+                'Không kết nối được máy chủ, đang thử lại…',
+                style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 

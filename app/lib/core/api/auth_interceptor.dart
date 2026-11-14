@@ -71,7 +71,9 @@ class AuthInterceptor extends QueuedInterceptor {
     req.headers['Authorization'] = 'Bearer $token';
     req.extra[_retriedKey] = true;
     try {
-      handler.resolve(await dio.fetch<dynamic>(req));
+      // Dio riêng không có interceptor: gửi lại qua `dio` thì lỗi của lần gửi lại
+      // phải xếp hàng sau chính onError đang chờ nó → treo vĩnh viễn.
+      handler.resolve(await Dio(dio.options).fetch<dynamic>(req));
     } on DioException catch (e) {
       handler.next(e);
     }

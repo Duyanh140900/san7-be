@@ -1,3 +1,4 @@
+import { Prisma } from '../generated/prisma/client.js';
 import type { PrismaService } from '../prisma/prisma.service.js';
 import { TeamsService } from './teams.service.js';
 
@@ -89,6 +90,27 @@ describe('TeamsService', () => {
     });
     await expect(service.previewInvite('AAA-1111')).rejects.toMatchObject({
       status: 410,
+    });
+  });
+
+  it('bấm vào đội hai lần cùng lúc (trùng khoá) → 409 chờ duyệt, không phải 500', async () => {
+    const { service, prisma } = setup();
+    prisma.team.findUnique.mockResolvedValue({
+      id: 't1',
+      name: 'FC',
+      inviteExpiresAt: null,
+    });
+    prisma.teamMember.findUnique.mockResolvedValue(null);
+    prisma.teamMember.create.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('dup', {
+        code: 'P2002',
+        clientVersion: 'test',
+        meta: { target: ['team_id', 'user_id'] },
+      }),
+    );
+    await expect(service.join('u2', 'AAA-1111')).rejects.toMatchObject({
+      status: 409,
+      response: { code: 'join_pending' },
     });
   });
 

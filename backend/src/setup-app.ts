@@ -1,4 +1,5 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import type { Express } from 'express';
 import {
   DocumentBuilder,
   SwaggerModule,
@@ -9,6 +10,12 @@ import { OmitNullInterceptor } from './common/omit-null.interceptor.js';
 
 /** Cấu hình dùng chung cho server thật, test e2e và script xuất OpenAPI. */
 export function setupApp(app: INestApplication): void {
+  // Sau Caddy/Cloudflare Tunnel: lấy IP thật của người dùng từ X-Forwarded-For
+  // (chỉ tin proxy trong mạng nội bộ), nếu không rate limit coi mọi người là một.
+  (app.getHttpAdapter().getInstance() as Express).set(
+    'trust proxy',
+    'loopback, linklocal, uniquelocal',
+  );
   app.setGlobalPrefix('v1');
   app.enableShutdownHooks();
   app.useGlobalPipes(

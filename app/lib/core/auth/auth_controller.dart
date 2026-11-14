@@ -9,9 +9,10 @@ sealed class AuthState {
   const AuthState();
 }
 
-/// Đang đọc phiên đã lưu khi mở app.
+/// Đang đọc phiên đã lưu khi mở app. [offline]: có phiên nhưng chưa gọi được máy chủ.
 class AuthUnknown extends AuthState {
-  const AuthUnknown();
+  const AuthUnknown({this.offline = false});
+  final bool offline;
 }
 
 class AuthSignedOut extends AuthState {
@@ -45,11 +46,20 @@ class AuthController extends Notifier<AuthState> {
     try {
       final me = await _repo.getMe();
       state = AuthSignedIn(me, teamStepSkipped: await _repo.teamStepSkipped());
-    } on ApiError {
-      // Hết phiên hoặc mất mạng: về màn đăng nhập để người dùng thử lại
-      state = const AuthSignedOut();
+    } on ApiError catch (e) {
+      if (e.statusCode == 401 || !await _repo.hasSession()) {
+        // Phiên hết hạn hẳn (interceptor đã xoá token)
+        state = const AuthSignedOut();
+        return;
+      }
+      // Mất mạng hoặc máy chủ lỗi: giữ phiên, thử lại sau ít giây
+      state = const AuthUnknown(offline: true);
+      await Future<void>.delayed(_retryDelay);
+      if (state is AuthUnknown) await _restore();
     }
   }
+
+  static const _retryDelay = Duration(seconds: 3);
 
   Future<void> signInWithGoogle() async {
     final me = await _repo.signInWithGoogle();
