@@ -34,7 +34,8 @@ services:
       # Chỉ mở cho máy này (để chạy Prisma/Nest ngoài Docker khi phát triển)
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      # -h 127.0.0.1: server tạm lúc khởi tạo chỉ nghe socket, tránh báo sẵn sàng quá sớm
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -84,7 +85,9 @@ services:
     ports:
       - "${API_PORT:-3000}:3000"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/v1/health || exit 1"]
+      # 127.0.0.1 thay localhost: alpine phân giải localhost thành ::1, còn Nest nghe IPv4
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/v1/health || exit 1"]
+      start_period: 30s
       interval: 10s
       timeout: 5s
       retries: 10

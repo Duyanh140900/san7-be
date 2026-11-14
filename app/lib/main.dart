@@ -1,4 +1,3 @@
-import 'package:flutter_localizations/flutter_localizations.dart' show GlobalWidgetsLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
@@ -24,10 +23,8 @@ class San7App extends ConsumerWidget {
       routerConfig: ref.watch(routerProvider),
       locale: const Locale('vi'),
       supportedLocales: const [Locale('vi'), Locale('en')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
+      // Gồm Material, Widgets và Cupertino
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
     );
   }
 }

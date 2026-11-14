@@ -1,6 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Redis } from 'ioredis';
 import { LoggerModule } from 'nestjs-pino';
 import { validateEnv, type Env } from '../common/env.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
@@ -25,8 +26,11 @@ import { SystemProcessor, SYSTEM_QUEUE } from './system.processor.js';
     }),
     BullModule.forRootAsync({
       inject: [ConfigService],
+      // BullMQ bản ESM cần truyền sẵn client ioredis (không tự nạp từ connection options)
       useFactory: (config: ConfigService<Env, true>) => ({
-        connection: { url: config.get('REDIS_URL') },
+        connection: new Redis(config.get('REDIS_URL'), {
+          maxRetriesPerRequest: null,
+        }),
         prefix: 'san7',
       }),
     }),
