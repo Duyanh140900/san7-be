@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/notifications/data/notifications_repository.dart';
+import '../../features/posts/posts_providers.dart';
 import '../../features/team/team_providers.dart';
 import '../auth/auth_controller.dart';
 import '../auth/token_storage.dart';
@@ -29,6 +31,8 @@ class RealtimeClient {
     'events.changed',
     'funds.changed',
     'members.changed',
+    // Gửi tới room user:{id}
+    'notification.new',
   ];
 
   void connect() {
@@ -112,6 +116,21 @@ final teamRealtimeSyncProvider = Provider<void>((ref) {
 
   final sub = client.events.listen((e) {
     final (name, data) = e;
+    if (name == 'notification.new') {
+      ref.invalidate(unreadCountProvider);
+      ref.invalidate(notificationsProvider);
+      // Thông báo về kèo: làm mới các màn kèo đang mở
+      final payload = data['payload'];
+      if (payload is Map && payload['postId'] is String) {
+        ref.invalidate(postDetailProvider(payload['postId'] as String));
+        ref.invalidate(postRequestsProvider);
+        ref.invalidate(requestDetailProvider);
+      }
+      if (data['type'] == 'request.accepted' && payload is Map && payload['teamId'] is String) {
+        ref.invalidate(upcomingEventsProvider(payload['teamId'] as String));
+      }
+      return;
+    }
     final teamId = data['teamId'] as String?;
     if (teamId == null) return;
     switch (name) {

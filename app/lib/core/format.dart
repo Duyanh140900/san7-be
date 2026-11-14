@@ -39,6 +39,30 @@ abstract final class Fmt {
   static String eventTime(DateTime start, DateTime end) =>
       '${weekday(start)} ${dayMonth(start)} · ${time(start)} – ${time(end)}';
 
+  /// "T7 22/11 · 19:00"
+  static String slot(DateTime start) => '${weekday(start)} ${dayMonth(start)} · ${time(start)}';
+
+  /// "Vừa xong" / "12 phút trước" / "3 giờ trước" / "Hôm qua" / "22/11"
+  static String ago(DateTime t, {DateTime? now}) {
+    final n = now ?? DateTime.now();
+    final d = n.difference(t);
+    if (d.inMinutes < 1) return 'Vừa xong';
+    if (d.inMinutes < 60) return '${d.inMinutes} phút trước';
+    if (d.inHours < 24) return '${d.inHours} giờ trước';
+    final days = _dateOnly(vn(n)).difference(_dateOnly(vn(t))).inDays;
+    if (days == 1) return 'Hôm qua';
+    return dayMonth(t);
+  }
+
+  /// Thời gian còn lại: "1 giờ 45 phút" / "12 phút" / "dưới 1 phút"
+  static String remaining(Duration d) {
+    if (d.inMinutes < 1) return 'dưới 1 phút';
+    final h = d.inHours;
+    final m = d.inMinutes % 60;
+    if (h == 0) return '$m phút';
+    return m == 0 ? '$h giờ' : '$h giờ $m phút';
+  }
+
   /// "còn 8 ngày" / "hôm nay" / "ngày mai" / "đã qua"
   static String countdown(DateTime start, {DateTime? now}) {
     final today = _dateOnly(vn(now ?? DateTime.now()));

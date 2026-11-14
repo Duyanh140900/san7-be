@@ -17,6 +17,11 @@ abstract final class Routes {
   static String teamEvent(String id) => '/team/events/$id';
   static const honors = '/honors';
   static const postNew = '/post/new';
+  static String post(String id) => '/posts/$id';
+  static String postRequest(String id) => '/posts/$id/request';
+  static String postCompare(String teamId, String postId) => '/teams/$teamId/posts/$postId/compare';
+  static String request(String teamId, String requestId) => '/teams/$teamId/requests/$requestId';
+  static const notifications = '/notifications';
 }
 
 /// Quyết định điều hướng theo trạng thái đăng nhập (luồng màn 12).

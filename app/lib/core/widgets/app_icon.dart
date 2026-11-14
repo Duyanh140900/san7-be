@@ -27,6 +27,11 @@ enum AppIcons {
   chevronRight('<path d="m9 5 7 7-7 7"/>'),
   arrowUp('<path d="M12 19V5M6 11l6-6 6 6"/>'),
   warning('<path d="M12 4 3 20h18z"/><path d="M12 10v4M12 17h.01"/>'),
+  bell('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5h4"/>'),
+  clock('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+  info('<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>'),
+  checkCircle('<circle cx="12" cy="12" r="8.5"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/>'),
+  wallet('<rect x="3" y="6" width="18" height="14" rx="2.5"/><path d="M3 10h18M16 15h2"/>'),
   cup('<path d="M7 3h10l-1 18H8z"/><path d="M7.5 9h9"/>'),
   calendar('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>');
 

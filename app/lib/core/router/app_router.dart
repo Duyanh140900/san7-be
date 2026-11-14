@@ -11,8 +11,13 @@ import '../../features/funds/presentation/add_fund_tx_screen.dart';
 import '../../features/funds/presentation/fund_transactions_screen.dart';
 import '../../features/funds/presentation/funds_page.dart';
 import '../../features/honors/presentation/honors_screen.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/pitches/presentation/pitches_screen.dart';
 import '../../features/post_create/presentation/post_create_screen.dart';
+import '../../features/posts/presentation/compare_requests_screen.dart';
+import '../../features/posts/presentation/post_detail_screen.dart';
+import '../../features/posts/presentation/request_detail_screen.dart';
+import '../../features/posts/presentation/send_request_screen.dart';
 import '../../features/team/presentation/members_page.dart';
 import '../../features/team/presentation/team_screen.dart';
 import '../auth/auth_controller.dart';
@@ -39,6 +44,33 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (_, _) =>
             const MaterialPage(fullscreenDialog: true, child: PostCreateScreen()),
       ),
+      // Cáp kèo (M2)
+      GoRoute(
+        path: '/posts/:postId',
+        builder: (_, state) => PostDetailScreen(postId: state.pathParameters['postId']!),
+      ),
+      GoRoute(
+        path: '/posts/:postId/request',
+        pageBuilder: (_, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: SendRequestScreen(postId: state.pathParameters['postId']!),
+        ),
+      ),
+      GoRoute(
+        path: '/teams/:teamId/posts/:postId/compare',
+        builder: (_, state) => CompareRequestsScreen(
+          teamId: state.pathParameters['teamId']!,
+          postId: state.pathParameters['postId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/teams/:teamId/requests/:requestId',
+        builder: (_, state) => RequestDetailScreen(
+          teamId: state.pathParameters['teamId']!,
+          requestId: state.pathParameters['requestId']!,
+        ),
+      ),
+      GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
       // Màn toàn màn hình của tab Đội (đặt trước shell để khớp trước /team/...)
       GoRoute(
         path: Routes.teamFundNew,
