@@ -33,5 +33,6 @@ void main() {
     expect(Fmt.initials('Đức Hùng'), 'ĐH');
     expect(Fmt.initials('Nguyễn Văn An'), 'VA');
     expect(Fmt.initials('An'), 'A');
+    expect(Fmt.initials('Văn Nam (thử)'), 'VN');
   });
 }

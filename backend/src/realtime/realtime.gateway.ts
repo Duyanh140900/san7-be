@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   ConnectedSocket,
   MessageBody,
@@ -20,6 +21,7 @@ interface SocketData {
  * Socket.IO ở đường dẫn /v1/socket. Xác thực bằng access token (auth.token khi kết nối).
  * Room: user:{id} (tự vào), team:{id} (client gửi 'team:join', kiểm tra là thành viên active).
  */
+@SkipThrottle()
 @WebSocketGateway({ path: '/v1/socket', cors: { origin: true } })
 export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection {
   private readonly logger = new Logger(RealtimeGateway.name);

@@ -163,6 +163,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
                     selected: _durationMin,
                     labelOf: (m) => m == 90 ? '1 tiếng 30' : '${m ~/ 60} tiếng',
                     onSelected: (m) => setState(() => _durationMin = m),
+                    padding: 0,
                   ),
                   const SizedBox(height: 20),
                   FormFieldRow(

@@ -61,7 +61,12 @@ abstract final class Fmt {
 
   /// Chữ cái đầu để làm avatar: "Đức Hùng" → "ĐH"
   static String initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    // Chỉ lấy từ bắt đầu bằng chữ cái: "Văn Nam (thử)" → "VN"
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((p) => RegExp(r'^\p{L}', unicode: true).hasMatch(p))
+        .toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return _first(parts.first).toUpperCase();
     return (_first(parts[parts.length - 2]) + _first(parts.last)).toUpperCase();

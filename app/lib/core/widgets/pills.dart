@@ -10,7 +10,11 @@ class PillSelector<T> extends StatelessWidget {
     required this.selected,
     required this.labelOf,
     required this.onSelected,
+    this.padding = AppSizes.screenPadding,
   });
+
+  /// Lề trái/phải của hàng cuộn (0 khi đặt trong vùng đã có lề).
+  final double padding;
 
   final List<T> options;
   final T? selected;
@@ -25,7 +29,7 @@ class PillSelector<T> extends StatelessWidget {
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: AppSizes.screenPadding),
+          padding: EdgeInsets.symmetric(horizontal: padding),
           itemCount: options.length,
           separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, i) {
