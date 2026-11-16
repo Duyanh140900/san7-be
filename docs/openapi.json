@@ -616,6 +616,42 @@
         ]
       }
     },
+    "/v1/media/uploads": {
+      "post": {
+        "operationId": "Media_createUpload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadUrlDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "media"
+        ]
+      }
+    },
     "/v1/teams": {
       "post": {
         "operationId": "Teams_create",
@@ -3910,6 +3946,88 @@
         },
         "required": [
           "items"
+        ]
+      },
+      "MediaPurpose": {
+        "type": "string",
+        "enum": [
+          "post",
+          "avatar",
+          "team"
+        ]
+      },
+      "CreateUploadDto": {
+        "type": "object",
+        "properties": {
+          "purpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MediaPurpose"
+              }
+            ]
+          },
+          "contentType": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp",
+              "image/heic"
+            ],
+            "example": "image/jpeg",
+            "description": "Loại ảnh cho phép: jpeg, png, webp, heic"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10485760,
+            "description": "Dung lượng file (byte), tối đa 10MB"
+          }
+        },
+        "required": [
+          "purpose",
+          "contentType",
+          "size"
+        ]
+      },
+      "UploadUrlDto": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "example": "PUT"
+          },
+          "uploadUrl": {
+            "type": "string",
+            "description": "URL có chữ ký, app PUT nguyên file lên URL này"
+          },
+          "headers": {
+            "type": "object",
+            "description": "Header bắt buộc khi PUT (phải khớp chữ ký)",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "key": {
+            "type": "string",
+            "description": "Khoá object, dạng users/{userId}/{purpose}/…"
+          },
+          "publicUrl": {
+            "type": "string",
+            "description": "URL xem ảnh sau khi tải lên xong"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "example": 300
+          }
+        },
+        "required": [
+          "method",
+          "uploadUrl",
+          "headers",
+          "key",
+          "publicUrl",
+          "expiresIn"
         ]
       },
       "CreateTeamDto": {

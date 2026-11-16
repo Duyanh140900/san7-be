@@ -11,6 +11,14 @@ export interface Env {
   LOG_LEVEL: string;
   /** JSON service account Firebase (base64 hoặc thô); rỗng = tắt push */
   FIREBASE_SERVICE_ACCOUNT: string;
+  /** Kho file chuẩn S3 (SeaweedFS). Rỗng S3_ENDPOINT = tắt tải ảnh lên */
+  S3_ENDPOINT: string;
+  /** URL client bên ngoài dùng để tải lên/xem ảnh (có thể khác S3_ENDPOINT nội bộ) */
+  S3_PUBLIC_URL: string;
+  S3_REGION: string;
+  S3_BUCKET: string;
+  S3_ACCESS_KEY: string;
+  S3_SECRET_KEY: string;
 }
 
 const REQUIRED = [
@@ -42,5 +50,11 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     GOOGLE_WEB_CLIENT_ID: String(raw.GOOGLE_WEB_CLIENT_ID),
     LOG_LEVEL: String(raw.LOG_LEVEL ?? 'info'),
     FIREBASE_SERVICE_ACCOUNT: String(raw.FIREBASE_SERVICE_ACCOUNT ?? ''),
+    S3_ENDPOINT: String(raw.S3_ENDPOINT ?? ''),
+    S3_PUBLIC_URL: String(raw.S3_PUBLIC_URL ?? raw.S3_ENDPOINT ?? ''),
+    S3_REGION: String(raw.S3_REGION ?? 'us-east-1'),
+    S3_BUCKET: String(raw.S3_BUCKET ?? 'media'),
+    S3_ACCESS_KEY: String(raw.S3_ACCESS_KEY ?? ''),
+    S3_SECRET_KEY: String(raw.S3_SECRET_KEY ?? ''),
   };
 }

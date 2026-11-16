@@ -11,6 +11,7 @@ import { validateEnv } from './common/env.js';
 import { FundsModule } from './funds/funds.module.js';
 import { HealthController } from './health/health.controller.js';
 import { MatchesModule } from './matches/matches.module.js';
+import { MediaModule } from './media/media.module.js';
 import { MembersModule } from './members/members.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { PitchesModule } from './pitches/pitches.module.js';
@@ -51,6 +52,7 @@ import { PostSchedulesModule } from './schedules/schedules.module.js';
     AuthModule,
     CommunityModule,
     ChatModule,
+    MediaModule,
     UsersModule,
     TeamsModule,
     MembersModule,
