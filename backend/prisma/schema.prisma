@@ -105,6 +105,19 @@ enum BookingStatus {
   cancelled
 }
 
+enum ReactionTarget {
+  post
+  comment
+}
+
+enum ReactionKind {
+  like
+  love
+  fire
+  haha
+  sad
+}
+
 enum Platform {
   android
   ios
@@ -137,6 +150,8 @@ model User {
   reviewsMade   TeamReview[]
   requestsSent  MatchRequest[]
   notifications Notification[]
+  comments      Comment[]
+  reactions     Reaction[]
 
   @@map("users")
 }
@@ -354,6 +369,7 @@ model Post {
   team     Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
   author   User           @relation(fields: [authorId], references: [id])
   requests MatchRequest[]
+  comments Comment[]
   match    Match?
   pitch    Pitch?         @relation(fields: [pitchId], references: [id], onDelete: SetNull)
   booking  Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
@@ -363,6 +379,41 @@ model Post {
   @@index([authorId])
   @@index([pitchId])
   @@map("posts")
+}
+
+/// Bình luận dưới kèo. Chỉ M5 dùng bình luận cấp một; parent/reply có thể bổ sung sau.
+model Comment {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  body      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt, id])
+  @@index([userId])
+  @@map("comments")
+}
+
+/// Cảm xúc dùng target đa hình để có thể áp dụng cho kèo và bình luận.
+model Reaction {
+  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  targetType ReactionTarget @map("target_type")
+  targetId   String         @map("target_id") @db.Uuid
+  userId     String         @map("user_id") @db.Uuid
+  kind       ReactionKind
+  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([targetType, targetId, userId])
+  @@index([targetType, targetId, kind])
+  @@index([userId])
+  @@map("reactions")
 }
 
 /// Yêu cầu nhận kèo của một đội. Tự hết hạn sau 2 giờ (hoặc khi tới giờ đá).

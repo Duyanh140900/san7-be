@@ -5,6 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { AttendanceModule } from './attendance/attendance.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { CommunityModule } from './community/community.module.js';
 import { validateEnv } from './common/env.js';
 import { FundsModule } from './funds/funds.module.js';
 import { HealthController } from './health/health.controller.js';
@@ -46,6 +47,7 @@ import { UsersModule } from './users/users.module.js';
     PrismaModule,
     QueueModule,
     AuthModule,
+    CommunityModule,
     UsersModule,
     TeamsModule,
     MembersModule,

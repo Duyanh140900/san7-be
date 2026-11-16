@@ -5,6 +5,9 @@ import type { Server } from 'socket.io';
 export type TeamEvent =
   'attendance.updated' | 'events.changed' | 'funds.changed' | 'members.changed';
 
+export type PostEvent =
+  'comment.created' | 'comment.deleted' | 'reaction.changed';
+
 /** Phát sự kiện tới room. Gọi SAU khi transaction đã commit. */
 @Injectable()
 export class RealtimeService {
@@ -16,6 +19,10 @@ export class RealtimeService {
 
   toTeam(teamId: string, event: TeamEvent, payload: Record<string, unknown>) {
     this.server?.to(`team:${teamId}`).emit(event, { teamId, ...payload });
+  }
+
+  toPost(postId: string, event: PostEvent, payload: Record<string, unknown>) {
+    this.server?.to(`post:${postId}`).emit(event, { postId, ...payload });
   }
 
   /** Đưa mọi socket của user ra khỏi room đội (bị mời ra / rời đội). */
