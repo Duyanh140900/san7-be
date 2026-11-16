@@ -27,6 +27,8 @@ import {
   FineRuleDto,
   FundSummaryDto,
   FundTxDto,
+  FinesDto,
+  FinesQuery,
   FundTxPageDto,
   ListFundTxQuery,
 } from './funds.dto.js';
@@ -43,6 +45,15 @@ export class FundsController {
   @ApiOkResponse({ type: FundSummaryDto })
   summary(@CurrentMember() me: TeamMembership): Promise<FundSummaryDto> {
     return this.funds.summary(me);
+  }
+
+  @Get('fines')
+  @ApiOkResponse({ type: FinesDto })
+  fines(
+    @CurrentMember() me: TeamMembership,
+    @Query() q: FinesQuery,
+  ): Promise<FinesDto> {
+    return this.funds.fines(me, q);
   }
 
   @Get('transactions')

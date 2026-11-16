@@ -81,6 +81,17 @@ export class CreateFundTxDto {
   paid?: boolean;
 }
 
+export class FinesQuery {
+  @ApiPropertyOptional({
+    example: '2026-11',
+    description: 'Tháng YYYY-MM, mặc định tháng này',
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{4}-\d{2}$/)
+  period?: string;
+}
+
 export class ListFundTxQuery {
   @ApiPropertyOptional({ enum: FundType, enumName: 'FundType' })
   @IsOptional()
@@ -130,6 +141,19 @@ export class FundTxDto {
   @ApiProperty() paid: boolean;
   @ApiProperty({ type: PersonRefDto }) createdBy: PersonRefDto;
   @ApiProperty({ type: String, format: 'date-time' }) createdAt: Date;
+}
+
+export class FinesDto {
+  @ApiProperty({ example: '2026-11' }) period: string;
+  @ApiProperty({
+    type: 'integer',
+    description: 'Tổng tiền phạt đã ghi trong tháng (VND)',
+  })
+  total: number;
+  @ApiProperty({ type: 'integer', description: 'Phần chưa nộp (VND)' })
+  unpaid: number;
+  @ApiProperty({ type: [FundTxDto], description: 'Khoản phạt mới nhất trước' })
+  items: FundTxDto[];
 }
 
 export class FundTxPageDto {

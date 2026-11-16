@@ -107,6 +107,12 @@ export class EventSummaryDto {
     description: 'Lượt đặt sân sinh ra lịch này',
   })
   bookingId?: string | null;
+  @ApiPropertyOptional({
+    type: String,
+    format: 'uuid',
+    description: 'Trận đấu (khi lịch sinh từ chốt kèo)',
+  })
+  matchId?: string | null;
   @ApiProperty({ type: AttendanceCountsDto }) counts: AttendanceCountsDto;
   @ApiPropertyOptional({
     enum: AttendanceStatus,

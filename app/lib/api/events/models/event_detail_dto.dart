@@ -18,6 +18,9 @@ class EventDetailDto {
 
     /// Lượt đặt sân sinh ra lịch này
     this.bookingId,
+
+    /// Trận đấu (khi lịch sinh từ chốt kèo)
+    this.matchId,
     required this.counts,
 
     /// Câu trả lời của tôi (vắng mặt = chưa trả lời)
@@ -36,6 +39,7 @@ class EventDetailDto {
     note: json.containsKey("note") ? json["note"] as String : null,
     minPlayers: json.containsKey("minPlayers") ? json["minPlayers"] as int : null,
     bookingId: json.containsKey("bookingId") ? json["bookingId"] as String : null,
+    matchId: json.containsKey("matchId") ? json["matchId"] as String : null,
     counts: AttendanceCountsDto.fromJson(json["counts"] as Map<String, Object?>),
     myStatus: json.containsKey("myStatus") ? AttendanceStatus.fromJson(json["myStatus"]) : null,
     attendees: (json["attendees"] as List<Object?>)
@@ -66,6 +70,9 @@ class EventDetailDto {
   /// Lượt đặt sân sinh ra lịch này
   final String? bookingId;
 
+  /// Trận đấu (khi lịch sinh từ chốt kèo)
+  final String? matchId;
+
   final AttendanceCountsDto counts;
 
   /// Câu trả lời của tôi (vắng mặt = chưa trả lời)
@@ -83,6 +90,7 @@ class EventDetailDto {
     "note",
     "minPlayers",
     "bookingId",
+    "matchId",
     "counts",
     "myStatus",
     "attendees",
@@ -102,6 +110,7 @@ class EventDetailDto {
     if (this.note != null) "note": this.note,
     if (this.minPlayers != null) "minPlayers": this.minPlayers,
     if (this.bookingId != null) "bookingId": this.bookingId,
+    if (this.matchId != null) "matchId": this.matchId,
     "counts": this.counts.toJson(),
     if (this.myStatus != null) "myStatus": this.myStatus?.toJson(),
     "attendees": this.attendees.map((item) => item.toJson()).toList(),

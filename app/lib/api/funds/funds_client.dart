@@ -7,6 +7,7 @@ import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 import 'models/create_fine_rule_dto.dart' as models show CreateFineRuleDto;
 import 'models/create_fund_tx_dto.dart' as models show CreateFundTxDto;
 import 'models/fine_rule_dto.dart' as models show FineRuleDto;
+import 'models/fines_dto.dart' as models show FinesDto;
 import 'models/fund_summary_dto.dart' as models show FundSummaryDto;
 import 'models/fund_tx_dto.dart' as models show FundTxDto;
 import 'models/fund_tx_page_dto.dart' as models show FundTxPageDto;
@@ -46,6 +47,41 @@ class FundsClient {
       cancelToken: cancelToken,
     );
     return models.FundSummaryDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.FinesDto> fundsFines({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+
+    /// Tháng YYYY-MM, mặc định tháng này
+    String? period,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/funds/fines",
+      options: _options,
+      queryParameters: <String, Object?>{if (period != null) "period": period},
+      cancelToken: cancelToken,
+    );
+    return models.FinesDto.fromJson(response.data as Map<String, Object?>);
   }
 
   Future<models.FundTxPageDto> fundsList({

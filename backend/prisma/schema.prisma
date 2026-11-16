@@ -133,6 +133,8 @@ model User {
   fundTxCreated FundTransaction[] @relation("FundCreator")
   posts         Post[]
   bookingsMade  Booking[]
+  matchStats    MatchPlayerStat[]
+  reviewsMade   TeamReview[]
   requestsSent  MatchRequest[]
   notifications Notification[]
 
@@ -185,16 +187,19 @@ model Team {
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  createdBy    User              @relation(fields: [createdById], references: [id])
-  members      TeamMember[]
-  events       Event[]
-  transactions FundTransaction[]
-  fineRules    FineRule[]
-  posts        Post[]
-  bookings     Booking[]
-  requests     MatchRequest[]
-  homeMatches  Match[]           @relation("HomeTeam")
-  awayMatches  Match[]           @relation("AwayTeam")
+  createdBy       User              @relation(fields: [createdById], references: [id])
+  members         TeamMember[]
+  events          Event[]
+  transactions    FundTransaction[]
+  fineRules       FineRule[]
+  posts           Post[]
+  bookings        Booking[]
+  requests        MatchRequest[]
+  homeMatches     Match[]           @relation("HomeTeam")
+  reviewsGiven    TeamReview[]      @relation("ReviewFrom")
+  reviewsReceived TeamReview[]      @relation("ReviewTo")
+  matchStats      MatchPlayerStat[]
+  awayMatches     Match[]           @relation("AwayTeam")
 
   @@index([createdById])
   @@map("teams")
@@ -280,6 +285,8 @@ model FundTransaction {
   period      String?
   /// các khoản tạo cùng một lần (nhiều người nộp)
   batchId     String?   @map("batch_id") @db.Uuid
+  /// khoá khoản do hệ thống tự ghi (vd tiền sân sau trận) để không ghi hai lần
+  autoKey     String?   @unique @map("auto_key")
   note        String?
   paid        Boolean   @default(true)
   /// thời điểm tiền thực vào/ra quỹ (null = phạt chưa nộp); dùng cho thống kê theo tháng
@@ -386,20 +393,32 @@ model MatchRequest {
 
 /// Trận giữa hai đội (chốt từ kèo). Kết quả, thống kê thêm ở M4.
 model Match {
-  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  postId     String?     @unique @map("post_id") @db.Uuid
-  homeTeamId String      @map("home_team_id") @db.Uuid
-  awayTeamId String      @map("away_team_id") @db.Uuid
-  startAt    DateTime    @map("start_at") @db.Timestamptz(6)
-  endAt      DateTime    @map("end_at") @db.Timestamptz(6)
-  location   String?
-  status     MatchStatus @default(scheduled)
-  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  id               String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId           String?     @unique @map("post_id") @db.Uuid
+  homeTeamId       String      @map("home_team_id") @db.Uuid
+  awayTeamId       String      @map("away_team_id") @db.Uuid
+  startAt          DateTime    @map("start_at") @db.Timestamptz(6)
+  endAt            DateTime    @map("end_at") @db.Timestamptz(6)
+  location         String?
+  status           MatchStatus @default(scheduled)
+  /// tiền sân và tỷ lệ chia (đội thắng – đội thua) đã chốt lúc nhận kèo; null = không chia tiền sân
+  pitchPrice       BigInt?     @map("pitch_price")
+  ratioWin         Int?        @map("ratio_win") @db.SmallInt
+  ratioLose        Int?        @map("ratio_lose") @db.SmallInt
+  homeScore        Int?        @map("home_score") @db.SmallInt
+  awayScore        Int?        @map("away_score") @db.SmallInt
+  /// đội nhập tỉ số gần nhất; đội còn lại xác nhận (confirmedAt) hoặc sửa lại
+  reportedByTeamId String?     @map("reported_by_team_id") @db.Uuid
+  reportedAt       DateTime?   @map("reported_at") @db.Timestamptz(6)
+  confirmedAt      DateTime?   @map("confirmed_at") @db.Timestamptz(6)
+  createdAt        DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  post     Post?   @relation(fields: [postId], references: [id], onDelete: SetNull)
-  homeTeam Team    @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
-  awayTeam Team    @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
+  post     Post?             @relation(fields: [postId], references: [id], onDelete: SetNull)
+  homeTeam Team              @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
+  awayTeam Team              @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
   events   Event[]
+  stats    MatchPlayerStat[]
+  reviews  TeamReview[]
 
   @@index([homeTeamId, startAt])
   @@index([awayTeamId, startAt])
@@ -489,4 +508,53 @@ model Booking {
   @@index([createdById])
   @@index([status, heldUntil])
   @@map("bookings")
+}
+
+/// Thành tích của một cầu thủ trong một trận (do đội của cầu thủ nhập).
+model MatchPlayerStat {
+  matchId   String   @map("match_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  /// đội cầu thủ khoác áo trong trận này
+  teamId    String   @map("team_id") @db.Uuid
+  goals     Int      @default(0) @db.SmallInt
+  assists   Int      @default(0) @db.SmallInt
+  /// cầu thủ hay nhất do đội của cầu thủ chọn
+  mvp       Boolean  @default(false)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team  Team  @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([matchId, userId])
+  @@index([userId])
+  @@index([teamId])
+  @@map("match_player_stats")
+}
+
+/// Đánh giá đội đối thủ sau trận (mỗi đội một đánh giá cho mỗi trận).
+model TeamReview {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  matchId     String   @map("match_id") @db.Uuid
+  fromTeamId  String   @map("from_team_id") @db.Uuid
+  toTeamId    String   @map("to_team_id") @db.Uuid
+  createdById String   @map("created_by") @db.Uuid
+  /// uy tín, đúng giờ (1–5)
+  reputation  Int      @db.SmallInt
+  fairplay    Int      @db.SmallInt
+  /// on_time, good_play, friendly, fair_pay, full_squad
+  tags        String[]
+  comment     String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  match     Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  fromTeam  Team  @relation("ReviewFrom", fields: [fromTeamId], references: [id], onDelete: Cascade)
+  toTeam    Team  @relation("ReviewTo", fields: [toTeamId], references: [id], onDelete: Cascade)
+  createdBy User  @relation(fields: [createdById], references: [id])
+
+  @@unique([matchId, fromTeamId])
+  @@index([toTeamId, createdAt])
+  @@index([createdById])
+  @@map("team_reviews")
 }

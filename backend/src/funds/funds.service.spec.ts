@@ -25,13 +25,14 @@ function setup() {
   };
   const prisma = {
     $transaction: vi.fn((fn: (t: typeof tx) => unknown) => fn(tx)),
+    fundTransaction: { findMany: vi.fn().mockResolvedValue([]) },
   };
   const realtime = { toTeam: vi.fn() };
   const service = new FundsService(
     prisma as unknown as PrismaService,
     realtime as unknown as RealtimeService,
   );
-  return { service, tx, realtime };
+  return { service, tx, prisma, realtime };
 }
 
 describe('vnMonth', () => {
@@ -197,6 +198,69 @@ describe('FundsService phạt và xoá', () => {
     expect(tx.team.update).toHaveBeenCalledWith({
       where: { id: 't1' },
       data: { fundBalance: { decrement: -300_000n } },
+    });
+  });
+});
+
+describe('FinesQuery', () => {
+  it('nhận tháng YYYY-MM, từ chối định dạng sai (regex không mất ký tự thoát)', async () => {
+    const { plainToInstance } = await import('class-transformer');
+    const { validate } = await import('class-validator');
+    const { FinesQuery } = await import('./funds.dto.js');
+    for (const [period, ok] of [
+      ['2026-11', true],
+      ['2020-01', true],
+      ['2026-1', false],
+      ['abcd-ef', false],
+      [undefined, true],
+    ] as const) {
+      const errors = await validate(plainToInstance(FinesQuery, { period }));
+      expect(errors.length === 0).toBe(ok);
+    }
+  });
+});
+
+describe('FundsService.fines', () => {
+  const row = (id: string, amount: bigint, paid: boolean) => ({
+    id,
+    type: 'fine',
+    amount,
+    category: 'Đi muộn',
+    period: null,
+    note: null,
+    paid,
+    createdAt: new Date('2026-11-13T03:00:00Z'),
+    member: { id: 'u1', name: 'Minh Tú', avatarUrl: null },
+    event: null,
+    createdBy: { id: 'c', name: 'Đội trưởng', avatarUrl: null },
+  });
+
+  it('tổng phạt tháng, phần chưa nộp, chỉ khoản phạt trong tháng (giờ VN)', async () => {
+    const { service, prisma } = setup();
+    prisma.fundTransaction.findMany.mockResolvedValue([
+      row('a', 50_000n, true),
+      row('b', 100_000n, false),
+      row('c', 50_000n, false),
+    ]);
+    const r = await service.fines(me, { period: '2026-11' });
+    expect(r).toMatchObject({
+      period: '2026-11',
+      total: 200_000,
+      unpaid: 150_000,
+    });
+    expect(r.items).toHaveLength(3);
+    const where = prisma.fundTransaction.findMany.mock.calls[0][0].where;
+    expect(where).toMatchObject({ teamId: 't1', type: 'fine' });
+    expect(where.createdAt.gte.toISOString()).toBe('2026-10-31T17:00:00.000Z');
+    expect(where.createdAt.lt.toISOString()).toBe('2026-11-30T17:00:00.000Z');
+  });
+
+  it('tháng sai định dạng → 400', async () => {
+    const { service } = setup();
+    await expect(
+      service.fines(me, { period: '2026-13' }),
+    ).rejects.toMatchObject({
+      status: 400,
     });
   });
 });

@@ -1,68 +1,80 @@
 import type { Prisma } from '../generated/prisma/client.js';
+import {
+  confirmedMatches,
+  reviewSummaries,
+  teamRecords,
+} from '../matches/team-record.js';
 
 export interface TeamStats {
   memberCount: number;
+  /** số trận đã có kết quả được hai đội xác nhận */
   matchesPlayed: number;
+  /** số lần đã gặp đội đăng kèo (trận đã xác nhận) */
   headToHead: number;
+  /** trong các lần gặp đó: đội đăng kèo thắng / thua */
+  h2hOwnerWins: number;
+  h2hOwnerLosses: number;
+  reputation: number | null;
+  reviewCount: number;
+  onTimePercent: number | null;
 }
 
-type Db = Pick<Prisma.TransactionClient, 'teamMember' | 'match'>;
+type Db = Pick<Prisma.TransactionClient, 'teamMember' | 'match' | 'teamReview'>;
 
 /**
- * Số liệu cho màn so sánh đội nhận kèo: số thành viên, số trận đã đá,
- * số lần đã gặp đội đăng kèo. Uy tín, đúng giờ thêm ở M4 (cần kết quả trận).
+ * Số liệu cho màn so sánh đội nhận kèo: thành viên, số trận, đối đầu với đội đăng kèo,
+ * uy tín và tỉ lệ đúng giờ (từ đánh giá sau trận).
  */
 export async function teamStats(
   db: Db,
   ownerTeamId: string,
   teamIds: string[],
-  now: Date,
 ): Promise<Map<string, TeamStats>> {
   const stats = new Map<string, TeamStats>(
     teamIds.map((id) => [
       id,
-      { memberCount: 0, matchesPlayed: 0, headToHead: 0 },
+      {
+        memberCount: 0,
+        matchesPlayed: 0,
+        headToHead: 0,
+        h2hOwnerWins: 0,
+        h2hOwnerLosses: 0,
+        reputation: null,
+        reviewCount: 0,
+        onTimePercent: null,
+      },
     ]),
   );
   if (teamIds.length === 0) return stats;
 
-  const played = {
-    startAt: { lt: now },
-    status: { not: 'cancelled' },
-  } as const;
-  const [members, home, away, h2h] = await Promise.all([
+  const [members, records, reviews, ownerMatches] = await Promise.all([
     db.teamMember.groupBy({
       by: ['teamId'],
       where: { teamId: { in: teamIds }, status: 'active' },
       _count: { _all: true },
     }),
-    db.match.groupBy({
-      by: ['homeTeamId'],
-      where: { homeTeamId: { in: teamIds }, ...played },
-      _count: { _all: true },
-    }),
-    db.match.groupBy({
-      by: ['awayTeamId'],
-      where: { awayTeamId: { in: teamIds }, ...played },
-      _count: { _all: true },
-    }),
-    db.match.findMany({
-      where: {
-        ...played,
-        OR: [
-          { homeTeamId: ownerTeamId, awayTeamId: { in: teamIds } },
-          { awayTeamId: ownerTeamId, homeTeamId: { in: teamIds } },
-        ],
-      },
-      select: { homeTeamId: true, awayTeamId: true },
-    }),
+    teamRecords(db, teamIds),
+    reviewSummaries(db, teamIds),
+    confirmedMatches(db, [ownerTeamId]),
   ]);
   for (const m of members) stats.get(m.teamId)!.memberCount = m._count._all;
-  for (const m of home) stats.get(m.homeTeamId)!.matchesPlayed += m._count._all;
-  for (const m of away) stats.get(m.awayTeamId)!.matchesPlayed += m._count._all;
-  for (const m of h2h) {
-    const other = m.homeTeamId === ownerTeamId ? m.awayTeamId : m.homeTeamId;
-    stats.get(other)!.headToHead++;
+  for (const [id, s] of stats) {
+    s.matchesPlayed = records.get(id)?.played ?? 0;
+    const r = reviews.get(id);
+    s.reviewCount = r?.count ?? 0;
+    s.reputation = r?.reputation ?? null;
+    s.onTimePercent = r?.onTimePercent ?? null;
+  }
+  for (const m of ownerMatches) {
+    const ownerHome = m.homeTeamId === ownerTeamId;
+    const other = ownerHome ? m.awayTeamId : m.homeTeamId;
+    const s = stats.get(other);
+    if (!s) continue;
+    const ownerGoals = ownerHome ? m.homeScore! : m.awayScore!;
+    const otherGoals = ownerHome ? m.awayScore! : m.homeScore!;
+    s.headToHead++;
+    if (ownerGoals > otherGoals) s.h2hOwnerWins++;
+    else if (ownerGoals < otherGoals) s.h2hOwnerLosses++;
   }
   return stats;
 }

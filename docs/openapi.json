@@ -969,6 +969,52 @@
         ]
       }
     },
+    "/v1/teams/{teamId}/funds/fines": {
+      "get": {
+        "operationId": "Funds_fines",
+        "parameters": [
+          {
+            "name": "period",
+            "required": false,
+            "in": "query",
+            "description": "Tháng YYYY-MM, mặc định tháng này",
+            "schema": {
+              "example": "2026-11",
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "funds"
+        ]
+      }
+    },
     "/v1/teams/{teamId}/funds/transactions": {
       "get": {
         "operationId": "Funds_list",
@@ -2299,6 +2345,338 @@
           "bookings"
         ]
       }
+    },
+    "/v1/teams/{teamId}/matches/{matchId}": {
+      "get": {
+        "operationId": "Matches_detail",
+        "parameters": [
+          {
+            "name": "matchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/matches/{matchId}/result": {
+      "put": {
+        "operationId": "Matches_setResult",
+        "parameters": [
+          {
+            "name": "matchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetResultDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/matches/{matchId}/result/confirm": {
+      "post": {
+        "operationId": "Matches_confirm",
+        "parameters": [
+          {
+            "name": "matchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/matches/{matchId}/stats": {
+      "put": {
+        "operationId": "Matches_setStats",
+        "parameters": [
+          {
+            "name": "matchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetStatsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/matches/{matchId}/review": {
+      "put": {
+        "operationId": "Matches_review",
+        "parameters": [
+          {
+            "name": "matchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/v1/team-profiles/{teamId}": {
+      "get": {
+        "operationId": "TeamProfile_get",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamProfileDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/v1/honors": {
+      "get": {
+        "operationId": "Honors_get",
+        "parameters": [
+          {
+            "name": "month",
+            "required": false,
+            "in": "query",
+            "description": "Tháng YYYY-MM, mặc định tháng này",
+            "schema": {
+              "example": "2026-11",
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": false,
+            "in": "query",
+            "description": "Đội cần tính danh hiệu",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HonorsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      }
     }
   },
   "info": {
@@ -3020,6 +3398,11 @@
             "format": "uuid",
             "description": "Lượt đặt sân sinh ra lịch này"
           },
+          "matchId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Trận đấu (khi lịch sinh từ chốt kèo)"
+          },
           "counts": {
             "$ref": "#/components/schemas/AttendanceCountsDto"
           },
@@ -3162,6 +3545,11 @@
             "type": "string",
             "format": "uuid",
             "description": "Lượt đặt sân sinh ra lịch này"
+          },
+          "matchId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Trận đấu (khi lịch sinh từ chốt kèo)"
           },
           "counts": {
             "$ref": "#/components/schemas/AttendanceCountsDto"
@@ -3423,6 +3811,36 @@
           "monthExpense",
           "unpaidFines",
           "recent"
+        ]
+      },
+      "FinesDto": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "string",
+            "example": "2026-11"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Tổng tiền phạt đã ghi trong tháng (VND)"
+          },
+          "unpaid": {
+            "type": "integer",
+            "description": "Phần chưa nộp (VND)"
+          },
+          "items": {
+            "description": "Khoản phạt mới nhất trước",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FundTxDto"
+            }
+          }
+        },
+        "required": [
+          "period",
+          "total",
+          "unpaid",
+          "items"
         ]
       },
       "FundTxPageDto": {
@@ -4035,6 +4453,26 @@
           "headToHead": {
             "type": "integer",
             "description": "Số lần đã gặp đội đăng kèo"
+          },
+          "h2hOwnerWins": {
+            "type": "integer",
+            "description": "Trong các lần gặp: số lần đội đăng kèo thắng"
+          },
+          "h2hOwnerLosses": {
+            "type": "integer",
+            "description": "Trong các lần gặp: số lần đội đăng kèo thua"
+          },
+          "reviewCount": {
+            "type": "integer",
+            "description": "Số lượt đánh giá nhận được"
+          },
+          "reputation": {
+            "type": "number",
+            "description": "Uy tín trung bình 1–5"
+          },
+          "onTimePercent": {
+            "type": "integer",
+            "description": "% đánh giá có nhãn \"Đúng giờ\""
           }
         },
         "required": [
@@ -4045,7 +4483,10 @@
           "level",
           "memberCount",
           "matchesPlayed",
-          "headToHead"
+          "headToHead",
+          "h2hOwnerWins",
+          "h2hOwnerLosses",
+          "reviewCount"
         ]
       },
       "MatchRequestDto": {
@@ -4483,6 +4924,566 @@
         },
         "required": [
           "startAt"
+        ]
+      },
+      "MatchStatus": {
+        "type": "string",
+        "enum": [
+          "scheduled",
+          "finished",
+          "cancelled"
+        ]
+      },
+      "MatchPlayerDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string"
+          },
+          "position": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              }
+            ]
+          },
+          "goals": {
+            "type": "integer"
+          },
+          "assists": {
+            "type": "integer"
+          },
+          "mvp": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "userId",
+          "name",
+          "goals",
+          "assists",
+          "mvp"
+        ]
+      },
+      "MyReviewDto": {
+        "type": "object",
+        "properties": {
+          "reputation": {
+            "type": "integer"
+          },
+          "fairplay": {
+            "type": "integer"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "comment": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reputation",
+          "fairplay",
+          "tags"
+        ]
+      },
+      "MatchDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MatchStatus"
+              }
+            ]
+          },
+          "homeTeam": {
+            "$ref": "#/components/schemas/TeamBriefDto"
+          },
+          "awayTeam": {
+            "$ref": "#/components/schemas/TeamBriefDto"
+          },
+          "myTeamId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Đội tôi đang xem trận này"
+          },
+          "homeScore": {
+            "type": "integer"
+          },
+          "awayScore": {
+            "type": "integer"
+          },
+          "resultState": {
+            "type": "string",
+            "enum": [
+              "none",
+              "awaiting_opponent",
+              "awaiting_me",
+              "confirmed"
+            ],
+            "description": "none: chưa ai nhập; awaiting_opponent: đội tôi đã nhập, chờ đội kia; awaiting_me: đội kia đã nhập, chờ tôi; confirmed: hai bên đã chốt"
+          },
+          "ended": {
+            "type": "boolean",
+            "description": "Đã kết thúc giờ đá (được nhập kết quả, thống kê, đánh giá)"
+          },
+          "canReport": {
+            "type": "boolean",
+            "description": "Tôi (đội trưởng/phó) nhập hoặc sửa được tỉ số"
+          },
+          "canEdit": {
+            "type": "boolean",
+            "description": "Tôi (đội trưởng/phó) nhập được thống kê và đánh giá"
+          },
+          "pitchPrice": {
+            "type": "integer",
+            "description": "Tiền sân đã chốt (VND)"
+          },
+          "ratioWin": {
+            "type": "integer"
+          },
+          "ratioLose": {
+            "type": "integer"
+          },
+          "myFee": {
+            "type": "integer",
+            "description": "Tiền sân đội tôi đã bị trừ vào quỹ sau khi chốt tỉ số"
+          },
+          "roster": {
+            "description": "Thành viên đội tôi kèm số liệu",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MatchPlayerDto"
+            }
+          },
+          "myReview": {
+            "$ref": "#/components/schemas/MyReviewDto"
+          },
+          "eventId": {
+            "type": "object",
+            "format": "uuid",
+            "description": "Lịch trận trong đội tôi"
+          }
+        },
+        "required": [
+          "id",
+          "startAt",
+          "endAt",
+          "status",
+          "homeTeam",
+          "awayTeam",
+          "myTeamId",
+          "resultState",
+          "ended",
+          "canReport",
+          "canEdit",
+          "roster"
+        ]
+      },
+      "SetResultDto": {
+        "type": "object",
+        "properties": {
+          "homeScore": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          },
+          "awayScore": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          }
+        },
+        "required": [
+          "homeScore",
+          "awayScore"
+        ]
+      },
+      "PlayerStatInput": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "goals": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30
+          },
+          "assists": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30
+          }
+        },
+        "required": [
+          "userId",
+          "goals",
+          "assists"
+        ]
+      },
+      "SetStatsDto": {
+        "type": "object",
+        "properties": {
+          "players": {
+            "description": "Số bàn, kiến tạo của cầu thủ đội mình. Thay toàn bộ số liệu cũ của đội.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlayerStatInput"
+            }
+          },
+          "mvpUserId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Cầu thủ hay nhất của đội mình"
+          }
+        },
+        "required": [
+          "players"
+        ]
+      },
+      "SubmitReviewDto": {
+        "type": "object",
+        "properties": {
+          "reputation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Uy tín, đúng giờ"
+          },
+          "fairplay": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "tags": {
+            "type": "array",
+            "description": "on_time, good_play, friendly, fair_pay, full_squad",
+            "items": {
+              "type": "string",
+              "enum": [
+                "on_time",
+                "good_play",
+                "friendly",
+                "fair_pay",
+                "full_squad"
+              ]
+            }
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "reputation",
+          "fairplay",
+          "tags"
+        ]
+      },
+      "TeamRecordDto": {
+        "type": "object",
+        "properties": {
+          "played": {
+            "type": "integer"
+          },
+          "wins": {
+            "type": "integer"
+          },
+          "draws": {
+            "type": "integer"
+          },
+          "losses": {
+            "type": "integer"
+          },
+          "goalsFor": {
+            "type": "integer"
+          },
+          "goalsAgainst": {
+            "type": "integer"
+          },
+          "form": {
+            "type": "array",
+            "description": "5 trận gần nhất, mới nhất đứng đầu",
+            "items": {
+              "type": "string",
+              "enum": [
+                "W",
+                "D",
+                "L"
+              ]
+            }
+          }
+        },
+        "required": [
+          "played",
+          "wins",
+          "draws",
+          "losses",
+          "goalsFor",
+          "goalsAgainst",
+          "form"
+        ]
+      },
+      "TagCountDto": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tag",
+          "count"
+        ]
+      },
+      "ReviewItemDto": {
+        "type": "object",
+        "properties": {
+          "fromTeam": {
+            "$ref": "#/components/schemas/TeamBriefDto"
+          },
+          "reputation": {
+            "type": "integer"
+          },
+          "fairplay": {
+            "type": "integer"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "fromTeam",
+          "reputation",
+          "fairplay",
+          "createdAt"
+        ]
+      },
+      "RecentMatchDto": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "opponent": {
+            "$ref": "#/components/schemas/TeamBriefDto"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "goalsFor": {
+            "type": "integer"
+          },
+          "goalsAgainst": {
+            "type": "integer"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "W",
+              "D",
+              "L"
+            ]
+          }
+        },
+        "required": [
+          "matchId",
+          "opponent",
+          "startAt",
+          "goalsFor",
+          "goalsAgainst",
+          "outcome"
+        ]
+      },
+      "TeamProfileDto": {
+        "type": "object",
+        "properties": {
+          "team": {
+            "$ref": "#/components/schemas/TeamBriefDto"
+          },
+          "memberCount": {
+            "type": "integer"
+          },
+          "sinceYear": {
+            "type": "integer",
+            "description": "Năm lập đội"
+          },
+          "record": {
+            "$ref": "#/components/schemas/TeamRecordDto"
+          },
+          "reviewCount": {
+            "type": "integer",
+            "description": "Số lượt đánh giá nhận được"
+          },
+          "reputation": {
+            "type": "number",
+            "description": "Uy tín trung bình 1–5"
+          },
+          "fairplay": {
+            "type": "number"
+          },
+          "onTimePercent": {
+            "type": "integer",
+            "description": "% đánh giá có nhãn \"Đúng giờ\""
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagCountDto"
+            }
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewItemDto"
+            }
+          },
+          "recentMatches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecentMatchDto"
+            }
+          }
+        },
+        "required": [
+          "team",
+          "memberCount",
+          "sinceYear",
+          "record",
+          "reviewCount",
+          "tags",
+          "reviews",
+          "recentMatches"
+        ]
+      },
+      "HonorPlayerDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string"
+          },
+          "position": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              }
+            ]
+          },
+          "team": {
+            "$ref": "#/components/schemas/TeamBriefDto"
+          },
+          "goals": {
+            "type": "integer"
+          },
+          "assists": {
+            "type": "integer"
+          },
+          "mvps": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "userId",
+          "name",
+          "team",
+          "goals",
+          "assists",
+          "mvps"
+        ]
+      },
+      "TeamBadgeDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "unbeaten",
+              "fairplay"
+            ]
+          },
+          "value": {
+            "type": "number",
+            "description": "unbeaten: số trận bất bại; fairplay: điểm fair-play trung bình"
+          }
+        },
+        "required": [
+          "type",
+          "value"
+        ]
+      },
+      "HonorsDto": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "example": "2026-11"
+          },
+          "playerOfMonth": {
+            "$ref": "#/components/schemas/HonorPlayerDto"
+          },
+          "scorers": {
+            "description": "Vua phá lưới, nhiều bàn nhất trước",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HonorPlayerDto"
+            }
+          },
+          "teamBadges": {
+            "description": "Danh hiệu của đội truyền lên (teamId)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamBadgeDto"
+            }
+          }
+        },
+        "required": [
+          "month",
+          "scorers",
+          "teamBadges"
         ]
       },
       "ErrorBody": {
