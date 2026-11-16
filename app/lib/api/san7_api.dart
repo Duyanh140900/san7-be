@@ -10,6 +10,7 @@ import 'exports.dart'
         EventsClient,
         FundsClient,
         HealthClient,
+        MatchesClient,
         MembersClient,
         NotificationsClient,
         PitchesClient,
@@ -37,6 +38,7 @@ final class San7Api {
   late final clients.EventsClient events = clients.EventsClient(_client);
   late final clients.FundsClient funds = clients.FundsClient(_client);
   late final clients.HealthClient health = clients.HealthClient(_client);
+  late final clients.MatchesClient matches = clients.MatchesClient(_client);
   late final clients.MembersClient members = clients.MembersClient(_client);
   late final clients.NotificationsClient notifications = clients.NotificationsClient(_client);
   late final clients.PitchesClient pitches = clients.PitchesClient(_client);

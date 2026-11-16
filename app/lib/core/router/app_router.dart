@@ -11,6 +11,8 @@ import '../../features/funds/presentation/add_fund_tx_screen.dart';
 import '../../features/funds/presentation/fund_transactions_screen.dart';
 import '../../features/funds/presentation/funds_page.dart';
 import '../../features/honors/presentation/honors_screen.dart';
+import '../../features/matches/presentation/match_result_screen.dart';
+import '../../features/matches/presentation/team_profile_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/pitches/presentation/booking_screen.dart';
 import '../../features/pitches/presentation/pitch_detail_screen.dart';
@@ -73,6 +75,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
+      // Sau trận (M4)
+      GoRoute(
+        path: '/teams/:teamId/matches/:matchId/result',
+        builder: (_, state) => MatchResultScreen(
+          teamId: state.pathParameters['teamId']!,
+          matchId: state.pathParameters['matchId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/team-profile/:teamId',
+        builder: (_, state) => TeamProfileScreen(teamId: state.pathParameters['teamId']!),
+      ),
       // Đặt sân (M3)
       GoRoute(
         path: '/pitch/:pitchId',

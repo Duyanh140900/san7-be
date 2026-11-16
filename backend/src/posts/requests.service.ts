@@ -66,7 +66,36 @@ function toRequestDto(
       memberCount: stats?.memberCount ?? 0,
       matchesPlayed: stats?.matchesPlayed ?? 0,
       headToHead: stats?.headToHead ?? 0,
+      h2hOwnerWins: stats?.h2hOwnerWins ?? 0,
+      h2hOwnerLosses: stats?.h2hOwnerLosses ?? 0,
+      reviewCount: stats?.reviewCount ?? 0,
+      reputation: stats?.reputation ?? null,
+      onTimePercent: stats?.onTimePercent ?? null,
     },
+  };
+}
+
+/**
+ * Tiền sân và tỷ lệ chia chốt cho trận: tỷ lệ đội nhận đề xuất (nếu có) thay tỷ lệ của kèo,
+ * vì chấp nhận yêu cầu là đồng ý tỷ lệ đó. Kèo nước/giao hữu hoặc không có giá thì không chia.
+ */
+export function matchFeeTerms(
+  post: {
+    deal: string | null;
+    pitchPrice: bigint | null;
+    ratioWin: number | null;
+    ratioLose: number | null;
+  },
+  request: { ratioWin: number | null; ratioLose: number | null },
+) {
+  const splits = post.deal === 'split' || post.deal === 'loser_pays';
+  if (!splits || post.pitchPrice === null) {
+    return { pitchPrice: null, ratioWin: null, ratioLose: null };
+  }
+  return {
+    pitchPrice: post.pitchPrice,
+    ratioWin: request.ratioWin ?? post.ratioWin,
+    ratioLose: request.ratioLose ?? post.ratioLose,
   };
 }
 
@@ -222,7 +251,6 @@ export class RequestsService {
       this.prisma,
       me.teamId,
       rows.map((r) => r.teamId),
-      now,
     );
     return rows.map((r) => toRequestDto(r, stats.get(r.teamId), now));
   }
@@ -249,7 +277,7 @@ export class RequestsService {
     if (!r || !side) throw this.requestNotFound();
 
     const [stats, others, event] = await Promise.all([
-      teamStats(this.prisma, r.post.teamId, [r.teamId], now),
+      teamStats(this.prisma, r.post.teamId, [r.teamId]),
       side === 'owner'
         ? this.prisma.matchRequest.findMany({
             where: { postId: r.postId, id: { not: r.id }, ...livePending(now) },
@@ -324,6 +352,7 @@ export class RequestsService {
       });
 
       let matchId: string | undefined;
+      let matchEnd: Date | undefined;
       let ownerEventId: string | undefined;
       let requesterEventId: string;
       const base = {
@@ -341,9 +370,11 @@ export class RequestsService {
             startAt: post.startAt,
             endAt: post.endAt,
             location: post.pitchName,
+            ...matchFeeTerms(post, r),
           },
         });
         matchId = match.id;
+        matchEnd = post.endAt;
         // Kèo gắn với sân đã đặt: lịch của lượt đặt thành lịch trận, không tạo trùng
         const bookedEvent = post.bookingId
           ? await tx.event.findFirst({
@@ -432,6 +463,7 @@ export class RequestsService {
       return {
         notes,
         requesterTeamId: r.teamId,
+        matchEnd,
         dto: { matchId, eventId: ownerEventId },
       };
     });
@@ -439,6 +471,9 @@ export class RequestsService {
     this.realtime.toTeam(me.teamId, 'events.changed', {});
     this.realtime.toTeam(result.requesterTeamId, 'events.changed', {});
     await this.notifications.dispatch(result.notes);
+    if (result.dto.matchId && result.matchEnd) {
+      await this.schedulePrompt(result.dto.matchId, result.matchEnd, now);
+    }
     return result.dto;
   }
 
@@ -503,6 +538,25 @@ export class RequestsService {
       });
     });
     await this.notifications.dispatch(notes);
+  }
+
+  /** Hẹn nhắc nhập kết quả ngay sau giờ kết thúc trận. */
+  private async schedulePrompt(matchId: string, endAt: Date, now: Date) {
+    try {
+      await this.queue.add(
+        Jobs.matchPromptResult,
+        { matchId },
+        {
+          delay: Math.max(0, endAt.getTime() - now.getTime()),
+          jobId: `match-prompt-${matchId}`,
+          removeOnComplete: true,
+          removeOnFail: 100,
+        },
+      );
+    } catch (e) {
+      // Không có job vẫn nhập kết quả được; chỉ mất lời nhắc
+      this.logger.warn(`Không hẹn được job nhắc kết quả: ${String(e)}`);
+    }
   }
 
   /** Job trễ đánh dấu hết hạn (đọc dữ liệu vẫn tự tính hết hạn nếu job trễ). */

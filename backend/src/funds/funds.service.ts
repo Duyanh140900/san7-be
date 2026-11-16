@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { AppError } from '../common/errors.js';
 import { toMoney } from '../common/money.js';
+import { monthRange } from '../matches/match-rules.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
 import type { FundType } from '../generated/prisma/enums.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -12,6 +13,8 @@ import type {
   FineRuleDto,
   FundSummaryDto,
   FundTxDto,
+  FinesDto,
+  FinesQuery,
   FundTxPageDto,
   ListFundTxQuery,
 } from './funds.dto.js';
@@ -159,6 +162,30 @@ export class FundsService {
             }
           : null,
       recent: recent.map(toTxDto),
+    };
+  }
+
+  /** Sổ phạt của một tháng (theo ngày ghi phạt, giờ VN). */
+  async fines(me: TeamMembership, q: FinesQuery): Promise<FinesDto> {
+    const period = q.period ?? vnMonth(new Date()).period;
+    const range = monthRange(period);
+    if (!range) throw this.bad('invalid_period', 'Tháng không hợp lệ');
+    const rows = await this.prisma.fundTransaction.findMany({
+      where: {
+        teamId: me.teamId,
+        type: 'fine',
+        createdAt: { gte: range.from, lt: range.to },
+      },
+      include: txInclude,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: 200,
+    });
+    const sum = (list: typeof rows) => list.reduce((a, r) => a + r.amount, 0n);
+    return {
+      period,
+      total: toMoney(sum(rows)),
+      unpaid: toMoney(sum(rows.filter((r) => !r.paid))),
+      items: rows.map(toTxDto),
     };
   }
 

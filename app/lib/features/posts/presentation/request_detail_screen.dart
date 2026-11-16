@@ -273,8 +273,35 @@ class _Content extends StatelessWidget {
                   child: Row(
                     children: [
                       _Stat('${r.team.matchesPlayed}', 'Trận đã đá'),
-                      _Stat('${r.peopleCount}', 'Số người'),
-                      _Stat('${r.team.headToHead}', 'Đã gặp'),
+                      _Stat(
+                        r.team.reputation == null ? '—' : Fmt.rating(r.team.reputation!),
+                        'Uy tín',
+                      ),
+                      _Stat(
+                        r.team.onTimePercent == null ? '—' : '${r.team.onTimePercent}%',
+                        'Đúng giờ',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text.rich(
+                  textAlign: TextAlign.center,
+                  TextSpan(
+                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                    children: [
+                      TextSpan(text: '${r.peopleCount} người dự kiến · ${_headToHead(r.team)} · '),
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.baseline,
+                        baseline: TextBaseline.alphabetic,
+                        child: GestureDetector(
+                          onTap: () => context.push(Routes.teamProfile(r.team.id)),
+                          child: const Text(
+                            'Xem hồ sơ đội',
+                            style: TextStyle(fontSize: 14, color: AppColors.primary),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -431,6 +458,11 @@ class _StatusBanner extends StatelessWidget {
     };
   }
 }
+
+/// "Chưa gặp đội bạn" hoặc "Đã gặp đội bạn 2 lần (thắng 1, thua 1)".
+String _headToHead(RequestTeamDto t) => t.headToHead == 0
+    ? 'Chưa gặp đội bạn'
+    : 'Đã gặp đội bạn ${t.headToHead} lần (thắng ${t.h2hOwnerWins}, thua ${t.h2hOwnerLosses})';
 
 class _Stat extends StatelessWidget {
   const _Stat(this.value, this.label);

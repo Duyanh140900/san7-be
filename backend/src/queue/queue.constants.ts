@@ -8,6 +8,8 @@ export const Jobs = {
   requestExpire: 'request.expire',
   /** Nhả lượt giữ sân hết hạn: data { bookingId } */
   bookingExpire: 'booking.expire',
+  /** Nhắc nhập kết quả sau giờ kết thúc trận: data { matchId } */
+  matchPromptResult: 'match.prompt_result',
   /** Gửi FCM cho các thông báo: data { notificationIds } */
   pushSend: 'push.send',
 } as const;

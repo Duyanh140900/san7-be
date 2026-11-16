@@ -182,6 +182,25 @@ class EventDetailScreen extends ConsumerWidget {
               onRetry: () => ref.invalidate(eventDetailProvider(key)),
               data: (d) => EventMainCard(teamId: teamId, event: EventView.detail(d)),
             ),
+            if (detail.value?.matchId case final matchId?) ...[
+              const SizedBox(height: 14),
+              GestureDetector(
+                onTap: () => context.push(Routes.matchResult(teamId, matchId)),
+                behavior: HitTestBehavior.opaque,
+                child: const AppCard(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text('Kết quả & đánh giá', style: TextStyle(fontSize: 16))),
+                      Text(
+                        'Nhập tỉ số, ghi bàn',
+                        style: TextStyle(fontSize: 15, color: AppColors.primary),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             if (bookingId != null) ...[
               const SizedBox(height: 14),
               GestureDetector(

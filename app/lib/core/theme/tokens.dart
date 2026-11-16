@@ -40,6 +40,14 @@ abstract final class AppColors {
   static const shadow = Color(0x29000000);
   static const shadowSoft = Color(0x1A000000);
 
+  /// Vàng của cầu thủ hay nhất / cầu thủ của tháng
+  static const gold = Color(0xFFFFCC00);
+  static const goldSoft = Color(0xFFFFFBEA);
+  static const goldText = Color(0xFF7A5A00);
+
+  /// Sao đánh giá
+  static const star = Color(0xFFFF9500);
+
   /// Xám của mục bị vô hiệu (khung giờ đã qua/hết sân, ghim hết chỗ)
   static const disabled = Color(0xFFAEAEB2);
 

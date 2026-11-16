@@ -288,6 +288,25 @@ export class RequestTeamDto extends TeamBriefDto {
     description: 'Số lần đã gặp đội đăng kèo',
   })
   headToHead: number;
+  @ApiProperty({
+    type: 'integer',
+    description: 'Trong các lần gặp: số lần đội đăng kèo thắng',
+  })
+  h2hOwnerWins: number;
+  @ApiProperty({
+    type: 'integer',
+    description: 'Trong các lần gặp: số lần đội đăng kèo thua',
+  })
+  h2hOwnerLosses: number;
+  @ApiProperty({ type: 'integer', description: 'Số lượt đánh giá nhận được' })
+  reviewCount: number;
+  @ApiPropertyOptional({ type: 'number', description: 'Uy tín trung bình 1–5' })
+  reputation?: number | null;
+  @ApiPropertyOptional({
+    type: 'integer',
+    description: '% đánh giá có nhãn "Đúng giờ"',
+  })
+  onTimePercent?: number | null;
 }
 
 export class MatchRequestDto {

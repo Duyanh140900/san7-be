@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { validateEnv } from './common/env.js';
 import { FundsModule } from './funds/funds.module.js';
 import { HealthController } from './health/health.controller.js';
+import { MatchesModule } from './matches/matches.module.js';
 import { MembersModule } from './members/members.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { PitchesModule } from './pitches/pitches.module.js';
@@ -54,6 +55,7 @@ import { UsersModule } from './users/users.module.js';
     NotificationsModule,
     PostsModule,
     PitchesModule,
+    MatchesModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

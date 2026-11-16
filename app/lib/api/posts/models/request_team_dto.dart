@@ -16,6 +16,21 @@ class RequestTeamDto {
 
     /// Số lần đã gặp đội đăng kèo
     required this.headToHead,
+
+    /// Trong các lần gặp: số lần đội đăng kèo thắng
+    required this.h2hOwnerWins,
+
+    /// Trong các lần gặp: số lần đội đăng kèo thua
+    required this.h2hOwnerLosses,
+
+    /// Số lượt đánh giá nhận được
+    required this.reviewCount,
+
+    /// Uy tín trung bình 1–5
+    this.reputation,
+
+    /// % đánh giá có nhãn "Đúng giờ"
+    this.onTimePercent,
     this.additionalProperties = const {},
   });
 
@@ -28,6 +43,11 @@ class RequestTeamDto {
     memberCount: json["memberCount"] as int,
     matchesPlayed: json["matchesPlayed"] as int,
     headToHead: json["headToHead"] as int,
+    h2hOwnerWins: json["h2hOwnerWins"] as int,
+    h2hOwnerLosses: json["h2hOwnerLosses"] as int,
+    reviewCount: json["reviewCount"] as int,
+    reputation: json.containsKey("reputation") ? json["reputation"] as num : null,
+    onTimePercent: json.containsKey("onTimePercent") ? json["onTimePercent"] as int : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -52,6 +72,21 @@ class RequestTeamDto {
   /// Số lần đã gặp đội đăng kèo
   final int headToHead;
 
+  /// Trong các lần gặp: số lần đội đăng kèo thắng
+  final int h2hOwnerWins;
+
+  /// Trong các lần gặp: số lần đội đăng kèo thua
+  final int h2hOwnerLosses;
+
+  /// Số lượt đánh giá nhận được
+  final int reviewCount;
+
+  /// Uy tín trung bình 1–5
+  final num? reputation;
+
+  /// % đánh giá có nhãn "Đúng giờ"
+  final int? onTimePercent;
+
   static const _knownKeys = <String>{
     "id",
     "name",
@@ -61,6 +96,11 @@ class RequestTeamDto {
     "memberCount",
     "matchesPlayed",
     "headToHead",
+    "h2hOwnerWins",
+    "h2hOwnerLosses",
+    "reviewCount",
+    "reputation",
+    "onTimePercent",
   };
 
   final Map<String, Object?> additionalProperties;
@@ -76,5 +116,10 @@ class RequestTeamDto {
     "memberCount": this.memberCount,
     "matchesPlayed": this.matchesPlayed,
     "headToHead": this.headToHead,
+    "h2hOwnerWins": this.h2hOwnerWins,
+    "h2hOwnerLosses": this.h2hOwnerLosses,
+    "reviewCount": this.reviewCount,
+    if (this.reputation != null) "reputation": this.reputation,
+    if (this.onTimePercent != null) "onTimePercent": this.onTimePercent,
   };
 }
