@@ -10,6 +10,8 @@ import '../../../core/labels.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/app_toast.dart';
+import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_field_row.dart';
 import '../../../core/widgets/pills.dart';
 import '../../team/data/team_repository.dart';
@@ -17,10 +19,8 @@ import '../data/auth_repository.dart';
 import 'onboarding_scaffold.dart';
 import 'splash_screen.dart';
 
-void _toast(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+void _toast(BuildContext context, String message, {ToastType type = ToastType.error}) {
+  showToast(context, message, type: type);
 }
 
 /// Nội dung cuộn được, phần [bottom] luôn nằm cuối màn khi nội dung ngắn.
@@ -84,8 +84,9 @@ class _WelcomeStepState extends ConsumerState<WelcomeStep> {
       await ref.read(authControllerProvider.notifier).signInWithGoogle();
     } on SignInCancelled {
       // Người dùng tự huỷ: không báo lỗi
-    } on ApiError catch (e) {
-      if (mounted) _toast(context, e.message);
+    } catch (e) {
+      // Mọi lỗi khác (cấu hình Google, mạng, API) đều phải hiện cho người dùng
+      if (mounted) _toast(context, ApiError.from(e).message);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -510,16 +511,16 @@ class _TeamStepState extends ConsumerState<TeamStep> {
       if (_mode == _TeamMode.join) {
         final m = await teams.join(_code.text.replaceAll(' ', ''));
         if (mounted) {
-          _toast(context, 'Đã gửi yêu cầu vào ${m.teamName}. Chờ đội trưởng duyệt.');
+          _toast(context, 'Đã gửi yêu cầu vào ${m.teamName}. Chờ đội trưởng duyệt.', type: ToastType.success);
         }
       } else {
         final name = _teamName.text.trim();
         if (name.length < 2) {
-          _toast(context, 'Nhập tên đội');
+          _toast(context, 'Nhập tên đội', type: ToastType.warning);
           return;
         }
         final t = await teams.create(name: name, area: _area, level: _level);
-        if (mounted) _toast(context, 'Đã tạo ${t.name}. Mã mời: ${t.inviteCode}');
+        if (mounted) _toast(context, 'Đã tạo ${t.name}. Mã mời: ${t.inviteCode}', type: ToastType.success);
       }
       await auth.reloadMe(); // có đội → router chuyển sang Bảng tin
     } on ApiError catch (e) {

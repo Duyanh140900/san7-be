@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import '../../../core/widgets/app_toast.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/auth/auth_controller.dart';
@@ -74,11 +75,11 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
 
   Future<void> _save(String teamId, int monthlyDue, List<FineRuleDto> rules) async {
     final amount = _amountValue;
-    if (amount <= 0) return showToast(context, 'Nhập số tiền');
+    if (amount <= 0) return showToast(context, 'Nhập số tiền', type: ToastType.warning);
     final CreateFundTxDto body;
     switch (_type) {
       case FundTypeValue.income:
-        if (_isDues && _payers.isEmpty) return showToast(context, 'Chọn người đóng quỹ');
+        if (_isDues && _payers.isEmpty) return showToast(context, 'Chọn người đóng quỹ', type: ToastType.warning);
         final period = widget.args.period ?? Fmt.currentPeriod();
         body = CreateFundTxDto(
           type: FundTypeKnown(FundTypeValue.income),
@@ -98,7 +99,7 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
           note: _noteOrNull,
         );
       case FundTypeValue.fine:
-        if (_fined.isEmpty) return showToast(context, 'Chọn người bị phạt');
+        if (_fined.isEmpty) return showToast(context, 'Chọn người bị phạt', type: ToastType.warning);
         final rule = rules.where((r) => r.id == _fineRuleId).firstOrNull;
         body = CreateFundTxDto(
           type: FundTypeKnown(FundTypeValue.fine),

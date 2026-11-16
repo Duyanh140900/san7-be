@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/app_toast.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +20,7 @@ class San7App extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Sân 7',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: AppToast.messengerKey,
       theme: buildAppTheme(),
       routerConfig: ref.watch(routerProvider),
       locale: const Locale('vi'),

@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import '../../../core/widgets/app_toast.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/format.dart';
@@ -172,14 +173,14 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     final booking = _type == PostTypeValue.findOpponent ? _booking : null;
     final start = booking?.startAt ?? _startUtc;
     if (booking == null && start.isBefore(DateTime.now())) {
-      return showToast(context, 'Giờ đá đã qua, chọn giờ khác');
+      return showToast(context, 'Giờ đá đã qua, chọn giờ khác', type: ToastType.warning);
     }
     if (_type == PostTypeValue.passPitch && _pitch.text.trim().isEmpty) {
-      return showToast(context, 'Nhập tên sân muốn pass');
+      return showToast(context, 'Nhập tên sân muốn pass', type: ToastType.warning);
     }
     final players = int.tryParse(_players.text);
     if (_type == PostTypeValue.recruit && _positions.isEmpty && players == null) {
-      return showToast(context, 'Chọn vị trí hoặc số người cần');
+      return showToast(context, 'Chọn vị trí hoặc số người cần', type: ToastType.warning);
     }
     final level = _level ?? (team.level as TeamLevelKnown).value;
     final isFind = _type == PostTypeValue.findOpponent;

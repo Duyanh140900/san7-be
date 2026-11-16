@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import '../../../core/widgets/app_toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../api/exports.dart';
@@ -27,7 +28,7 @@ Future<void> openDirections(BuildContext context, num lat, num lng) async {
     Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$lat,$lng'),
     mode: LaunchMode.externalApplication,
   ).catchError((_) => false);
-  if (!ok && context.mounted) showToast(context, 'Không mở được bản đồ chỉ đường');
+  if (!ok && context.mounted) showToast(context, 'Không mở được bản đồ chỉ đường', type: ToastType.error);
 }
 
 /// Màn 4 · Chi tiết sân và chọn giờ.
@@ -58,7 +59,7 @@ class _PitchDetailScreenState extends ConsumerState<PitchDetailScreen> {
     final slot = _slot;
     if (slot == null) return;
     if (team == null) {
-      showToast(context, 'Chỉ đội trưởng hoặc phó đội mới đặt được sân');
+      showToast(context, 'Chỉ đội trưởng hoặc phó đội mới đặt được sân', type: ToastType.warning);
       return;
     }
     setState(() => _holding = true);

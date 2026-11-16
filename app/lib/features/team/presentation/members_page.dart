@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import '../../../core/widgets/app_toast.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -118,7 +119,7 @@ class _InviteCard extends ConsumerWidget {
                 GestureDetector(
                   onLongPress: () {
                     Clipboard.setData(ClipboardData(text: code));
-                    showToast(context, 'Đã chép mã $code');
+                    showToast(context, 'Đã chép mã $code', type: ToastType.success);
                   },
                   child: Text(
                     code,

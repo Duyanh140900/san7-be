@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import '../../../core/widgets/app_toast.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/api/api_error.dart';
@@ -154,10 +155,10 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
       ref.invalidate(upcomingEventsProvider(widget.teamId));
       ref.invalidate(unreadCountProvider);
       ref.invalidate(notificationsProvider);
-      showToast(context, 'Đã lưu kết quả trận');
+      showToast(context, 'Đã lưu kết quả trận', type: ToastType.success);
       context.pop();
     } catch (e) {
-      if (mounted) showToast(context, ApiError.from(e).message);
+      if (mounted) showToast(context, ApiError.from(e).message, type: ToastType.error);
       // Có bước đã thành công (vd tỉ số): tải lại để màn phản ánh đúng trạng thái
       ref.invalidate(matchDetailProvider(_key));
     } finally {

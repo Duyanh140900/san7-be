@@ -1,7 +1,7 @@
 # Sân 7
 
 App cộng đồng bóng đá sân 7 (cáp kèo, đặt sân, quản lý đội). Kế hoạch đầy đủ: `docs/PLAN.md`.
-Bản vẽ UI (24 màn mobile + 1 desktop): https://claude.ai/artifact/V2U7i6PSSdpKo5GyzhvMsG
+Bản vẽ UI (24 màn mobile + 1 desktop): `docs/design/san7-ui.html` (mở bằng trình duyệt, chạy offline). Bản gốc (cần đăng nhập Claude): https://claude.ai/artifact/V2U7i6PSSdpKo5GyzhvMsG
 (mỗi màn là `project/<Tên>.dc.html`; bảng số màn ở PLAN mục 1).
 
 ## Quy ước (PLAN mục 12)

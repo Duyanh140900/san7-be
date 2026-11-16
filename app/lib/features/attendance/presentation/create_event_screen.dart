@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import '../../../core/widgets/app_toast.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/format.dart';
@@ -84,7 +85,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     final teamId = ref.read(currentTeamIdProvider);
     if (teamId == null) return;
     final start = _startUtc;
-    if (start.isBefore(DateTime.now())) return showToast(context, 'Giờ bắt đầu đã qua');
+    if (start.isBefore(DateTime.now())) return showToast(context, 'Giờ bắt đầu đã qua', type: ToastType.warning);
     setState(() => _saving = true);
     final title = _title.text.trim().isEmpty ? _defaultTitle : _title.text.trim();
     final ok = await runAction(

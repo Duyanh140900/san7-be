@@ -15,7 +15,7 @@ App cộng đồng bóng đá sân 7 (tiếng Việt, ưu tiên mobile):
 - **Quản lý đội:** thành viên và vai trò, lịch và điểm danh, quỹ (thu/chi/phạt), kết quả trận, bảng vàng, đánh giá uy tín.
 
 **Bản vẽ UI (24 màn mobile + 1 desktop, phong cách Apple):**
-https://claude.ai/artifact/V2U7i6PSSdpKo5GyzhvMsG
+`docs/design/san7-ui.html` (bản offline, mở bằng trình duyệt) · bản gốc cần đăng nhập Claude: https://claude.ai/artifact/V2U7i6PSSdpKo5GyzhvMsG
 Bấm Play trên từng màn để thử luồng. Code giao diện phải bám theo bản vẽ này.
 
 | Số | Màn | Số | Màn |

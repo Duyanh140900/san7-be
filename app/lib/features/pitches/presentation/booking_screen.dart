@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import '../../../core/widgets/app_toast.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../api/exports.dart';
@@ -483,7 +484,7 @@ class _Ticket extends ConsumerWidget {
                     label: 'Sao chép mã',
                     onTap: () async {
                       await Clipboard.setData(ClipboardData(text: booking.code));
-                      if (context.mounted) showToast(context, 'Đã sao chép mã ${booking.code}');
+                      if (context.mounted) showToast(context, 'Đã sao chép mã ${booking.code}', type: ToastType.success);
                     },
                   ),
                 ],

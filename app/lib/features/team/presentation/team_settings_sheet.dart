@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import '../../../core/widgets/app_toast.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/auth/auth_controller.dart';
@@ -154,7 +155,7 @@ class _FineRulesSheetState extends ConsumerState<_FineRulesSheet> {
     final name = _name.text.trim();
     final amount = MoneyInputFormatter.parse(_amount.text);
     if (name.isEmpty || amount < 1000) {
-      return showToast(context, 'Nhập tên luật và số tiền (từ 1.000đ)');
+      return showToast(context, 'Nhập tên luật và số tiền (từ 1.000đ)', type: ToastType.warning);
     }
     final ok = await runAction(
       context,

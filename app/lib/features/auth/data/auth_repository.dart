@@ -41,6 +41,12 @@ class AuthRepository {
           e.code == GoogleSignInExceptionCode.interrupted) {
         throw const SignInCancelled();
       }
+      if (e.code == GoogleSignInExceptionCode.clientConfigurationError ||
+          e.code == GoogleSignInExceptionCode.providerConfigurationError) {
+        throw const ApiError(
+          'Đăng nhập Google chưa được cấu hình (thiếu OAuth client Android cho app). Liên hệ quản trị viên.',
+        );
+      }
       throw ApiError('Đăng nhập Google lỗi: ${e.description ?? e.code.name}');
     }
     final idToken = account.authentication.idToken;

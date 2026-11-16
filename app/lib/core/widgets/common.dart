@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../api/api_error.dart';
 import '../format.dart';
 import '../theme/tokens.dart';
+import 'app_toast.dart';
 
 /// Thẻ trắng bo 18 (như bản vẽ).
 class AppCard extends StatelessWidget {
@@ -227,10 +228,8 @@ class AsyncView<T> extends StatelessWidget {
   }
 }
 
-void showToast(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+void showToast(BuildContext context, String message, {ToastType type = ToastType.info}) {
+  AppToast.show(type, message, messenger: ScaffoldMessenger.maybeOf(context));
 }
 
 /// Chạy một thao tác, báo lỗi bằng toast. Trả về true nếu thành công.
@@ -241,10 +240,10 @@ Future<bool> runAction(
 }) async {
   try {
     await action();
-    if (success != null && context.mounted) showToast(context, success);
+    if (success != null && context.mounted) showToast(context, success, type: ToastType.success);
     return true;
   } catch (e) {
-    if (context.mounted) showToast(context, ApiError.from(e).message);
+    if (context.mounted) showToast(context, ApiError.from(e).message, type: ToastType.error);
     return false;
   }
 }
