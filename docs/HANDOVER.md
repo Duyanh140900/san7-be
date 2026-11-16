@@ -57,3 +57,26 @@ Kiểm tra lần cuối (trên `m4-sau-tran`): backend 180 test (Vitest), app 27
 - **API không trả `null`** (`OmitNullInterceptor`): trường `string | null` phải khai `@ApiPropertyOptional({ type: String })`, nếu không client Dart sinh model rỗng.
 - Dev trên Windows: nếu cổng 3000 bị chiếm đặt `API_PORT` khác; app gọi API qua `http://10.0.2.2` từ máy ảo Android. `kotlin.incremental=false` trong `app/android/gradle.properties` là cố ý (project ở ổ D:, pub cache ở ổ C:).
 - Scripts smoke/seed thử chỉ nằm ngoài repo (thư mục tạm của phiên làm việc) nên không có trong git; muốn kiểm tra nhanh luồng chính thì viết lại theo các endpoint trong `docs/openapi.json`.
+
+## 5. Skill nên cài cho Claude Code
+
+Nguồn và lý do chọn: `docs/PLAN.md` mục 14. Đọc lướt `SKILL.md` trước khi cài.
+
+**Dùng cho dự án**
+
+| Nhóm | Skill | Cách cài |
+|---|---|---|
+| Flutter + Dart (25 skill của Flutter team: `flutter-add-integration-test`, `flutter-add-widget-preview`, `flutter-add-widget-test`, `flutter-apply-architecture-best-practices`, `flutter-build-responsive-layout`, `flutter-fix-layout-issues`, `flutter-implement-json-serialization`, `flutter-setup-declarative-routing`, `flutter-setup-localization`, `flutter-use-http-package`, `dart-add-unit-test`, `dart-build-cli-app`, `dart-collect-coverage`, `dart-fix-runtime-errors`, `dart-generate-test-mocks`, `dart-migrate-to-checks-package`, `dart-resolve-package-conflicts`, `dart-run-static-analysis`, `dart-setup-ffi-assets`, `dart-use-doc-examples`, `dart-use-ffigen`, `dart-use-path-package`, `dart-use-pattern-matching`, `dart-use-primary-constructors`, `dart-write-documentation`) | Trong Claude Code CLI: `/plugin marketplace add flutter/skills` rồi `/plugin install dart-flutter@dart-flutter`. Hoặc `npx skills add flutter/skills`. Nguồn: github.com/flutter/skills, github.com/dart-lang/skills. Cần Flutter/Dart trong PATH để chạy Dart MCP server |
+| Postgres | `supabase-postgres-best-practices` | `npx skills add supabase/agent-skills --skill supabase-postgres-best-practices` |
+| NestJS | `nestjs-expert` | `npx skills add Jeffallan/claude-skills --skill nestjs-expert` |
+| NestJS, Docker, Redis | `nestjs-patterns`, `docker-patterns`, `redis-patterns` | Chép 3 thư mục `skills/<tên>` từ github.com/affaan-m/ECC vào `~/.claude/skills/`. **Không cài cả bộ ECC** (hơn 1.000 skill, có hook) |
+
+**Hỗ trợ giao diện và kiểm thử**
+
+- `awesome-design-md`: `apple/DESIGN.md` làm nguồn theme tokens.
+- `impeccable`: `/impeccable critique` và `/impeccable polish` để rà giao diện (có hướng dẫn iOS/Android native).
+- `playwright-cli`: kiểm tra trang Swagger hoặc trang quản trị web.
+
+**Không cần cho dự án này:** `design-taste-frontend` (chỉ cho web), `img2threejs`.
+
+**Có sẵn trong Claude Code:** `/code-review` (dùng trước khi chốt mỗi chặng), `/security-review`, `/simplify`, `/run`.
