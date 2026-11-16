@@ -23,6 +23,9 @@ abstract final class Routes {
   static String request(String teamId, String requestId) => '/teams/$teamId/requests/$requestId';
   static const notifications = '/notifications';
   static String pitch(String id) => '/pitch/$id';
+  static String matchResult(String teamId, String matchId) =>
+      '/teams/$teamId/matches/$matchId/result';
+  static String teamProfile(String teamId) => '/team-profile/$teamId';
   static String booking(String teamId, String bookingId) => '/teams/$teamId/bookings/$bookingId';
 }
 

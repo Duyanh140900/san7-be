@@ -39,6 +39,9 @@ abstract final class Fmt {
   static String eventTime(DateTime start, DateTime end) =>
       '${weekday(start)} ${dayMonth(start)} · ${time(start)} – ${time(end)}';
 
+  /// Điểm số một chữ số thập phân kiểu Việt: 4.9 → "4,9"
+  static String rating(num v) => v.toStringAsFixed(1).replaceAll('.', ',');
+
   /// "T7 22/11 · 19:00"
   static String slot(DateTime start) => '${weekday(start)} ${dayMonth(start)} · ${time(start)}';
 

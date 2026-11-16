@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/matches/matches_providers.dart';
 import '../../features/notifications/data/notifications_repository.dart';
 import '../../features/pitches/pitches_providers.dart';
 import '../../features/posts/posts_providers.dart';
@@ -126,6 +127,11 @@ final teamRealtimeSyncProvider = Provider<void>((ref) {
         ref.invalidate(postDetailProvider(payload['postId'] as String));
         ref.invalidate(postRequestsProvider);
         ref.invalidate(requestDetailProvider);
+      }
+      if (payload is Map && payload['matchId'] is String) {
+        ref.invalidate(matchDetailProvider);
+        ref.invalidate(teamProfileProvider);
+        ref.invalidate(honorsProvider);
       }
       if (payload is Map && payload['bookingId'] is String) {
         ref.invalidate(bookingProvider);

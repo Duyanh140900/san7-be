@@ -112,33 +112,40 @@ class InfoGrid extends StatelessWidget {
 
 /// Đầu thẻ kèo: avatar đội · tên · thời gian đăng + khu vực · nhãn loại.
 class PostTeamHeader extends StatelessWidget {
-  const PostTeamHeader({super.key, required this.post});
+  const PostTeamHeader({super.key, required this.post, this.onTeamTap});
   final PostDto post;
 
+  /// Bấm vào đội (mở hồ sơ đội). Null = không bấm được.
+  final VoidCallback? onTeamTap;
+
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      TeamAvatar(name: post.team.name, color: post.team.crestColor),
-      const SizedBox(width: 12),
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              post.team.name,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '${Fmt.ago(post.createdAt)} · ${post.area}',
-              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-            ),
-          ],
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTeamTap,
+    behavior: HitTestBehavior.opaque,
+    child: Row(
+      children: [
+        TeamAvatar(name: post.team.name, color: post.team.crestColor),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                post.team.name,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${Fmt.ago(post.createdAt)} · ${post.area}',
+                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              ),
+            ],
+          ),
         ),
-      ),
-      PostTypeBadge(post.type),
-    ],
+        PostTypeBadge(post.type),
+      ],
+    ),
   );
 }
 

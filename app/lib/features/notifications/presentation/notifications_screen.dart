@@ -46,7 +46,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       ref.read(notificationsRepositoryProvider).markRead([n.id]).then((_) => _refresh()).ignore();
     }
     final p = n.payload;
-    if (p.bookingId != null && p.teamId != null) {
+    if (n.type.startsWith('match.') && p.matchId != null && p.teamId != null) {
+      await context.push(Routes.matchResult(p.teamId!, p.matchId!));
+    } else if (p.bookingId != null && p.teamId != null) {
       await context.push(Routes.booking(p.teamId!, p.bookingId!));
     } else if (p.requestId != null && p.teamId != null) {
       await context.push(Routes.request(p.teamId!, p.requestId!));
@@ -193,6 +195,13 @@ class _List extends StatelessWidget {
 /// Icon tròn theo loại thông báo.
 Widget _icon(NotificationDto n) {
   final (bg, fg, icon) = switch (n.type) {
+    'match.result_confirmed' => (
+      AppColors.greenSoft,
+      AppColors.greenSoftText,
+      AppIcons.checkCircle,
+    ),
+    'match.prompt_result' ||
+    'match.result_reported' => (AppColors.primarySoft, AppColors.primarySoftText, AppIcons.ball),
     'request.accepted' => (AppColors.greenSoft, AppColors.greenSoftText, AppIcons.checkCircle),
     'request.received' => (AppColors.primarySoft, AppColors.primarySoftText, AppIcons.ball),
     _ when n.category == NotificationCategory.booking => (

@@ -13,6 +13,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../../../core/widgets/tab_page.dart';
 import '../../attendance/presentation/event_widgets.dart';
+import '../../matches/matches_providers.dart';
 import '../team_providers.dart';
 import 'team_page_scaffold.dart';
 import 'team_settings_sheet.dart';
@@ -54,7 +55,7 @@ class _OverviewPage extends ConsumerWidget {
         data: (t) => _TeamHeader(team: t),
       ),
       children: [
-        _StatsCard(year: Fmt.vn(DateTime.now()).year),
+        _StatsCard(teamId: teamId),
         AsyncView(
           value: events,
           onRetry: () => ref.invalidate(upcomingEventsProvider(teamId)),
@@ -125,13 +126,15 @@ class _TeamHeader extends StatelessWidget {
   }
 }
 
-/// Thành tích mùa: số liệu thật có từ chặng M4 (kết quả trận).
-class _StatsCard extends StatelessWidget {
-  const _StatsCard({required this.year});
-  final int year;
+/// Thành tích của đội: thắng/hoà/thua, hiệu số, uy tín từ các trận đã được hai đội xác nhận.
+class _StatsCard extends ConsumerWidget {
+  const _StatsCard({required this.teamId});
+  final String teamId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(teamProfileProvider(teamId)).value;
+    final r = profile?.record;
     Widget stat(String n, String label, [Color? color]) => Expanded(
       child: Column(
         children: [
@@ -159,20 +162,32 @@ class _StatsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CardHeader('Thành tích mùa $year'),
+          CardHeader(
+            'Thành tích',
+            trailing: LinkButton(
+              'Hồ sơ đội',
+              onTap: () => context.push(Routes.teamProfile(teamId)),
+            ),
+          ),
           const SizedBox(height: 14),
           Row(
             children: [
-              stat('0', 'Trận'),
-              stat('0', 'Thắng', const Color(0xFF1F7A35)),
-              stat('0', 'Hoà'),
-              stat('0', 'Thua', AppColors.red),
+              stat('${r?.played ?? 0}', 'Trận'),
+              stat('${r?.wins ?? 0}', 'Thắng', AppColors.greenSoftText),
+              stat('${r?.draws ?? 0}', 'Hoà'),
+              stat('${r?.losses ?? 0}', 'Thua', AppColors.red),
             ],
           ),
-          const Divider(height: 28, color: Color(0xFFF0F0F0)),
-          const Text(
-            'Chưa có trận nào. Kết quả sẽ tự cập nhật sau mỗi trận.',
-            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          const Divider(height: 28, color: AppColors.divider),
+          Text(
+            r == null || r.played == 0
+                ? 'Chưa có trận nào. Kết quả tự cập nhật sau mỗi trận được hai đội xác nhận.'
+                : [
+                    'Bàn thắng ${r.goalsFor} · bàn thua ${r.goalsAgainst}',
+                    if (profile!.reputation != null)
+                      'Uy tín ${Fmt.rating(profile.reputation!)} (${profile.reviewCount} lượt)',
+                  ].join(' · '),
+            style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
         ],
       ),

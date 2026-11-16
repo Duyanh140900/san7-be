@@ -79,7 +79,10 @@ class _Body extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PostTeamHeader(post: post),
+              PostTeamHeader(
+                post: post,
+                onTeamTap: () => context.push(Routes.teamProfile(post.team.id)),
+              ),
               if (post.body != null) ...[
                 const SizedBox(height: 12),
                 Text(post.body!, style: const TextStyle(fontSize: 16, height: 1.45)),

@@ -143,6 +143,14 @@ class _Body extends StatelessWidget {
     final bestLevel = requests
         .map((r) => (_levelIndex(r.team.level) - postLevel).abs())
         .reduce((a, b) => a < b ? a : b);
+    final bestRep = requests
+        .map((r) => r.team.reputation)
+        .whereType<num>()
+        .fold<num?>(null, (a, b) => a == null || b > a ? b : a);
+    final bestOnTime = requests
+        .map((r) => r.team.onTimePercent)
+        .whereType<int>()
+        .fold<int?>(null, (a, b) => a == null || b > a ? b : a);
     final bestPlayed = requests.map((r) => r.team.matchesPlayed).reduce((a, b) => a > b ? a : b);
     final bestPeople = requests.map((r) => r.peopleCount).reduce((a, b) => a > b ? a : b);
 
@@ -165,10 +173,37 @@ class _Body extends StatelessWidget {
         ],
       ),
       (
+        'Uy tín',
+        [
+          for (final r in requests)
+            (
+              r.team.reputation == null ? '—' : Fmt.rating(r.team.reputation!),
+              r.team.reputation != null && r.team.reputation == bestRep,
+            ),
+        ],
+      ),
+      (
+        'Đúng giờ',
+        [
+          for (final r in requests)
+            (
+              r.team.onTimePercent == null ? '—' : '${r.team.onTimePercent}%',
+              r.team.onTimePercent != null && r.team.onTimePercent == bestOnTime,
+            ),
+        ],
+      ),
+      (
         'Đối đầu',
         [
           for (final r in requests)
-            (r.team.headToHead == 0 ? 'Chưa gặp' : '${r.team.headToHead} lần', false),
+            (
+              r.team.headToHead == 0
+                  ? 'Chưa gặp'
+                  : '${r.team.h2hOwnerWins}T · '
+                        '${r.team.headToHead - r.team.h2hOwnerWins - r.team.h2hOwnerLosses}H · '
+                        '${r.team.h2hOwnerLosses}B',
+              false,
+            ),
         ],
       ),
       ('Số người', [for (final r in requests) ('${r.peopleCount}', r.peopleCount == bestPeople)]),

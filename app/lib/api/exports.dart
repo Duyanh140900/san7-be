@@ -47,7 +47,6 @@ export 'matches/matches_client.dart';
 export 'matches/models/honor_player_dto.dart';
 export 'matches/models/honors_dto.dart';
 export 'matches/models/match_detail_dto.dart';
-export 'matches/models/match_detail_dto_event_id.dart';
 export 'matches/models/match_detail_dto_result_state.dart';
 export 'matches/models/match_player_dto.dart';
 export 'matches/models/match_status.dart';

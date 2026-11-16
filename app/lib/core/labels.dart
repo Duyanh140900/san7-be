@@ -132,4 +132,21 @@ abstract final class Labels {
     PitchDtoAmenitiesItemKnown(:final value) => amenities[value.value] ?? value.value,
     PitchDtoAmenitiesItemUnknown(:final rawValue) => rawValue,
   };
+
+  /// Nhãn đánh giá đội đối thủ (khoá của API).
+  static const reviewTags = <(SubmitReviewDtoTagsItemValue, String)>[
+    (SubmitReviewDtoTagsItemValue.onTime, 'Đúng giờ'),
+    (SubmitReviewDtoTagsItemValue.goodPlay, 'Đá đẹp'),
+    (SubmitReviewDtoTagsItemValue.friendly, 'Vui vẻ'),
+    (SubmitReviewDtoTagsItemValue.fairPay, 'Trả tiền sòng phẳng'),
+    (SubmitReviewDtoTagsItemValue.fullSquad, 'Đủ người'),
+  ];
+
+  /// Nhãn theo khoá chuỗi ("on_time" → "Đúng giờ").
+  static String reviewTag(String key) {
+    for (final t in reviewTags) {
+      if (t.$1.value == key) return t.$2;
+    }
+    return key;
+  }
 }
