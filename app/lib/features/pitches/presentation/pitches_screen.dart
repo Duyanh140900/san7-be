@@ -11,6 +11,7 @@ import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/pills.dart';
 import '../../../core/widgets/pitch_art.dart';
 import '../pitches_providers.dart';
 import 'pitch_detail_screen.dart';
@@ -30,7 +31,7 @@ class PitchesScreen extends ConsumerStatefulWidget {
   ConsumerState<PitchesScreen> createState() => _PitchesScreenState();
 }
 
-class _PitchesScreenState extends ConsumerState<PitchesScreen> {
+class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindingObserver {
   final _map = MapController();
   final _q = TextEditingController();
   bool _ready = false;
@@ -43,7 +44,23 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> {
   DateTime? _slot;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// Quay lại app (vd từ Cài đặt sau khi bật quyền vị trí): thử lấy vị trí lại nếu chưa có.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && ref.read(userLocationProvider).value == null) {
+      _centered = false;
+      ref.invalidate(userLocationProvider);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _q.dispose();
     _map.dispose();
     super.dispose();
@@ -219,25 +236,34 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> {
                   scrollDirection: Axis.horizontal,
                   clipBehavior: Clip.none,
                   children: [
-                    _MapChip(label: Fmt.relativeDay(search.day), selected: true, onTap: _pickDay),
-                    _MapChip(
+                    FilterPill(
+                      elevated: true,
+                      label: Fmt.relativeDay(search.day),
+                      selected: true,
+                      onTap: _pickDay,
+                    ),
+                    FilterPill(
+                      elevated: true,
                       label: search.at ?? 'Mọi giờ',
                       selected: search.at != null,
                       onTap: () => _pickTime(pitches),
                     ),
-                    _MapChip(
+                    FilterPill(
+                      elevated: true,
                       label: 'Có đèn',
                       selected: search.light,
                       onTap: () => _search.update((s) => s.copyWith(light: !s.light)),
                     ),
                     if (me != null) ...[
-                      _MapChip(
+                      FilterPill(
+                        elevated: true,
                         label: 'Gần tôi',
                         selected: search.useLocation,
                         onTap: () => _search.update((s) => s.copyWith(useLocation: !s.useLocation)),
                       ),
                       if (search.useLocation)
-                        _MapChip(
+                        FilterPill(
+                          elevated: true,
                           label: 'Dưới 1 km',
                           selected: search.within1km,
                           onTap: () => _search.update((s) => s.copyWith(within1km: !s.within1km)),
@@ -324,7 +350,13 @@ class _SearchBox extends StatelessWidget {
     decoration: BoxDecoration(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(14),
-      boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 10, offset: Offset(0, 2))],
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.10),
+          blurRadius: 10,
+          offset: const Offset(0, 2),
+        ),
+      ],
     ),
     child: Row(
       children: [
@@ -353,44 +385,6 @@ class _SearchBox extends StatelessWidget {
                 ),
         ),
       ],
-    ),
-  );
-}
-
-class _MapChip extends StatelessWidget {
-  const _MapChip({required this.label, required this.selected, required this.onTap});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 8),
-    child: Semantics(
-      button: true,
-      selected: selected,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? AppColors.text : AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-            boxShadow: const [
-              BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 2)),
-            ],
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: selected ? Colors.white : AppColors.text,
-            ),
-          ),
-        ),
-      ),
     ),
   );
 }
@@ -427,7 +421,7 @@ class _Pin extends StatelessWidget {
             color: selected ? AppColors.primary : AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.pill),
             boxShadow: const [
-              BoxShadow(color: Color(0x29000000), blurRadius: 10, offset: Offset(0, 3)),
+              BoxShadow(color: AppColors.shadow, blurRadius: 10, offset: Offset(0, 3)),
             ],
           ),
           child: Row(
@@ -438,9 +432,7 @@ class _Pin extends StatelessWidget {
                 height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: selected
-                      ? Colors.white
-                      : (full ? const Color(0xFFAEAEB2) : AppColors.green),
+                  color: selected ? Colors.white : (full ? AppColors.disabled : AppColors.green),
                 ),
               ),
               const SizedBox(width: 6),
@@ -507,7 +499,7 @@ class _RoundButton extends StatelessWidget {
         decoration: const BoxDecoration(
           color: AppColors.surface,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Color(0x29000000), blurRadius: 10, offset: Offset(0, 3))],
+          boxShadow: [BoxShadow(color: AppColors.shadow, blurRadius: 10, offset: Offset(0, 3))],
         ),
         child: Icon(icon, color: AppColors.primary, size: 22),
       ),
@@ -562,7 +554,7 @@ class _Sheet extends StatelessWidget {
       decoration: const BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-        boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 24, offset: Offset(0, -6))],
+        boxShadow: [BoxShadow(color: AppColors.shadowSoft, blurRadius: 24, offset: Offset(0, -6))],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

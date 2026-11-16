@@ -112,6 +112,13 @@ export class PostsService {
   async create(me: TeamMembership, dto: CreatePostDto): Promise<PostDto> {
     const now = new Date();
     // Chọn từ sân đã đặt: giờ, sân lấy theo lượt đặt
+    if (dto.bookingId && dto.type !== 'find_opponent') {
+      throw new AppError(
+        HttpStatus.BAD_REQUEST,
+        'booking_not_allowed',
+        'Chỉ kèo tìm đối mới gắn với sân đã đặt',
+      );
+    }
     const booking = dto.bookingId
       ? await this.bookingFor(me.teamId, dto.bookingId, now)
       : null;
@@ -269,7 +276,8 @@ export class PostsService {
       }
       await tx.post.update({
         where: { id: postId },
-        data: { status: 'closed' },
+        // Nhả sân đã gắn: để đổi giờ/huỷ được và đăng kèo lại
+        data: { status: 'closed', bookingId: null },
       });
       const pending = await tx.matchRequest.updateManyAndReturn({
         where: { postId, ...livePending(now) },

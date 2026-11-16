@@ -35,11 +35,11 @@ void main() {
       expect(Fmt.longDay(t), 'Chủ nhật, 22/11');
     });
 
-    test('bảy ngày tới bắt đầu từ hôm nay, mỗi ngày là 00:00 giờ VN', () {
+    test('31 ngày tới bắt đầu từ hôm nay, mỗi ngày là 00:00 giờ VN', () {
       final days = nextDays(now: DateTime.utc(2026, 11, 21, 18));
-      expect(days.length, 7);
+      expect(days.length, 31);
       expect(days.first, DateTime.utc(2026, 11, 21, 17));
-      expect(days.last, DateTime.utc(2026, 11, 27, 17));
+      expect(days.last, DateTime.utc(2026, 12, 21, 17));
     });
 
     test('tên ghim gọn: bỏ chữ "Sân bóng"/"Sân"', () {

@@ -8,18 +8,27 @@ import '../posts/posts_providers.dart';
 import '../team/team_providers.dart';
 import 'data/pitches_repository.dart';
 
+/// Chỉ bật hộp thoại xin quyền một lần mỗi phiên (từ chối rồi thì không hỏi lại liên tục).
+bool _askedLocationPermission = false;
+
 /// Vị trí hiện tại của người dùng (null nếu tắt định vị hoặc không cấp quyền).
-/// Hỏi quyền lần đầu; kết quả được giữ trong phiên.
+/// Lấy vị trí gần nhất đã biết trước cho nhanh. Màn bản đồ làm mới khi quay lại app
+/// (xem PitchesScreen) nên bật quyền trong Cài đặt rồi quay lại là dùng được ngay.
 final userLocationProvider = FutureProvider<LatLng?>((ref) async {
   try {
     if (!await Geolocator.isLocationServiceEnabled()) return null;
     var perm = await Geolocator.checkPermission();
-    if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
+    if (perm == LocationPermission.denied && !_askedLocationPermission) {
+      _askedLocationPermission = true;
+      perm = await Geolocator.requestPermission();
+    }
     if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) return null;
+    final last = await Geolocator.getLastKnownPosition();
+    if (last != null) return LatLng(last.latitude, last.longitude);
     final pos = await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.medium,
-        timeLimit: Duration(seconds: 8),
+        timeLimit: Duration(seconds: 4),
       ),
     );
     return LatLng(pos.latitude, pos.longitude);

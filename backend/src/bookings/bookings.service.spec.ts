@@ -60,6 +60,7 @@ function setup() {
   const tx = {
     $queryRaw: vi.fn().mockResolvedValue([]),
     booking: {
+      count: vi.fn().mockResolvedValue(0),
       findFirst: vi.fn().mockResolvedValue(null),
       findMany: vi.fn().mockResolvedValue([]),
       findUniqueOrThrow: vi.fn(),
@@ -202,7 +203,7 @@ describe('BookingsService.hold', () => {
     ).rejects.toMatchObject({
       status: 404,
     });
-    prisma.booking.count.mockResolvedValueOnce(3);
+    tx.booking.count.mockResolvedValueOnce(3);
     await expect(
       service.hold(me, { pitchId: 'p1', startAt }),
     ).rejects.toMatchObject({

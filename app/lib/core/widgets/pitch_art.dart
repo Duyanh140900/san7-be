@@ -26,7 +26,7 @@ class _PitchPainter extends CustomPainter {
   void paint(Canvas canvas, Size s) {
     canvas.drawRect(Offset.zero & s, Paint()..color = AppColors.pitch);
     // Sọc cỏ
-    final stripe = Paint()..color = const Color(0xFF34994C);
+    final stripe = Paint()..color = AppColors.pitchStripe;
     final w = s.width / 8;
     for (var i = 0; i < 8; i += 2) {
       canvas.drawRect(Rect.fromLTWH(i * w, 0, w, s.height), stripe);

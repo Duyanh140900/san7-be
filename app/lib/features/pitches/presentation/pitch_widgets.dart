@@ -5,8 +5,8 @@ import '../../../core/format.dart';
 import '../../../core/labels.dart';
 import '../../../core/theme/tokens.dart';
 
-/// Bảy ngày tới (từ hôm nay), mỗi ngày là 00:00 giờ VN.
-List<DateTime> nextDays({int count = 7, DateTime? now}) {
+/// 31 ngày tới (đủ cho giới hạn đặt trước 30 ngày), mỗi ngày là 00:00 giờ VN.
+List<DateTime> nextDays({int count = 31, DateTime? now}) {
   final start = Fmt.vnDayStart(now ?? DateTime.now());
   return [for (var i = 0; i < count; i++) start.add(Duration(days: i))];
 }
@@ -38,31 +38,55 @@ class AmenityTags extends StatelessWidget {
 }
 
 /// Dải chọn ngày cuộn ngang: thứ nhỏ phía trên, số ngày đậm phía dưới.
-class DayStrip extends StatelessWidget {
+/// Mở ra là cuộn sẵn tới ngày đang chọn.
+class DayStrip extends StatefulWidget {
   const DayStrip({super.key, required this.days, required this.selected, required this.onSelect});
   final List<DateTime> days;
   final DateTime selected;
   final ValueChanged<DateTime> onSelect;
 
   @override
+  State<DayStrip> createState() => _DayStripState();
+}
+
+class _DayStripState extends State<DayStrip> {
+  static const _itemW = 56.0;
+  static const _gap = 8.0;
+  late final ScrollController _scroll;
+
+  @override
+  void initState() {
+    super.initState();
+    final i = widget.days.indexOf(widget.selected);
+    _scroll = ScrollController(initialScrollOffset: i <= 0 ? 0 : (i - 1) * (_itemW + _gap));
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => SizedBox(
     height: 64,
     child: ListView.separated(
+      controller: _scroll,
       scrollDirection: Axis.horizontal,
-      itemCount: days.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 8),
+      itemCount: widget.days.length,
+      separatorBuilder: (_, _) => const SizedBox(width: _gap),
       itemBuilder: (context, i) {
-        final d = days[i];
-        final on = d == selected;
+        final d = widget.days[i];
+        final on = d == widget.selected;
         return Semantics(
           button: true,
           selected: on,
           label: Fmt.longDay(d),
           excludeSemantics: true,
           child: GestureDetector(
-            onTap: () => onSelect(d),
+            onTap: () => widget.onSelect(d),
             child: Container(
-              width: 56,
+              width: _itemW,
               decoration: BoxDecoration(
                 color: on ? AppColors.text : AppColors.surface,
                 borderRadius: BorderRadius.circular(14),
@@ -75,7 +99,7 @@ class DayStrip extends StatelessWidget {
                     Fmt.weekday(d),
                     style: TextStyle(
                       fontSize: 12,
-                      color: on ? const Color(0xFFCCCCCC) : AppColors.textSecondary,
+                      color: on ? AppColors.onDarkMuted : AppColors.textSecondary,
                     ),
                   ),
                   Text(
@@ -157,10 +181,10 @@ class _SlotButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final off = onTap == null;
-    final fg = selected ? Colors.white : (off ? const Color(0xFFAEAEB2) : AppColors.text);
+    final fg = selected ? Colors.white : (off ? AppColors.disabled : AppColors.text);
     final sub = selected
         ? AppColors.primarySoft
-        : (off ? const Color(0xFFAEAEB2) : AppColors.textSecondary);
+        : (off ? AppColors.disabled : AppColors.textSecondary);
     return Semantics(
       button: true,
       selected: selected,

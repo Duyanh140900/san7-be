@@ -104,18 +104,19 @@ export class BookingsService {
     const price = this.priceOf(pitch.slots, dto.startAt, now);
     const endAt = new Date(dto.startAt.getTime() + pitch.slotMinutes * 60_000);
 
-    const holds = await this.prisma.booking.count({
-      where: { teamId: me.teamId, status: 'held', heldUntil: { gt: now } },
-    });
-    if (holds >= MAX_ACTIVE_HOLDS) {
-      throw this.conflict(
-        'too_many_holds',
-        'Đội bạn đang giữ quá nhiều sân chưa xác nhận. Xác nhận hoặc đợi hết hạn.',
-      );
-    }
-
     const created = await this.withCodeRetry((code) =>
       this.prisma.$transaction(async (tx) => {
+        // Khoá theo đội để hai yêu cầu cùng lúc không vượt giới hạn số lượt giữ
+        await tx.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(hashtext(${`holds:${me.teamId}`}))`;
+        const holds = await tx.booking.count({
+          where: { teamId: me.teamId, status: 'held', heldUntil: { gt: now } },
+        });
+        if (holds >= MAX_ACTIVE_HOLDS) {
+          throw this.conflict(
+            'too_many_holds',
+            'Đội bạn đang giữ quá nhiều sân chưa xác nhận. Xác nhận hoặc đợi hết hạn.',
+          );
+        }
         await this.lockSlot(tx, pitch.id, dto.startAt);
         const dup = await tx.booking.findFirst({
           where: {

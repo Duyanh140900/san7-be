@@ -30,7 +30,7 @@ interface PitchRow {
 const DEFAULT_RADIUS_KM = 15;
 
 /** Đổi ký tự đặc biệt của ILIKE thành ký tự thường. */
-const likeEscape = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
+export const likeEscape = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 @Injectable()
 export class PitchesService {

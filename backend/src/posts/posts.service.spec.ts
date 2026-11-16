@@ -229,7 +229,7 @@ describe('PostsService', () => {
     await service.close(me, 'p1');
     expect(tx.post.update).toHaveBeenCalledWith({
       where: { id: 'p1' },
-      data: { status: 'closed' },
+      data: { status: 'closed', bookingId: null },
     });
     expect(tx.matchRequest.updateManyAndReturn).toHaveBeenCalled();
     expect(notifications.dispatch).toHaveBeenCalledWith([
@@ -312,6 +312,17 @@ describe('PostsService.create với sân đã đặt', () => {
     await expect(
       service.create(me, dto({ bookingId: 'b1' })),
     ).rejects.toMatchObject({ response: { code: 'booking_not_usable' } });
+  });
+
+  it('chỉ kèo tìm đối mới gắn sân đã đặt', async () => {
+    const { service, prisma } = setup();
+    await expect(
+      service.create(
+        me,
+        dto({ type: 'recruit', playersNeeded: 2, bookingId: 'b1' }),
+      ),
+    ).rejects.toMatchObject({ response: { code: 'booking_not_allowed' } });
+    expect(prisma.booking.findFirst).not.toHaveBeenCalled();
   });
 
   it('một sân chỉ đăng một kèo (trùng khoá → 409)', async () => {

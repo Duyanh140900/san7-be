@@ -78,6 +78,26 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     _refreshAll(b);
   }
 
+  /// Thoát khỏi màn xác nhận khi chưa xác nhận: nhả chỗ đang giữ ngay, khỏi chiếm quota 10 phút.
+  void _releaseHold() {
+    final b = ref.read(bookingProvider(_key)).value;
+    final until = b?.heldUntil;
+    final canManage = ref.read(managedTeamsProvider).any((t) => t.teamId == widget.teamId);
+    if (b == null || b.status != BookingStatus.held || !canManage) return;
+    if (until == null || !until.isAfter(DateTime.now())) return;
+    // Container thay ref: lời gọi hoàn tất sau khi màn đã đóng
+    final container = ProviderScope.containerOf(context, listen: false);
+    container
+        .read(bookingsRepositoryProvider)
+        .cancel(widget.teamId, b.id)
+        .then((_) {
+          container.invalidate(pitchDetailProvider);
+          container.invalidate(pitchListProvider);
+          container.invalidate(teamBookingsProvider(widget.teamId));
+        })
+        .catchError((_) {});
+  }
+
   Future<void> _confirm(BookingDto b) => _run(
     b,
     () => ref.read(bookingsRepositoryProvider).confirm(widget.teamId, b.id),
@@ -134,43 +154,48 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         : null;
     final b = booking.value;
 
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: b == null
-            ? Column(
-                children: [
-                  const DetailHeader(backLabel: 'Sân'),
-                  Expanded(
-                    child: Center(
-                      child: AsyncView(
-                        value: booking,
-                        onRetry: () => ref.invalidate(bookingProvider(_key)),
-                        data: (_) => const SizedBox.shrink(),
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _releaseHold();
+      },
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: b == null
+              ? Column(
+                  children: [
+                    const DetailHeader(backLabel: 'Sân'),
+                    Expanded(
+                      child: Center(
+                        child: AsyncView(
+                          value: booking,
+                          onRetry: () => ref.invalidate(bookingProvider(_key)),
+                          data: (_) => const SizedBox.shrink(),
+                        ),
                       ),
                     ),
+                  ],
+                )
+              : switch (b.status) {
+                  BookingStatusKnown(value: BookingStatusValue.confirmed) => _Ticket(
+                    booking: b,
+                    teamName: teamName,
+                    canManage: canManage,
+                    busy: _busy,
+                    onReschedule: () => _reschedule(b),
+                    onCancel: () => _cancel(b),
                   ),
-                ],
-              )
-            : switch (b.status) {
-                BookingStatusKnown(value: BookingStatusValue.confirmed) => _Ticket(
-                  booking: b,
-                  teamName: teamName,
-                  canManage: canManage,
-                  busy: _busy,
-                  onReschedule: () => _reschedule(b),
-                  onCancel: () => _cancel(b),
-                ),
-                BookingStatusKnown(value: BookingStatusValue.held) => _Hold(
-                  booking: b,
-                  teamName: teamName,
-                  canManage: canManage,
-                  busy: _busy,
-                  onConfirm: () => _confirm(b),
-                  onCancel: () => _cancel(b),
-                ),
-                _ => _Cancelled(booking: b),
-              },
+                  BookingStatusKnown(value: BookingStatusValue.held) => _Hold(
+                    booking: b,
+                    teamName: teamName,
+                    canManage: canManage,
+                    busy: _busy,
+                    onConfirm: () => _confirm(b),
+                    onCancel: () => _cancel(b),
+                  ),
+                  _ => _Cancelled(booking: b),
+                },
+        ),
       ),
     );
   }

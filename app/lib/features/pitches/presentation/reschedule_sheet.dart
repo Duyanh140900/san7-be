@@ -52,7 +52,7 @@ class _RescheduleSheetState extends ConsumerState<_RescheduleSheet> {
             const SizedBox(height: 14),
             DayStrip(
               days: days,
-              selected: days.contains(_day) ? _day : days.first,
+              selected: _day,
               onSelect: (d) => setState(() {
                 _day = d;
                 _slot = null;
