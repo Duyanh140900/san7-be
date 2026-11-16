@@ -1,7 +1,7 @@
 # Sân 7
 
 App cộng đồng bóng đá sân 7: cáp kèo, đặt sân, quản lý đội, kết quả và bảng vàng.
-Kế hoạch đầy đủ nằm ở [`docs/PLAN.md`](docs/PLAN.md); quy ước và ghi chú kỹ thuật ở [`CLAUDE.md`](CLAUDE.md).
+Kế hoạch: [`docs/PLAN.md`](docs/PLAN.md) · Quy ước: [`CLAUDE.md`](CLAUDE.md) · Bàn giao (đã làm, cần làm tiếp): [`docs/HANDOVER.md`](docs/HANDOVER.md).
 
 | Thư mục | Nội dung |
 |---|---|
