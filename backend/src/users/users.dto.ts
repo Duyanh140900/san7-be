@@ -2,6 +2,7 @@ import { Trim } from '../common/trim.js';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -29,6 +30,13 @@ export class MyTeamDto {
   status: MemberStatus;
 }
 
+export class PlayerStatsDto {
+  @ApiProperty() goals: number;
+  @ApiProperty() assists: number;
+  @ApiProperty() mvps: number;
+  @ApiProperty() matches: number;
+}
+
 export class MeDto {
   @ApiProperty({ format: 'uuid' }) id: string;
   @ApiProperty() email: string;
@@ -41,6 +49,19 @@ export class MeDto {
   @ApiProperty({ description: 'Đã điền hồ sơ cầu thủ (bước 2 màn 12)' })
   profileCompleted: boolean;
   @ApiProperty({ type: [MyTeamDto] }) teams: MyTeamDto[];
+  @ApiProperty({ type: () => PlayerStatsDto }) stats: PlayerStatsDto;
+}
+
+export class NotificationSettingsDto {
+  @ApiProperty() matchUpdates: boolean;
+  @ApiProperty() teamActivity: boolean;
+  @ApiProperty() community: boolean;
+}
+
+export class UpdateNotificationSettingsDto {
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() matchUpdates?: boolean;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() teamActivity?: boolean;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() community?: boolean;
 }
 
 export class UpdateMeDto {

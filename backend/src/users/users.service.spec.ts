@@ -5,6 +5,11 @@ function setup() {
   const prisma = {
     user: { findUnique: vi.fn(), update: vi.fn().mockResolvedValue({}) },
     device: { upsert: vi.fn().mockResolvedValue({}) },
+    matchPlayerStat: {
+      aggregate: vi.fn().mockResolvedValue({ _sum: { goals: 0, assists: 0 }, _count: { _all: 0 } }),
+      count: vi.fn().mockResolvedValue(0),
+    },
+    notificationSettings: { upsert: vi.fn() },
   };
   return {
     service: new UsersService(prisma as unknown as PrismaService),
@@ -30,6 +35,7 @@ describe('UsersService', () => {
     const me = await service.getMe('u1');
     expect(me.profileCompleted).toBe(false);
     expect(me.teams).toEqual([]);
+    expect(me.stats).toEqual({ goals: 0, assists: 0, mvps: 0, matches: 0 });
   });
 
   it('getMe: có vị trí và đội → map đủ thông tin đội', async () => {

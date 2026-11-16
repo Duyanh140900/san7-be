@@ -6,7 +6,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser, type AuthUser } from '../common/auth.decorators.js';
-import { MeDto, RegisterDeviceDto, UpdateMeDto } from './users.dto.js';
+import { MeDto, NotificationSettingsDto, RegisterDeviceDto, UpdateMeDto, UpdateNotificationSettingsDto } from './users.dto.js';
 import { UsersService } from './users.service.js';
 
 @ApiTags('users')
@@ -28,6 +28,18 @@ export class UsersController {
     @Body() dto: UpdateMeDto,
   ): Promise<MeDto> {
     return this.users.updateMe(user.userId, dto);
+  }
+
+  @Get('notification-settings')
+  @ApiOkResponse({ type: NotificationSettingsDto })
+  getNotificationSettings(@CurrentUser() user: AuthUser): Promise<NotificationSettingsDto> {
+    return this.users.getNotificationSettings(user.userId);
+  }
+
+  @Patch('notification-settings')
+  @ApiOkResponse({ type: NotificationSettingsDto })
+  updateNotificationSettings(@CurrentUser() user: AuthUser, @Body() dto: UpdateNotificationSettingsDto): Promise<NotificationSettingsDto> {
+    return this.users.updateNotificationSettings(user.userId, dto);
   }
 
   @Post('devices')

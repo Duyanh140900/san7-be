@@ -168,6 +168,66 @@
         ]
       }
     },
+    "/v1/me/notification-settings": {
+      "get": {
+        "operationId": "Users_getNotificationSettings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      },
+      "patch": {
+        "operationId": "Users_updateNotificationSettings",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotificationSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/v1/me/devices": {
       "post": {
         "operationId": "Users_registerDevice",
@@ -3260,6 +3320,29 @@
           "status"
         ]
       },
+      "PlayerStatsDto": {
+        "type": "object",
+        "properties": {
+          "goals": {
+            "type": "number"
+          },
+          "assists": {
+            "type": "number"
+          },
+          "mvps": {
+            "type": "number"
+          },
+          "matches": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "goals",
+          "assists",
+          "mvps",
+          "matches"
+        ]
+      },
       "MeDto": {
         "type": "object",
         "properties": {
@@ -3298,6 +3381,9 @@
             "items": {
               "$ref": "#/components/schemas/MyTeamDto"
             }
+          },
+          "stats": {
+            "$ref": "#/components/schemas/PlayerStatsDto"
           }
         },
         "required": [
@@ -3305,7 +3391,8 @@
           "email",
           "name",
           "profileCompleted",
-          "teams"
+          "teams",
+          "stats"
         ]
       },
       "AuthResponseDto": {
@@ -3387,6 +3474,39 @@
             "type": "string",
             "maxLength": 50,
             "example": "Cầu Giấy"
+          }
+        }
+      },
+      "NotificationSettingsDto": {
+        "type": "object",
+        "properties": {
+          "matchUpdates": {
+            "type": "boolean"
+          },
+          "teamActivity": {
+            "type": "boolean"
+          },
+          "community": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "matchUpdates",
+          "teamActivity",
+          "community"
+        ]
+      },
+      "UpdateNotificationSettingsDto": {
+        "type": "object",
+        "properties": {
+          "matchUpdates": {
+            "type": "boolean"
+          },
+          "teamActivity": {
+            "type": "boolean"
+          },
+          "community": {
+            "type": "boolean"
           }
         }
       },

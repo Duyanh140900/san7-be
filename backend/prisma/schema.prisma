@@ -159,8 +159,22 @@ model User {
   comments      Comment[]
   reactions     Reaction[]
   postSchedules PostSchedule[]
+  notificationSettings NotificationSettings?
 
   @@map("users")
+}
+
+/// Tùy chọn thông báo theo tài khoản. Một hàng được tạo lười ở lần đọc/cập nhật đầu tiên.
+model NotificationSettings {
+  userId       String   @id @map("user_id") @db.Uuid
+  matchUpdates Boolean  @default(true) @map("match_updates")
+  teamActivity Boolean  @default(true) @map("team_activity")
+  community    Boolean  @default(true)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_settings")
 }
 
 model RefreshToken {
