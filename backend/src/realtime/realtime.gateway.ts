@@ -82,6 +82,48 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection {
     return { ok: true };
   }
 
+  /** Vào room chat của trận: chỉ thành viên active của một trong hai đội. */
+  @SubscribeMessage('match:join')
+  async joinMatch(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { matchId?: string },
+  ): Promise<{ ok: boolean }> {
+    const userId = (client.data as SocketData).userId;
+    const matchId = body?.matchId;
+    if (!userId || typeof matchId !== 'string') return { ok: false };
+    const match = await this.prisma.match
+      .findUnique({
+        where: { id: matchId },
+        select: { homeTeamId: true, awayTeamId: true },
+      })
+      .catch(() => null);
+    if (!match) return { ok: false };
+    const member = await this.prisma.teamMember
+      .findFirst({
+        where: {
+          userId,
+          status: 'active',
+          teamId: { in: [match.homeTeamId, match.awayTeamId] },
+        },
+        select: { teamId: true },
+      })
+      .catch(() => null);
+    if (!member) return { ok: false };
+    await client.join(`match:${matchId}`);
+    return { ok: true };
+  }
+
+  @SubscribeMessage('match:leave')
+  async leaveMatch(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { matchId?: string },
+  ): Promise<{ ok: boolean }> {
+    if (typeof body?.matchId === 'string') {
+      await client.leave(`match:${body.matchId}`);
+    }
+    return { ok: true };
+  }
+
   handleDisconnect(client: Socket) {
     this.logger.debug?.(`socket ${client.id} ngắt kết nối`);
   }

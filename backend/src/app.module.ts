@@ -5,6 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { AttendanceModule } from './attendance/attendance.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { ChatModule } from './chat/chat.module.js';
 import { CommunityModule } from './community/community.module.js';
 import { validateEnv } from './common/env.js';
 import { FundsModule } from './funds/funds.module.js';
@@ -49,6 +50,7 @@ import { PostSchedulesModule } from './schedules/schedules.module.js';
     QueueModule,
     AuthModule,
     CommunityModule,
+    ChatModule,
     UsersModule,
     TeamsModule,
     MembersModule,

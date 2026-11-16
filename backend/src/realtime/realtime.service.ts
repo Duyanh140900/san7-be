@@ -8,6 +8,8 @@ export type TeamEvent =
 export type PostEvent =
   'comment.created' | 'comment.deleted' | 'reaction.changed';
 
+export type MatchEvent = 'chat.message';
+
 /** Phát sự kiện tới room. Gọi SAU khi transaction đã commit. */
 @Injectable()
 export class RealtimeService {
@@ -23,6 +25,14 @@ export class RealtimeService {
 
   toPost(postId: string, event: PostEvent, payload: Record<string, unknown>) {
     this.server?.to(`post:${postId}`).emit(event, { postId, ...payload });
+  }
+
+  toMatch(
+    matchId: string,
+    event: MatchEvent,
+    payload: Record<string, unknown>,
+  ) {
+    this.server?.to(`match:${matchId}`).emit(event, { matchId, ...payload });
   }
 
   /** Đưa mọi socket của user ra khỏi room đội (bị mời ra / rời đội). */

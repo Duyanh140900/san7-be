@@ -6,9 +6,13 @@ import { RealtimeService } from './realtime.service.js';
 
 const jwt = new JwtService({ secret: 'test-secret' });
 
-function setup(member: unknown) {
+function setup(member: unknown, match: unknown = null) {
   const prisma = {
-    teamMember: { findUnique: vi.fn().mockResolvedValue(member) },
+    teamMember: {
+      findUnique: vi.fn().mockResolvedValue(member),
+      findFirst: vi.fn().mockResolvedValue(member),
+    },
+    match: { findUnique: vi.fn().mockResolvedValue(match) },
   };
   const gateway = new RealtimeGateway(
     jwt,
@@ -78,5 +82,40 @@ describe('RealtimeGateway', () => {
       gateway.joinTeam(s as unknown as Socket, { teamId: 't1' }),
     ).resolves.toEqual({ ok: false });
     expect(prisma.teamMember.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('match:join chỉ cho thành viên active của một trong hai đội', async () => {
+    const match = { homeTeamId: 'h', awayTeamId: 'a' };
+    const ok = setup({ teamId: 'h' }, match);
+    const s1 = socket();
+    s1.data.userId = 'u1';
+    await expect(
+      ok.gateway.joinMatch(s1 as unknown as Socket, { matchId: 'm1' }),
+    ).resolves.toEqual({ ok: true });
+    expect(s1.join).toHaveBeenCalledWith('match:m1');
+    expect(ok.prisma.teamMember.findFirst).toHaveBeenCalledWith({
+      where: { userId: 'u1', status: 'active', teamId: { in: ['h', 'a'] } },
+      select: { teamId: true },
+    });
+
+    // người ngoài hai đội
+    const outsider = setup(null, match);
+    const s2 = socket();
+    s2.data.userId = 'u2';
+    await expect(
+      outsider.gateway.joinMatch(s2 as unknown as Socket, { matchId: 'm1' }),
+    ).resolves.toEqual({ ok: false });
+    expect(s2.join).not.toHaveBeenCalled();
+
+    // trận không tồn tại / chưa xác thực
+    const noMatch = setup({ teamId: 'h' }, null);
+    const s3 = socket();
+    s3.data.userId = 'u1';
+    await expect(
+      noMatch.gateway.joinMatch(s3 as unknown as Socket, { matchId: 'x' }),
+    ).resolves.toEqual({ ok: false });
+    await expect(
+      ok.gateway.joinMatch(socket() as unknown as Socket, { matchId: 'm1' }),
+    ).resolves.toEqual({ ok: false });
   });
 });
