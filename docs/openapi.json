@@ -5086,7 +5086,7 @@
             "$ref": "#/components/schemas/MyReviewDto"
           },
           "eventId": {
-            "type": "object",
+            "type": "string",
             "format": "uuid",
             "description": "Lịch trận trong đội tôi"
           }

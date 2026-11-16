@@ -189,6 +189,7 @@ export class MatchDetailDto {
   roster: MatchPlayerDto[];
   @ApiPropertyOptional({ type: MyReviewDto }) myReview?: MyReviewDto;
   @ApiPropertyOptional({
+    type: String,
     format: 'uuid',
     description: 'Lịch trận trong đội tôi',
   })
