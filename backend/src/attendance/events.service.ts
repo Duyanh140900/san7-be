@@ -24,6 +24,7 @@ type EventRow = {
   location: string | null;
   note: string | null;
   minPlayers: number | null;
+  bookingId: string | null;
 };
 
 const MAX_DURATION_MS = 24 * 3_600_000;
@@ -247,6 +248,7 @@ export class EventsService {
       location: e.location,
       note: e.note,
       minPlayers: e.minPlayers,
+      bookingId: e.bookingId,
       counts,
       myStatus,
     };

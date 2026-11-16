@@ -128,6 +128,15 @@ export class CreatePostDto {
   @IsString()
   @MaxLength(1000)
   body?: string;
+
+  @ApiPropertyOptional({
+    format: 'uuid',
+    description:
+      'Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName',
+  })
+  @IsOptional()
+  @IsUUID()
+  bookingId?: string;
 }
 
 export class FeedQuery {

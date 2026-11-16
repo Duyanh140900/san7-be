@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { AppError } from '../common/errors.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
-import type { Prisma } from '../generated/prisma/client.js';
+import { Prisma } from '../generated/prisma/client.js';
 import {
   notifyTeamManagers,
   resolveRequestNotifications,
@@ -111,21 +111,78 @@ export class PostsService {
 
   async create(me: TeamMembership, dto: CreatePostDto): Promise<PostDto> {
     const now = new Date();
-    const data = normalizePost(dto, now);
+    // Chọn từ sân đã đặt: giờ, sân lấy theo lượt đặt
+    const booking = dto.bookingId
+      ? await this.bookingFor(me.teamId, dto.bookingId, now)
+      : null;
+    const data = normalizePost(
+      booking
+        ? Object.assign({}, dto, {
+            startAt: booking.startAt,
+            endAt: booking.endAt,
+          })
+        : dto,
+      now,
+    );
     const team = await this.prisma.team.findUniqueOrThrow({
       where: { id: me.teamId },
       select: { area: true },
     });
-    const post = await this.prisma.post.create({
-      data: {
-        ...data,
-        teamId: me.teamId,
-        authorId: me.userId,
-        area: dto.area || team.area,
-      },
-      include: postInclude(now),
+    try {
+      const post = await this.prisma.post.create({
+        data: {
+          ...data,
+          teamId: me.teamId,
+          authorId: me.userId,
+          area: dto.area || booking?.pitch.district || team.area,
+          ...(booking
+            ? {
+                bookingId: booking.id,
+                pitchId: booking.pitchId,
+                pitchName: booking.pitch.name,
+              }
+            : {}),
+        },
+        include: postInclude(now),
+      });
+      return toPostDto(post);
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002' &&
+        JSON.stringify(e.meta ?? {}).includes('booking_id')
+      ) {
+        throw new AppError(
+          HttpStatus.CONFLICT,
+          'booking_already_posted',
+          'Sân này đã có kèo đăng rồi',
+        );
+      }
+      throw e;
+    }
+  }
+
+  /** Lượt đặt đã xác nhận của đội, chưa tới giờ, để đăng kèo. */
+  private async bookingFor(teamId: string, bookingId: string, now: Date) {
+    const b = await this.prisma.booking.findFirst({
+      where: { id: bookingId, teamId },
+      include: { pitch: { select: { name: true, district: true } } },
     });
-    return toPostDto(post);
+    if (!b) {
+      throw new AppError(
+        HttpStatus.NOT_FOUND,
+        'booking_not_found',
+        'Không tìm thấy lượt đặt sân',
+      );
+    }
+    if (b.status !== 'confirmed' || b.startAt <= now) {
+      throw new AppError(
+        HttpStatus.BAD_REQUEST,
+        'booking_not_usable',
+        'Chỉ đăng kèo cho sân đã xác nhận và chưa tới giờ đá',
+      );
+    }
+    return b;
   }
 
   /** Bảng tin: kèo đang mở, chưa tới giờ đá, mới nhất trước. */

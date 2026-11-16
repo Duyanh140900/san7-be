@@ -99,6 +99,12 @@ enum NotificationCategory {
   fund
 }
 
+enum BookingStatus {
+  held
+  confirmed
+  cancelled
+}
+
 enum Platform {
   android
   ios
@@ -126,6 +132,7 @@ model User {
   fundTxMember  FundTransaction[] @relation("FundMember")
   fundTxCreated FundTransaction[] @relation("FundCreator")
   posts         Post[]
+  bookingsMade  Booking[]
   requestsSent  MatchRequest[]
   notifications Notification[]
 
@@ -184,6 +191,7 @@ model Team {
   transactions FundTransaction[]
   fineRules    FineRule[]
   posts        Post[]
+  bookings     Booking[]
   requests     MatchRequest[]
   homeMatches  Match[]           @relation("HomeTeam")
   awayMatches  Match[]           @relation("AwayTeam")
@@ -224,6 +232,8 @@ model Event {
   minPlayers  Int?      @map("min_players") @db.SmallInt
   /// trận sinh ra khi chốt kèo (mỗi đội một event cùng matchId)
   matchId     String?   @map("match_id") @db.Uuid
+  /// lịch sinh ra khi xác nhận đặt sân
+  bookingId   String?   @unique @map("booking_id") @db.Uuid
   createdById String    @map("created_by") @db.Uuid
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -231,6 +241,7 @@ model Event {
   team         Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
   createdBy    User              @relation(fields: [createdById], references: [id])
   match        Match?            @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  booking      Booking?          @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   attendances  Attendance[]
   transactions FundTransaction[]
 
@@ -313,6 +324,9 @@ model Post {
   endAt         DateTime   @map("end_at") @db.Timestamptz(6)
   /// tên sân gõ tay (M3 thêm pitch_id, booking_id)
   pitchName     String?    @map("pitch_name")
+  /// sân và lượt đặt gắn với kèo (khi chọn từ sân đã đặt)
+  pitchId       String?    @map("pitch_id") @db.Uuid
+  bookingId     String?    @unique @map("booking_id") @db.Uuid
   /// khu vực của kèo (mặc định lấy khu vực đội) để lọc Bảng tin
   area          String
   level         TeamLevel
@@ -334,10 +348,13 @@ model Post {
   author   User           @relation(fields: [authorId], references: [id])
   requests MatchRequest[]
   match    Match?
+  pitch    Pitch?         @relation(fields: [pitchId], references: [id], onDelete: SetNull)
+  booking  Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
 
   @@index([status, startAt])
   @@index([teamId, createdAt])
   @@index([authorId])
+  @@index([pitchId])
   @@map("posts")
 }
 
@@ -407,4 +424,69 @@ model Notification {
 
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+/// Sân bóng (dữ liệu mẫu seed bằng `node dist/seed.js`). Vị trí là PostGIS geography.
+model Pitch {
+  id          String                               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String                               @unique
+  name        String
+  district    String
+  address     String
+  location    Unsupported("geography(Point,4326)")
+  /// số sân 7 của cơ sở
+  courtsCount Int                                  @map("courts_count") @db.SmallInt
+  /// độ dài mỗi khung giờ (phút)
+  slotMinutes Int                                  @default(90) @map("slot_minutes") @db.SmallInt
+  /// khung giờ trong ngày (giờ VN): [{ "start": "19:00", "price": 600000 }]
+  slots       Json
+  amenities   String[]
+  phone       String?
+  createdAt   DateTime                             @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  bookings Booking[]
+  posts    Post[]
+
+  @@index([location], type: Gist)
+  @@index([district])
+  @@map("pitches")
+}
+
+/// Lượt đặt sân: giữ chỗ 10 phút (held) rồi xác nhận (confirmed), trả tiền tại sân.
+model Booking {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  /// mã đưa cho quầy, vd SC-7Q2K
+  code        String        @unique
+  pitchId     String        @map("pitch_id") @db.Uuid
+  teamId      String        @map("team_id") @db.Uuid
+  createdById String        @map("created_by") @db.Uuid
+  courtNo     Int           @map("court_no") @db.SmallInt
+  startAt     DateTime      @map("start_at") @db.Timestamptz(6)
+  endAt       DateTime      @map("end_at") @db.Timestamptz(6)
+  status      BookingStatus @default(held)
+  /// tiền sân (VND) tại thời điểm đặt
+  price       BigInt
+  /// tiền cọc (VND), 0 ở bản trả tại sân
+  deposit     BigInt        @default(0)
+  note        String?
+  /// hết hạn giữ chỗ (chỉ khi held)
+  heldUntil   DateTime?     @map("held_until") @db.Timestamptz(6)
+  /// "pitchId:courtNo:startAt" khi còn chiếm chỗ, null khi đã huỷ. Unique chặn đặt trùng sân.
+  slotKey     String?       @unique @map("slot_key")
+  confirmedAt DateTime?     @map("confirmed_at") @db.Timestamptz(6)
+  cancelledAt DateTime?     @map("cancelled_at") @db.Timestamptz(6)
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  pitch     Pitch  @relation(fields: [pitchId], references: [id])
+  team      Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy User   @relation(fields: [createdById], references: [id])
+  event     Event?
+  post      Post?
+
+  @@index([teamId, startAt])
+  @@index([pitchId, startAt])
+  @@index([createdById])
+  @@index([status, heldUntil])
+  @@map("bookings")
 }

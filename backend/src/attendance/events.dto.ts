@@ -101,6 +101,12 @@ export class EventSummaryDto {
   @ApiPropertyOptional({ type: String }) location?: string | null;
   @ApiPropertyOptional({ type: String }) note?: string | null;
   @ApiPropertyOptional({ type: 'integer' }) minPlayers?: number | null;
+  @ApiPropertyOptional({
+    type: String,
+    format: 'uuid',
+    description: 'Lượt đặt sân sinh ra lịch này',
+  })
+  bookingId?: string | null;
   @ApiProperty({ type: AttendanceCountsDto }) counts: AttendanceCountsDto;
   @ApiPropertyOptional({
     enum: AttendanceStatus,

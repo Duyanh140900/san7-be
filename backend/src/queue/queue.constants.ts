@@ -6,6 +6,8 @@ export const Jobs = {
   ping: 'ping',
   /** Hết hạn một yêu cầu nhận kèo: data { requestId } */
   requestExpire: 'request.expire',
+  /** Nhả lượt giữ sân hết hạn: data { bookingId } */
+  bookingExpire: 'booking.expire',
   /** Gửi FCM cho các thông báo: data { notificationIds } */
   pushSend: 'push.send',
 } as const;

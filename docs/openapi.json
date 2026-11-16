@@ -1834,6 +1834,471 @@
           "posts"
         ]
       }
+    },
+    "/v1/pitches": {
+      "get": {
+        "operationId": "Pitches_list",
+        "parameters": [
+          {
+            "name": "lat",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 20.98,
+              "type": "number"
+            }
+          },
+          {
+            "name": "lng",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 105.79,
+              "type": "number"
+            }
+          },
+          {
+            "name": "radiusKm",
+            "required": false,
+            "in": "query",
+            "description": "Bán kính tìm quanh (lat, lng); mặc định 15 km",
+            "schema": {
+              "minimum": 0.5,
+              "maximum": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Tên sân, quận, đường",
+            "schema": {
+              "maxLength": 60,
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "description": "Ngày (giờ VN), mặc định hôm nay",
+            "schema": {
+              "example": "2026-11-22",
+              "type": "string"
+            }
+          },
+          {
+            "name": "at",
+            "required": false,
+            "in": "query",
+            "description": "Chỉ lấy sân còn trống khung giờ bắt đầu này",
+            "schema": {
+              "example": "19:00",
+              "type": "string"
+            }
+          },
+          {
+            "name": "amenity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "light",
+                "new_turf",
+                "parking",
+                "water",
+                "locker"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 30,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/v1/pitches/{pitchId}": {
+      "get": {
+        "operationId": "Pitches_detail",
+        "parameters": [
+          {
+            "name": "pitchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-11-22",
+              "type": "string"
+            }
+          },
+          {
+            "name": "lat",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "lng",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/bookings": {
+      "post": {
+        "operationId": "Bookings_hold",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      },
+      "get": {
+        "operationId": "Bookings_list",
+        "parameters": [
+          {
+            "name": "scope",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "upcoming",
+              "type": "string",
+              "enum": [
+                "upcoming",
+                "past"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookingDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/bookings/{bookingId}": {
+      "get": {
+        "operationId": "Bookings_get",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/bookings/{bookingId}/confirm": {
+      "post": {
+        "operationId": "Bookings_confirm",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/bookings/{bookingId}/cancel": {
+      "post": {
+        "operationId": "Bookings_cancel",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/bookings/{bookingId}/reschedule": {
+      "post": {
+        "operationId": "Bookings_reschedule",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RescheduleBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
     }
   },
   "info": {
@@ -2550,6 +3015,11 @@
           "minPlayers": {
             "type": "integer"
           },
+          "bookingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Lượt đặt sân sinh ra lịch này"
+          },
           "counts": {
             "$ref": "#/components/schemas/AttendanceCountsDto"
           },
@@ -2687,6 +3157,11 @@
           },
           "minPlayers": {
             "type": "integer"
+          },
+          "bookingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Lượt đặt sân sinh ra lịch này"
           },
           "counts": {
             "$ref": "#/components/schemas/AttendanceCountsDto"
@@ -3089,6 +3564,10 @@
             "format": "uuid"
           },
           "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bookingId": {
             "type": "string",
             "format": "uuid"
           }
@@ -3508,6 +3987,11 @@
           "body": {
             "type": "string",
             "maxLength": 1000
+          },
+          "bookingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName"
           }
         },
         "required": [
@@ -3701,6 +4185,305 @@
             "description": "Lịch trận trong đội của tôi (vắng với pass sân)"
           }
         }
+      },
+      "PitchSlotDto": {
+        "type": "object",
+        "properties": {
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Giá khung giờ (VND)"
+          },
+          "free": {
+            "type": "integer",
+            "description": "Số sân 7 còn trống"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Tổng số sân 7"
+          },
+          "available": {
+            "type": "boolean",
+            "description": "Còn sân trống và chưa tới giờ"
+          }
+        },
+        "required": [
+          "startAt",
+          "endAt",
+          "price",
+          "free",
+          "total",
+          "available"
+        ]
+      },
+      "PitchDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number",
+            "example": 20.9806
+          },
+          "lng": {
+            "type": "number",
+            "example": 105.7882
+          },
+          "distanceM": {
+            "type": "integer",
+            "description": "Khoảng cách tới vị trí truyền lên (mét)"
+          },
+          "amenities": {
+            "type": "array",
+            "description": "light, new_turf, parking, water, locker",
+            "items": {
+              "type": "string",
+              "enum": [
+                "light",
+                "new_turf",
+                "parking",
+                "water",
+                "locker"
+              ]
+            }
+          },
+          "courtsCount": {
+            "type": "integer"
+          },
+          "slotMinutes": {
+            "type": "integer",
+            "description": "Phút mỗi trận"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "example": "2026-11-22"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PitchSlotDto"
+            }
+          },
+          "freeSlots": {
+            "type": "integer",
+            "description": "Số khung giờ còn trống trong ngày"
+          },
+          "minPrice": {
+            "type": "integer",
+            "description": "Giá thấp nhất trong các khung còn trống"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "district",
+          "address",
+          "lat",
+          "lng",
+          "amenities",
+          "courtsCount",
+          "slotMinutes",
+          "date",
+          "slots",
+          "freeSlots"
+        ]
+      },
+      "PitchListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PitchDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "CreateBookingDto": {
+        "type": "object",
+        "properties": {
+          "pitchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Giờ bắt đầu, phải đúng một khung giờ của sân"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Ghi chú cho chủ sân"
+          }
+        },
+        "required": [
+          "pitchId",
+          "startAt"
+        ]
+      },
+      "BookingStatus": {
+        "type": "string",
+        "enum": [
+          "held",
+          "confirmed",
+          "cancelled"
+        ]
+      },
+      "BookingPitchDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "district": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "district",
+          "address",
+          "lat",
+          "lng"
+        ]
+      },
+      "BookingDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "SC-7Q2K",
+            "description": "Mã đưa cho quầy khi nhận sân"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BookingStatus"
+              }
+            ]
+          },
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pitch": {
+            "$ref": "#/components/schemas/BookingPitchDto"
+          },
+          "courtNo": {
+            "type": "integer"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Tiền sân (VND), trả tại sân"
+          },
+          "deposit": {
+            "type": "integer",
+            "description": "Tiền cọc (VND), 0 ở bản trả tại sân"
+          },
+          "note": {
+            "type": "string"
+          },
+          "heldUntil": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Hết hạn giữ chỗ (chỉ khi đang giữ)"
+          },
+          "postId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Kèo đang gắn với lượt đặt này"
+          },
+          "eventId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Lịch đội sinh ra khi xác nhận"
+          },
+          "canChange": {
+            "type": "boolean",
+            "description": "Còn đổi giờ/huỷ được (chưa tới giờ, không gắn với kèo)"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "status",
+          "teamId",
+          "pitch",
+          "courtNo",
+          "startAt",
+          "endAt",
+          "price",
+          "deposit",
+          "canChange",
+          "createdAt"
+        ]
+      },
+      "RescheduleBookingDto": {
+        "type": "object",
+        "properties": {
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "startAt"
+        ]
       },
       "ErrorBody": {
         "type": "object",
