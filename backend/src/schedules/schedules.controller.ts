@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentMember, TeamRoles, TeamScoped, type TeamMembership } from '../common/team-member.guard.js';
 import { CreatePostScheduleDto, PostScheduleDto, UpdatePostScheduleDto } from './schedules.dto.js';
