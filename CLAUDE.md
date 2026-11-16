@@ -40,6 +40,12 @@ scripts/   gen-api-client (.ps1/.sh)
 - **Tiền** lưu `BigInt` trong Prisma, trả ra API bằng `toMoney()` (số nguyên). Số dư quỹ `teams.fund_balance` cập nhật trong cùng transaction với khoản thu/chi/phạt (`balanceEffect`).
 - **Realtime**: Socket.IO ở `/v1/socket`, auth `{ token }`; service gọi `RealtimeService.toTeam(...)` sau khi ghi xong. App: `teamRealtimeSyncProvider` (watch ở `AppShell`) tự invalidate provider khi có sự kiện.
 - **Swagger**: trường `string | null` phải ghi rõ `@ApiPropertyOptional({ type: String })`, nếu không client Dart sinh ra model rỗng.
+- **Hàng đợi và worker (M2)**: `QueueModule` (BullMQ) dùng chung api + worker, tên job ở `queue/queue.constants.ts`. Thông báo: ghi bằng `writeNotifications(tx, ...)` TRONG transaction, rồi `NotificationsService.dispatch(rows)` SAU commit (realtime `notification.new` + job `push.send`). FCM chỉ chạy khi có `FIREBASE_SERVICE_ACCOUNT` (base64 JSON); app chưa nhận push vì thiếu `google-services.json`.
+- **Chốt kèo**: khoá hàng kèo bằng `SELECT ... FOR UPDATE`, nhận yêu cầu bằng `updateMany` có điều kiện `livePending` (huỷ/từ chối/hết hạn không khoá nên có thể chạy cùng lúc).
+- **Sân và đặt sân (M3)**: bảng `pitches` có cột PostGIS `geography` (Prisma `Unsupported`, đọc/ghi bằng SQL thuần, xem `pitches.service.ts`). Khung giờ nằm trong `pitches.slots` (JSON, giờ VN, mỗi khung 90 phút). Chống đặt trùng: khoá advisory theo (sân, giờ) + `bookings.slot_key` unique (null khi đã huỷ). Giữ chỗ 10 phút (`held`), job `booking.expire` nhả chỗ; số sân trống luôn tính theo `heldUntil` nên không phụ thuộc job. Bản này trả tại sân (`deposit = 0`).
+- **Lịch sinh từ đặt sân** có `events.booking_id`: không xoá hay đổi giờ tay được, chỉ qua vé đặt sân. Kèo gắn sân đã đặt (`posts.booking_id`) thì sân không đổi giờ/huỷ được; chốt kèo dùng lại lịch của lượt đặt.
+- **Seed sân mẫu** (12 sân Hà Nội, dữ liệu giả): `npm run build && npm run seed` hoặc `docker compose exec api node dist/seed.js`. Chạy lại an toàn. Thay bằng dữ liệu thật trước khi ra mắt.
+- **Bản đồ** dùng `flutter_map` + tile OpenStreetMap (đủ cho chạy thử; tile công cộng không dành cho lượng người dùng lớn, đổi nhà cung cấp trước khi ra mắt). Máy ảo Android đặt vị trí bằng `adb emu geo fix <kinh> <vĩ>`.
 - Android: `kotlin.incremental=false` trong `app/android/gradle.properties` (project ở ổ D:, pub cache ở ổ C: làm hỏng cache incremental).
 
 ## Lệnh hay dùng

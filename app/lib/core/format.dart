@@ -63,6 +63,37 @@ abstract final class Fmt {
     return m == 0 ? '$h giờ' : '$h giờ $m phút';
   }
 
+  /// 00:00 giờ VN của ngày chứa [t], dạng thời điểm UTC.
+  static DateTime vnDayStart(DateTime t) {
+    final v = vn(t);
+    return DateTime.utc(v.year, v.month, v.day).subtract(const Duration(hours: 7));
+  }
+
+  /// Ngày theo giờ VN dạng tham số API: "2026-11-22"
+  static String dateParam(DateTime t) {
+    final v = vn(t);
+    return '${v.year}-${_pad2(v.month)}-${_pad2(v.day)}';
+  }
+
+  /// 350 → "350 m", 1230 → "1,2 km"
+  static String distance(int meters) =>
+      meters < 1000 ? '$meters m' : '${(meters / 1000).toStringAsFixed(1).replaceAll('.', ',')} km';
+
+  /// "Thứ Bảy, 22/11"
+  static String longDay(DateTime t) {
+    const names = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ nhật'];
+    return '${names[vn(t).weekday - 1]}, ${dayMonth(t)}';
+  }
+
+  /// "Hôm nay" / "Ngày mai" / "T7 22/11" cho ngày của [t] (theo giờ VN).
+  static String relativeDay(DateTime t, {DateTime? now}) {
+    final today = _dateOnly(vn(now ?? DateTime.now()));
+    final days = _dateOnly(vn(t)).difference(today).inDays;
+    if (days == 0) return 'Hôm nay';
+    if (days == 1) return 'Ngày mai';
+    return '${weekday(t)} ${dayMonth(t)}';
+  }
+
   /// "còn 8 ngày" / "hôm nay" / "ngày mai" / "đã qua"
   static String countdown(DateTime start, {DateTime? now}) {
     final today = _dateOnly(vn(now ?? DateTime.now()));

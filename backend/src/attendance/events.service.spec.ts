@@ -7,7 +7,12 @@ const me: TeamMembership = { teamId: 't1', userId: 'u1', role: 'member' };
 
 function setup() {
   const prisma = {
-    event: { findFirst: vi.fn(), create: vi.fn() },
+    event: {
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
     attendance: { upsert: vi.fn(), findMany: vi.fn() },
     teamMember: { findMany: vi.fn() },
   };
@@ -101,5 +106,46 @@ describe('EventsService.create', () => {
       ),
     ).rejects.toMatchObject({ status: 400 });
     expect(prisma.event.create).not.toHaveBeenCalled();
+  });
+});
+
+describe('lịch sinh từ đặt sân', () => {
+  const captain: TeamMembership = { ...me, role: 'captain' };
+  const booked = {
+    id: 'e1',
+    bookingId: 'b1',
+    startAt: new Date('2026-11-22T12:00:00Z'),
+    endAt: new Date('2026-11-22T13:30:00Z'),
+  };
+
+  it('không xoá được (phải huỷ đặt sân)', async () => {
+    const { service, prisma } = setup();
+    prisma.event.findFirst.mockResolvedValue(booked);
+    await expect(service.remove(captain, 'e1')).rejects.toMatchObject({
+      status: 409,
+      response: { code: 'event_has_booking' },
+    });
+    expect(prisma.event.delete).not.toHaveBeenCalled();
+  });
+
+  it('không đổi giờ/địa điểm được nhưng sửa ghi chú thì được', async () => {
+    const { service, prisma } = setup();
+    prisma.event.findFirst.mockResolvedValue(booked);
+    await expect(
+      service.update(captain, 'e1', {
+        startAt: new Date('2026-11-23T12:00:00Z'),
+      }),
+    ).rejects.toMatchObject({ response: { code: 'event_has_booking' } });
+    await expect(
+      service.update(captain, 'e1', { location: 'Sân khác' }),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(prisma.event.update).not.toHaveBeenCalled();
+  });
+
+  it('lịch thường vẫn xoá được', async () => {
+    const { service, prisma } = setup();
+    prisma.event.findFirst.mockResolvedValue({ ...booked, bookingId: null });
+    await service.remove(captain, 'e1');
+    expect(prisma.event.delete).toHaveBeenCalledWith({ where: { id: 'e1' } });
   });
 });

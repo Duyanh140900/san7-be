@@ -6,11 +6,13 @@ import 'exports.dart'
     as clients
     show
         AuthClient,
+        BookingsClient,
         EventsClient,
         FundsClient,
         HealthClient,
         MembersClient,
         NotificationsClient,
+        PitchesClient,
         PostsClient,
         TeamsClient,
         UsersClient;
@@ -31,11 +33,13 @@ final class San7Api {
   final transport.Dio _client;
 
   late final clients.AuthClient auth = clients.AuthClient(_client);
+  late final clients.BookingsClient bookings = clients.BookingsClient(_client);
   late final clients.EventsClient events = clients.EventsClient(_client);
   late final clients.FundsClient funds = clients.FundsClient(_client);
   late final clients.HealthClient health = clients.HealthClient(_client);
   late final clients.MembersClient members = clients.MembersClient(_client);
   late final clients.NotificationsClient notifications = clients.NotificationsClient(_client);
+  late final clients.PitchesClient pitches = clients.PitchesClient(_client);
   late final clients.PostsClient posts = clients.PostsClient(_client);
   late final clients.TeamsClient teams = clients.TeamsClient(_client);
   late final clients.UsersClient users = clients.UsersClient(_client);

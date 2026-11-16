@@ -30,6 +30,9 @@ class CreatePostDto {
     this.positions,
     this.playersNeeded,
     this.body,
+
+    /// Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName
+    this.bookingId,
     this.additionalProperties = const {},
   });
 
@@ -49,6 +52,7 @@ class CreatePostDto {
         : null,
     playersNeeded: json.containsKey("playersNeeded") ? json["playersNeeded"] as int : null,
     body: json.containsKey("body") ? json["body"] as String : null,
+    bookingId: json.containsKey("bookingId") ? json["bookingId"] as String : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -86,6 +90,9 @@ class CreatePostDto {
 
   final String? body;
 
+  /// Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName
+  final String? bookingId;
+
   static const _knownKeys = <String>{
     "type",
     "startAt",
@@ -100,6 +107,7 @@ class CreatePostDto {
     "positions",
     "playersNeeded",
     "body",
+    "bookingId",
   };
 
   final Map<String, Object?> additionalProperties;
@@ -120,5 +128,6 @@ class CreatePostDto {
     if (this.positions != null) "positions": this.positions?.map((item) => item.toJson()).toList(),
     if (this.playersNeeded != null) "playersNeeded": this.playersNeeded,
     if (this.body != null) "body": this.body,
+    if (this.bookingId != null) "bookingId": this.bookingId,
   };
 }

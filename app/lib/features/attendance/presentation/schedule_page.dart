@@ -147,7 +147,11 @@ class EventDetailScreen extends ConsumerWidget {
     if (teamId == null) return const Scaffold();
     final key = (teamId: teamId, eventId: eventId);
     final detail = ref.watch(eventDetailProvider(key));
-    final canManage = ref.watch(teamDetailProvider(teamId)).value?.myRole.canManageEvents ?? false;
+    final bookingId = detail.value?.bookingId;
+    // Lịch sinh từ đặt sân thì gỡ bằng cách huỷ đặt sân, không xoá tay
+    final canManage =
+        (ref.watch(teamDetailProvider(teamId)).value?.myRole.canManageEvents ?? false) &&
+        bookingId == null;
 
     return Scaffold(
       appBar: AppBar(
@@ -178,6 +182,25 @@ class EventDetailScreen extends ConsumerWidget {
               onRetry: () => ref.invalidate(eventDetailProvider(key)),
               data: (d) => EventMainCard(teamId: teamId, event: EventView.detail(d)),
             ),
+            if (bookingId != null) ...[
+              const SizedBox(height: 14),
+              GestureDetector(
+                onTap: () => context.push(Routes.booking(teamId, bookingId)),
+                behavior: HitTestBehavior.opaque,
+                child: const AppCard(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text('Vé đặt sân', style: TextStyle(fontSize: 16))),
+                      Text(
+                        'Xem mã, đổi giờ, huỷ',
+                        style: TextStyle(fontSize: 15, color: AppColors.primary),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 14),
             EventAttendeesCard(teamId: teamId, eventId: eventId),
           ],

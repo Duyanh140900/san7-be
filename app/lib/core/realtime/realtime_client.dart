@@ -5,6 +5,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/notifications/data/notifications_repository.dart';
+import '../../features/pitches/pitches_providers.dart';
 import '../../features/posts/posts_providers.dart';
 import '../../features/team/team_providers.dart';
 import '../auth/auth_controller.dart';
@@ -125,6 +126,14 @@ final teamRealtimeSyncProvider = Provider<void>((ref) {
         ref.invalidate(postDetailProvider(payload['postId'] as String));
         ref.invalidate(postRequestsProvider);
         ref.invalidate(requestDetailProvider);
+      }
+      if (payload is Map && payload['bookingId'] is String) {
+        ref.invalidate(bookingProvider);
+        ref.invalidate(teamBookingsProvider);
+        ref.invalidate(pitchDetailProvider);
+        if (payload['teamId'] is String) {
+          ref.invalidate(upcomingEventsProvider(payload['teamId'] as String));
+        }
       }
       if (data['type'] == 'request.accepted' && payload is Map && payload['teamId'] is String) {
         ref.invalidate(upcomingEventsProvider(payload['teamId'] as String));

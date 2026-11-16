@@ -9,6 +9,7 @@ class NotificationPayloadDto {
     this.teamId,
     this.matchId,
     this.eventId,
+    this.bookingId,
     this.additionalProperties = const {},
   });
 
@@ -18,6 +19,7 @@ class NotificationPayloadDto {
     teamId: json.containsKey("teamId") ? json["teamId"] as String : null,
     matchId: json.containsKey("matchId") ? json["matchId"] as String : null,
     eventId: json.containsKey("eventId") ? json["eventId"] as String : null,
+    bookingId: json.containsKey("bookingId") ? json["bookingId"] as String : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -35,7 +37,16 @@ class NotificationPayloadDto {
 
   final String? eventId;
 
-  static const _knownKeys = <String>{"postId", "requestId", "teamId", "matchId", "eventId"};
+  final String? bookingId;
+
+  static const _knownKeys = <String>{
+    "postId",
+    "requestId",
+    "teamId",
+    "matchId",
+    "eventId",
+    "bookingId",
+  };
 
   final Map<String, Object?> additionalProperties;
 
@@ -47,5 +58,6 @@ class NotificationPayloadDto {
     if (this.teamId != null) "teamId": this.teamId,
     if (this.matchId != null) "matchId": this.matchId,
     if (this.eventId != null) "eventId": this.eventId,
+    if (this.bookingId != null) "bookingId": this.bookingId,
   };
 }
