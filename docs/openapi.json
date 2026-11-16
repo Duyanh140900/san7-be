@@ -1798,6 +1798,61 @@
         ]
       }
     },
+    "/v1/me/posts": {
+      "get": {
+        "operationId": "Posts_myPosts",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/PostStatus"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 30,
+              "default": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedPageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
     "/v1/teams/{teamId}/posts": {
       "post": {
         "operationId": "TeamPosts_create",
@@ -2139,6 +2194,141 @@
         ],
         "tags": [
           "posts"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/post-schedules": {
+      "post": {
+        "operationId": "PostSchedules_create",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostScheduleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostScheduleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "post-schedules"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/post-schedules/{scheduleId}": {
+      "patch": {
+        "operationId": "PostSchedules_update",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePostScheduleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostScheduleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "post-schedules"
+        ]
+      },
+      "delete": {
+        "operationId": "PostSchedules_cancel",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "post-schedules"
         ]
       }
     },
@@ -5078,6 +5268,246 @@
             "description": "Lịch trận trong đội của tôi (vắng với pass sân)"
           }
         }
+      },
+      "CreatePostScheduleDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostType"
+              }
+            ]
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pitchName": {
+            "type": "string",
+            "maxLength": 120,
+            "example": "Sân bóng Phúc La"
+          },
+          "area": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Vắng = khu vực của đội"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "deal": {
+            "description": "Bắt buộc với kèo tìm đối",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostDeal"
+              }
+            ]
+          },
+          "ratioWin": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Phần trăm đội thắng trả (chỉ khi chia tiền sân)"
+          },
+          "ratioLose": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "pitchPrice": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000,
+            "description": "Tiền sân (VND); với pass sân là giá nhượng"
+          },
+          "positions": {
+            "type": "array",
+            "description": "Tuyển người: các vị trí cần",
+            "items": {
+              "$ref": "#/components/schemas/Position"
+            }
+          },
+          "playersNeeded": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "bookingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "repeatWeekly": {
+            "type": "boolean",
+            "default": false,
+            "description": "Đăng lại mỗi tuần, đồng thời dời giờ đá thêm 7 ngày."
+          }
+        },
+        "required": [
+          "type",
+          "startAt",
+          "endAt",
+          "level",
+          "scheduledAt"
+        ]
+      },
+      "PostScheduleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduledAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "repeatWeekly": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "cancelled"
+            ]
+          },
+          "publishedPostId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "post": {
+            "$ref": "#/components/schemas/CreatePostDto"
+          }
+        },
+        "required": [
+          "id",
+          "teamId",
+          "scheduledAt",
+          "repeatWeekly",
+          "status",
+          "post"
+        ]
+      },
+      "UpdatePostScheduleDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostType"
+              }
+            ]
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pitchName": {
+            "type": "string",
+            "maxLength": 120,
+            "example": "Sân bóng Phúc La"
+          },
+          "area": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Vắng = khu vực của đội"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "deal": {
+            "description": "Bắt buộc với kèo tìm đối",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostDeal"
+              }
+            ]
+          },
+          "ratioWin": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Phần trăm đội thắng trả (chỉ khi chia tiền sân)"
+          },
+          "ratioLose": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "pitchPrice": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000,
+            "description": "Tiền sân (VND); với pass sân là giá nhượng"
+          },
+          "positions": {
+            "type": "array",
+            "description": "Tuyển người: các vị trí cần",
+            "items": {
+              "$ref": "#/components/schemas/Position"
+            }
+          },
+          "playersNeeded": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "bookingId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "repeatWeekly": {
+            "type": "boolean",
+            "default": false,
+            "description": "Đăng lại mỗi tuần, đồng thời dời giờ đá thêm 7 ngày."
+          }
+        },
+        "required": [
+          "type",
+          "startAt",
+          "endAt",
+          "level",
+          "scheduledAt"
+        ]
       },
       "PitchSlotDto": {
         "type": "object",

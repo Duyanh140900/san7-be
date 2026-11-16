@@ -7,6 +7,7 @@ import { expireRequest } from '../posts/requests.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Jobs, SYSTEM_QUEUE } from '../queue/queue.constants.js';
 import { PushService } from './push.service.js';
+import { publishPostSchedule } from '../schedules/schedules.service.js';
 
 export { SYSTEM_QUEUE };
 
@@ -61,6 +62,18 @@ export class SystemProcessor extends WorkerHost {
       case Jobs.pushSend: {
         const { notificationIds } = job.data as { notificationIds: string[] };
         return { sent: await this.push.sendNotifications(notificationIds) };
+      }
+      case Jobs.postSchedulePublish: {
+        const { scheduleId } = job.data as { scheduleId: string };
+        const result = await publishPostSchedule(this.prisma, scheduleId);
+        if (result.nextAt) {
+          await this.queue.add(Jobs.postSchedulePublish, { scheduleId }, {
+            jobId: `post-schedule:${scheduleId}`,
+            delay: Math.max(0, result.nextAt.getTime() - Date.now()),
+            attempts: 3, removeOnComplete: true, removeOnFail: 100,
+          });
+        }
+        return result;
       }
       default:
         throw new Error(`Job không xác định: ${job.name}`);

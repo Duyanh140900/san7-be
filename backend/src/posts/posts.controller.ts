@@ -29,6 +29,7 @@ import {
   FeedPageDto,
   FeedQuery,
   MatchRequestDto,
+  MyPostsQuery,
   MyRequestDto,
   PostDetailDto,
   PostDto,
@@ -58,6 +59,12 @@ export class PostsController {
     @Param('postId', ParseUUIDPipe) postId: string,
   ): Promise<PostDetailDto> {
     return this.posts.detail(user.userId, postId);
+  }
+
+  @Get('me/posts')
+  @ApiOkResponse({ type: FeedPageDto })
+  myPosts(@CurrentUser() user: AuthUser, @Query() q: MyPostsQuery): Promise<FeedPageDto> {
+    return this.posts.myPosts(user.userId, q);
   }
 }
 

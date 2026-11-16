@@ -12,4 +12,6 @@ export const Jobs = {
   matchPromptResult: 'match.prompt_result',
   /** Gửi FCM cho các thông báo: data { notificationIds } */
   pushSend: 'push.send',
+  /** Công bố lịch đăng kèo: data { scheduleId } */
+  postSchedulePublish: 'post-schedule.publish',
 } as const;

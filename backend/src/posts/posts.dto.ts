@@ -171,6 +171,26 @@ export class FeedQuery {
   limit?: number;
 }
 
+export class MyPostsQuery {
+  @ApiPropertyOptional({ enum: PostStatus, enumName: 'PostStatus' })
+  @IsOptional()
+  @IsEnum(PostStatus)
+  status?: PostStatus;
+
+  @ApiPropertyOptional({ format: 'uuid' })
+  @IsOptional()
+  @IsUUID()
+  cursor?: string;
+
+  @ApiPropertyOptional({ type: 'integer', minimum: 1, maximum: 30, default: 20 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(30)
+  limit?: number;
+}
+
 export class SendRequestDto {
   @ApiProperty({ type: 'integer', minimum: 1, maximum: 30, example: 9 })
   @IsInt()

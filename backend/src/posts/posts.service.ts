@@ -20,6 +20,7 @@ import type {
   CreatePostDto,
   FeedPageDto,
   FeedQuery,
+  MyPostsQuery,
   PostDetailDto,
   PostDto,
 } from './posts.dto.js';
@@ -213,6 +214,19 @@ export class PostsService {
       items: page.map(toPostDto),
       nextCursor: rows.length > limit ? page[page.length - 1].id : undefined,
     };
+  }
+
+  /** Kèo do chính tài khoản tạo, hỗ trợ lọc trạng thái và cursor. */
+  async myPosts(userId: string, q: MyPostsQuery): Promise<FeedPageDto> {
+    const now = new Date();
+    const limit = q.limit ?? 20;
+    const rows = await this.prisma.post.findMany({
+      where: { authorId: userId, ...(q.status ? { status: q.status } : {}) },
+      include: postInclude(now), orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: limit + 1,
+      ...(q.cursor ? { cursor: { id: q.cursor }, skip: 1 } : {}),
+    });
+    const items = rows.slice(0, limit);
+    return { items: items.map(toPostDto), nextCursor: rows.length > limit ? items.at(-1)?.id : undefined };
   }
 
   async detail(userId: string, postId: string): Promise<PostDetailDto> {

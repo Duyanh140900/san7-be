@@ -124,6 +124,12 @@ enum Platform {
   web
 }
 
+/// Trạng thái của một lịch đăng kèo. Lịch lặp tuần giữ lại sau mỗi lần đăng.
+enum PostScheduleStatus {
+  scheduled
+  cancelled
+}
+
 model User {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   googleSub   String    @unique @map("google_sub")
@@ -152,6 +158,7 @@ model User {
   notifications Notification[]
   comments      Comment[]
   reactions     Reaction[]
+  postSchedules PostSchedule[]
 
   @@map("users")
 }
@@ -208,6 +215,7 @@ model Team {
   transactions    FundTransaction[]
   fineRules       FineRule[]
   posts           Post[]
+  postSchedules   PostSchedule[]
   bookings        Booking[]
   requests        MatchRequest[]
   homeMatches     Match[]           @relation("HomeTeam")
@@ -373,12 +381,36 @@ model Post {
   match    Match?
   pitch    Pitch?         @relation(fields: [pitchId], references: [id], onDelete: SetNull)
   booking  Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  schedule PostSchedule?  @relation("PublishedSchedule")
 
   @@index([status, startAt])
   @@index([teamId, createdAt])
   @@index([authorId])
   @@index([pitchId])
   @@map("posts")
+}
+
+/// Bản nháp kèo sẽ được worker BullMQ công bố đúng giờ. payload là CreatePostDto
+/// đã được kiểm tra ở boundary; worker kiểm tra lại thời gian trước khi công bố.
+model PostSchedule {
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId          String             @map("team_id") @db.Uuid
+  authorId        String             @map("author_id") @db.Uuid
+  payload         Json
+  scheduledAt     DateTime           @map("scheduled_at") @db.Timestamptz(6)
+  repeatWeekly    Boolean            @default(false) @map("repeat_weekly")
+  status          PostScheduleStatus @default(scheduled)
+  publishedPostId String?            @unique @map("published_post_id") @db.Uuid
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  team          Team  @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  author        User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  publishedPost Post? @relation("PublishedSchedule", fields: [publishedPostId], references: [id], onDelete: SetNull)
+
+  @@index([teamId, status, scheduledAt])
+  @@index([authorId, status, scheduledAt])
+  @@map("post_schedules")
 }
 
 /// Bình luận dưới kèo. Chỉ M5 dùng bình luận cấp một; parent/reply có thể bổ sung sau.

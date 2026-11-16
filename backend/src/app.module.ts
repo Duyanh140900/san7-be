@@ -19,6 +19,7 @@ import { QueueModule } from './queue/queue.module.js';
 import { RealtimeModule } from './realtime/realtime.module.js';
 import { TeamsModule } from './teams/teams.module.js';
 import { UsersModule } from './users/users.module.js';
+import { PostSchedulesModule } from './schedules/schedules.module.js';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { UsersModule } from './users/users.module.js';
     RealtimeModule,
     NotificationsModule,
     PostsModule,
+    PostSchedulesModule,
     PitchesModule,
     MatchesModule,
   ],
