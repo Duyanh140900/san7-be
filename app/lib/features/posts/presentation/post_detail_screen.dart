@@ -13,6 +13,7 @@ import '../../../core/widgets/team_crest.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
 import 'post_widgets.dart';
+import 'community_widgets.dart';
 
 /// Màn 14 · Chi tiết kèo. Bình luận, cảm xúc, ảnh/video có ở M5.
 class PostDetailScreen extends ConsumerWidget {
@@ -85,7 +86,10 @@ class _Body extends ConsumerWidget {
               ),
               if (post.body != null) ...[
                 const SizedBox(height: 12),
-                Text(post.body!, style: const TextStyle(fontSize: 16, height: 1.45)),
+                Text(
+                  post.body!,
+                  style: const TextStyle(fontSize: 16, height: 1.45),
+                ),
               ],
               const SizedBox(height: 12),
               InfoGrid(info),
@@ -99,19 +103,28 @@ class _Body extends ConsumerWidget {
                   children: [
                     TeamAvatarStack(
                       teams: [
-                        for (final t in detail.requestTeams) (name: t.name, color: t.crestColor),
+                        for (final t in detail.requestTeams)
+                          (name: t.name, color: t.crestColor),
                       ],
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '${post.requestCount} đội đã gửi nhận kèo',
-                        style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ],
+              const SizedBox(height: 12),
+              PostCommunityBar(
+                postId: post.id,
+                canManageComments: detail.canManage,
+              ),
               const SizedBox(height: 16),
               ..._actions(context, ref, canRequest),
             ],
@@ -134,7 +147,9 @@ class _Body extends ConsumerWidget {
         ];
       }
       if (post.status == PostStatus.closed) {
-        return const [StatusBanner(tone: BannerTone.neutral, child: Text('Kèo đã đóng.'))];
+        return const [
+          StatusBanner(tone: BannerTone.neutral, child: Text('Kèo đã đóng.')),
+        ];
       }
       return [
         FilledButton(
@@ -148,7 +163,11 @@ class _Body extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        SoftButton(label: 'Đóng kèo', color: AppColors.red, onPressed: () => _close(context, ref)),
+        SoftButton(
+          label: 'Đóng kèo',
+          color: AppColors.red,
+          onPressed: () => _close(context, ref),
+        ),
       ];
     }
 
@@ -156,7 +175,9 @@ class _Body extends ConsumerWidget {
     final mine = detail.myRequest;
     // Yêu cầu cũ đã kết thúc mà kèo vẫn mở: cho gửi lại
     final finished =
-        mine != null && !mine.status.isPending && mine.status != RequestStatus.accepted;
+        mine != null &&
+        !mine.status.isPending &&
+        mine.status != RequestStatus.accepted;
     if (mine != null && !(finished && canRequest)) {
       final pending = mine.status.isPending;
       return [
@@ -166,7 +187,9 @@ class _Body extends ConsumerWidget {
               : mine.status == RequestStatus.accepted
               ? BannerTone.success
               : BannerTone.neutral,
-          icon: pending ? const AppIcon(AppIcons.clock, color: AppColors.warnText) : null,
+          icon: pending
+              ? const AppIcon(AppIcons.clock, color: AppColors.warnText)
+              : null,
           child: Text(
             pending
                 ? '${mine.teamName} đã gửi nhận kèo. Tự huỷ sau ${Fmt.remaining(mine.expiresAt.difference(DateTime.now()))} nếu không được trả lời.'
@@ -185,13 +208,18 @@ class _Body extends ConsumerWidget {
       return [
         FilledButton(
           onPressed: () => context.push(Routes.postRequest(post.id)),
-          child: Text(post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo'),
+          child: Text(
+            post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo',
+          ),
         ),
       ];
     }
     if (!post.status.isOpen) {
       return const [
-        StatusBanner(tone: BannerTone.neutral, child: Text('Kèo đã có đối hoặc đã đóng.')),
+        StatusBanner(
+          tone: BannerTone.neutral,
+          child: Text('Kèo đã có đối hoặc đã đóng.'),
+        ),
       ];
     }
     return const [];
@@ -202,9 +230,14 @@ class _Body extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Đóng kèo?'),
-        content: const Text('Kèo sẽ gỡ khỏi Bảng tin, các đội đang chờ được báo là kèo đã đóng.'),
+        content: const Text(
+          'Kèo sẽ gỡ khỏi Bảng tin, các đội đang chờ được báo là kèo đã đóng.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Không')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Không'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.red),
@@ -255,8 +288,20 @@ class _PitchRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-              Text(area, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+              Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                area,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ],
           ),
         ),

@@ -15,15 +15,25 @@ class FeedFilterNotifier extends Notifier<FeedFilter> {
   void setArea(String? area) => state = (type: state.type, area: area);
 }
 
-final feedFilterProvider = NotifierProvider<FeedFilterNotifier, FeedFilter>(FeedFilterNotifier.new);
+final feedFilterProvider = NotifierProvider<FeedFilterNotifier, FeedFilter>(
+  FeedFilterNotifier.new,
+);
 
 class FeedState {
-  const FeedState({required this.items, this.nextCursor, this.loadingMore = false});
+  const FeedState({
+    required this.items,
+    this.nextCursor,
+    this.loadingMore = false,
+  });
   final List<PostDto> items;
   final String? nextCursor;
   final bool loadingMore;
 
-  FeedState copyWith({List<PostDto>? items, String? nextCursor, bool? loadingMore}) => FeedState(
+  FeedState copyWith({
+    List<PostDto>? items,
+    String? nextCursor,
+    bool? loadingMore,
+  }) => FeedState(
     items: items ?? this.items,
     nextCursor: nextCursor,
     loadingMore: loadingMore ?? this.loadingMore,
@@ -35,45 +45,68 @@ class FeedNotifier extends AsyncNotifier<FeedState> {
   @override
   Future<FeedState> build() async {
     final f = ref.watch(feedFilterProvider);
-    final page = await ref.read(postsRepositoryProvider).feed(type: f.type, area: f.area);
+    final page = await ref
+        .read(postsRepositoryProvider)
+        .feed(type: f.type, area: f.area);
     return FeedState(items: page.items, nextCursor: page.nextCursor);
   }
 
   Future<void> loadMore() async {
     final cur = state.value;
     if (cur == null || cur.nextCursor == null || cur.loadingMore) return;
-    state = AsyncData(cur.copyWith(loadingMore: true, nextCursor: cur.nextCursor));
+    state = AsyncData(
+      cur.copyWith(loadingMore: true, nextCursor: cur.nextCursor),
+    );
     final f = ref.read(feedFilterProvider);
     try {
       final page = await ref
           .read(postsRepositoryProvider)
           .feed(type: f.type, area: f.area, cursor: cur.nextCursor);
       state = AsyncData(
-        FeedState(items: [...cur.items, ...page.items], nextCursor: page.nextCursor),
+        FeedState(
+          items: [...cur.items, ...page.items],
+          nextCursor: page.nextCursor,
+        ),
       );
     } catch (_) {
-      state = AsyncData(cur.copyWith(loadingMore: false, nextCursor: cur.nextCursor));
+      state = AsyncData(
+        cur.copyWith(loadingMore: false, nextCursor: cur.nextCursor),
+      );
     }
   }
 }
 
-final feedProvider = AsyncNotifierProvider<FeedNotifier, FeedState>(FeedNotifier.new);
-
-final postDetailProvider = FutureProvider.autoDispose.family<PostDetailDto, String>(
-  (ref, postId) => ref.watch(postsRepositoryProvider).detail(postId),
+final feedProvider = AsyncNotifierProvider<FeedNotifier, FeedState>(
+  FeedNotifier.new,
 );
+
+final postDetailProvider = FutureProvider.autoDispose
+    .family<PostDetailDto, String>(
+      (ref, postId) => ref.watch(postsRepositoryProvider).detail(postId),
+    );
+
+/// Tổng hợp năm cảm xúc và cảm xúc của người đang đăng nhập cho một kèo.
+final postReactionsProvider = FutureProvider.autoDispose
+    .family<ReactionPageDto, String>(
+      (ref, postId) => ref.watch(postsRepositoryProvider).reactions(postId),
+    );
 
 typedef PostKey = ({String teamId, String postId});
 
-final postRequestsProvider = FutureProvider.autoDispose.family<List<MatchRequestDto>, PostKey>(
-  (ref, k) => ref.watch(postsRepositoryProvider).requests(k.teamId, k.postId),
-);
+final postRequestsProvider = FutureProvider.autoDispose
+    .family<List<MatchRequestDto>, PostKey>(
+      (ref, k) =>
+          ref.watch(postsRepositoryProvider).requests(k.teamId, k.postId),
+    );
 
 typedef RequestKey = ({String teamId, String requestId});
 
-final requestDetailProvider = FutureProvider.autoDispose.family<RequestDetailDto, RequestKey>(
-  (ref, k) => ref.watch(postsRepositoryProvider).requestDetail(k.teamId, k.requestId),
-);
+final requestDetailProvider = FutureProvider.autoDispose
+    .family<RequestDetailDto, RequestKey>(
+      (ref, k) => ref
+          .watch(postsRepositoryProvider)
+          .requestDetail(k.teamId, k.requestId),
+    );
 
 /// Các đội tôi là đội trưởng/phó (được đăng kèo, nhận kèo).
 final managedTeamsProvider = Provider<List<MyTeamDto>>((ref) {

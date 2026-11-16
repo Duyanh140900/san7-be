@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -10,6 +11,8 @@ import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/team_crest.dart';
+import '../posts_providers.dart';
+import 'community_widgets.dart';
 
 /// Màu nhãn theo loại kèo (như bản vẽ màn 1).
 ({Color bg, Color fg}) postTypeColors(PostType t) => switch (t) {
@@ -37,7 +40,9 @@ class PostTypeBadge extends StatelessWidget {
 
 /// Tiền sân mỗi đội trả theo tỷ lệ (null khi không có giá hoặc không chia tiền).
 ({int win, int lose})? feeSplit(int? price, int? ratioWin, int? ratioLose) {
-  if (price == null || price <= 0 || ratioWin == null || ratioLose == null) return null;
+  if (price == null || price <= 0 || ratioWin == null || ratioLose == null) {
+    return null;
+  }
   final win = (price * ratioWin / 100).round();
   return (win: win, lose: price - win);
 }
@@ -79,9 +84,15 @@ class InfoGrid extends StatelessWidget {
     Widget cell((String, String) kv) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(kv.$1, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Text(
+          kv.$1,
+          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
         const SizedBox(height: 2),
-        Text(kv.$2, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+        Text(
+          kv.$2,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
       ],
     );
     return Container(
@@ -100,7 +111,11 @@ class InfoGrid extends StatelessWidget {
               children: [
                 Expanded(child: cell(items[i])),
                 const SizedBox(width: 12),
-                Expanded(child: i + 1 < items.length ? cell(items[i + 1]) : const SizedBox()),
+                Expanded(
+                  child: i + 1 < items.length
+                      ? cell(items[i + 1])
+                      : const SizedBox(),
+                ),
               ],
             ),
           ],
@@ -132,13 +147,19 @@ class PostTeamHeader extends StatelessWidget {
             children: [
               Text(
                 post.team.name,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 2),
               Text(
                 '${Fmt.ago(post.createdAt)} · ${post.area}',
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -150,7 +171,7 @@ class PostTeamHeader extends StatelessWidget {
 }
 
 /// Thẻ kèo trên Bảng tin (màn 1).
-class PostCard extends StatelessWidget {
+class PostCard extends ConsumerWidget {
   const PostCard({super.key, required this.post, required this.canRequest});
   final PostDto post;
 
@@ -160,8 +181,11 @@ class PostCard extends StatelessWidget {
   bool get _requestable => post.type != PostType.recruit;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     void open() => context.push(Routes.post(post.id));
+    final canManageComments = ref
+        .watch(managedTeamsProvider)
+        .any((team) => team.teamId == post.team.id);
     return GestureDetector(
       onTap: open,
       behavior: HitTestBehavior.opaque,
@@ -172,11 +196,20 @@ class PostCard extends StatelessWidget {
             PostTeamHeader(post: post),
             if (post.body != null) ...[
               const SizedBox(height: 12),
-              Text(post.body!, style: const TextStyle(fontSize: 16, height: 1.45)),
+              Text(
+                post.body!,
+                style: const TextStyle(fontSize: 16, height: 1.45),
+              ),
             ],
             const SizedBox(height: 12),
             InfoGrid(postInfo(post)),
             const SizedBox(height: 12),
+            PostCommunityBar(
+              postId: post.id,
+              canManageComments: canManageComments,
+              compact: true,
+            ),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -186,7 +219,10 @@ class PostCard extends StatelessWidget {
                         : _requestable
                         ? 'Chưa có đội nhận'
                         : '',
-                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
                 if (_requestable && canRequest)
@@ -194,10 +230,15 @@ class PostCard extends StatelessWidget {
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(0, 40),
                       padding: const EdgeInsets.symmetric(horizontal: 18),
-                      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                      textStyle: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     onPressed: () => context.push(Routes.postRequest(post.id)),
-                    child: Text(post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo'),
+                    child: Text(
+                      post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo',
+                    ),
                   )
                 else
                   LinkButton('Xem chi tiết', onTap: open),
@@ -212,7 +253,12 @@ class PostCard extends StatelessWidget {
 
 /// Dải trạng thái màu (vàng: chờ, xanh: đã chốt, xám: khác) như màn 9, 13.
 class StatusBanner extends StatelessWidget {
-  const StatusBanner({super.key, required this.tone, required this.child, this.icon});
+  const StatusBanner({
+    super.key,
+    required this.tone,
+    required this.child,
+    this.icon,
+  });
   final BannerTone tone;
   final Widget child;
   final Widget? icon;
@@ -221,8 +267,16 @@ class StatusBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg, border) = switch (tone) {
       BannerTone.waiting => (AppColors.warnSoft, AppColors.warnText, null),
-      BannerTone.success => (AppColors.greenSoft, AppColors.greenSoftText, null),
-      BannerTone.neutral => (AppColors.background, AppColors.text, AppColors.border),
+      BannerTone.success => (
+        AppColors.greenSoft,
+        AppColors.greenSoftText,
+        null,
+      ),
+      BannerTone.neutral => (
+        AppColors.background,
+        AppColors.text,
+        AppColors.border,
+      ),
     };
     return Container(
       width: double.infinity,
@@ -258,7 +312,12 @@ class BottomActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + MediaQuery.paddingOf(context).bottom),
+    padding: EdgeInsets.fromLTRB(
+      16,
+      12,
+      16,
+      12 + MediaQuery.paddingOf(context).bottom,
+    ),
     decoration: BoxDecoration(
       color: Colors.white.withValues(alpha: 0.96),
       border: const Border(top: BorderSide(color: AppColors.border)),
@@ -267,7 +326,10 @@ class BottomActionBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final (i, c) in children.indexed) ...[if (i > 0) const SizedBox(height: 8), c],
+        for (final (i, c) in children.indexed) ...[
+          if (i > 0) const SizedBox(height: 8),
+          c,
+        ],
       ],
     ),
   );
@@ -275,7 +337,12 @@ class BottomActionBar extends StatelessWidget {
 
 /// Nút viên thuốc phụ nền xám (Nhắn tin / Từ chối / Huỷ yêu cầu).
 class SoftButton extends StatelessWidget {
-  const SoftButton({super.key, required this.label, required this.onPressed, this.color});
+  const SoftButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.color,
+  });
   final String label;
   final VoidCallback? onPressed;
   final Color? color;
@@ -295,7 +362,12 @@ class SoftButton extends StatelessWidget {
 
 /// Đầu trang chi tiết: nút quay lại + tiêu đề giữa.
 class DetailHeader extends StatelessWidget {
-  const DetailHeader({super.key, required this.backLabel, this.title, this.trailing});
+  const DetailHeader({
+    super.key,
+    required this.backLabel,
+    this.title,
+    this.trailing,
+  });
   final String backLabel;
   final String? title;
   final Widget? trailing;
@@ -309,17 +381,30 @@ class DetailHeader extends StatelessWidget {
           child: Align(
             alignment: Alignment.centerLeft,
             child: TextButton.icon(
-              onPressed: () => context.canPop() ? context.pop() : context.go(Routes.feed),
-              icon: const AppIcon(AppIcons.back, size: 24, color: AppColors.primary),
+              onPressed: () =>
+                  context.canPop() ? context.pop() : context.go(Routes.feed),
+              icon: const AppIcon(
+                AppIcons.back,
+                size: 24,
+                color: AppColors.primary,
+              ),
               label: Text(backLabel, style: const TextStyle(fontSize: 17)),
-              style: TextButton.styleFrom(padding: const EdgeInsets.only(right: 8)),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.only(right: 8),
+              ),
             ),
           ),
         ),
         if (title != null)
-          Text(title!, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+          Text(
+            title!,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+          ),
         Expanded(
-          child: Align(alignment: Alignment.centerRight, child: trailing ?? const SizedBox()),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: trailing ?? const SizedBox(),
+          ),
         ),
       ],
     ),
@@ -351,7 +436,10 @@ Future<int?> showRatioDialog(
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Huỷ')),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Huỷ'),
+        ),
         TextButton(
           onPressed: () {
             final n = int.tryParse(ctrl.text);
