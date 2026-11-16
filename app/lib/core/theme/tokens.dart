@@ -36,6 +36,19 @@ abstract final class AppColors {
   /// Đường kẻ trong nhóm
   static const divider = Color(0xFFF0F0F0);
 
+  /// Bóng đổ của ghim/nút nổi và thẻ trượt trên bản đồ
+  static const shadow = Color(0x29000000);
+  static const shadowSoft = Color(0x1A000000);
+
+  /// Xám của mục bị vô hiệu (khung giờ đã qua/hết sân, ghim hết chỗ)
+  static const disabled = Color(0xFFAEAEB2);
+
+  /// Chữ phụ trên nền tối
+  static const onDarkMuted = Color(0xFFCCCCCC);
+
+  /// Sọc cỏ sáng hơn màu cỏ sân
+  static const pitchStripe = Color(0xFF34994C);
+
   /// Màu cỏ sân (ảnh sân giả lập)
   static const pitch = Color(0xFF2F8F46);
 }

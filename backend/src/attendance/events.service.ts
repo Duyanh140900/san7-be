@@ -24,6 +24,7 @@ type EventRow = {
   location: string | null;
   note: string | null;
   minPlayers: number | null;
+  bookingId: string | null;
 };
 
 const MAX_DURATION_MS = 24 * 3_600_000;
@@ -151,6 +152,9 @@ export class EventsService {
     dto: UpdateEventDto,
   ): Promise<EventDetailDto> {
     const event = await this.findEvent(me.teamId, eventId);
+    if (event.bookingId && (dto.startAt || dto.endAt || dto.location)) {
+      throw this.fromBooking();
+    }
     this.checkTimes(dto.startAt ?? event.startAt, dto.endAt ?? event.endAt);
     await this.prisma.event.update({ where: { id: eventId }, data: dto });
     this.realtime.toTeam(me.teamId, 'events.changed', { eventId });
@@ -158,10 +162,10 @@ export class EventsService {
   }
 
   async remove(me: TeamMembership, eventId: string): Promise<void> {
-    const { count } = await this.prisma.event.deleteMany({
-      where: { id: eventId, teamId: me.teamId },
-    });
-    if (count === 0) throw this.notFound();
+    const event = await this.findEvent(me.teamId, eventId);
+    // Lịch sinh từ đặt sân chỉ gỡ được bằng cách huỷ đặt sân
+    if (event.bookingId) throw this.fromBooking();
+    await this.prisma.event.delete({ where: { id: eventId } });
     this.realtime.toTeam(me.teamId, 'events.changed', { eventId });
   }
 
@@ -247,9 +251,18 @@ export class EventsService {
       location: e.location,
       note: e.note,
       minPlayers: e.minPlayers,
+      bookingId: e.bookingId,
       counts,
       myStatus,
     };
+  }
+
+  private fromBooking() {
+    return new AppError(
+      HttpStatus.CONFLICT,
+      'event_has_booking',
+      'Lịch này sinh ra từ đặt sân. Đổi giờ hoặc huỷ ở vé đặt sân.',
+    );
   }
 
   private notFound() {

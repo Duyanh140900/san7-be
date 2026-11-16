@@ -22,6 +22,8 @@ abstract final class Routes {
   static String postCompare(String teamId, String postId) => '/teams/$teamId/posts/$postId/compare';
   static String request(String teamId, String requestId) => '/teams/$teamId/requests/$requestId';
   static const notifications = '/notifications';
+  static String pitch(String id) => '/pitch/$id';
+  static String booking(String teamId, String bookingId) => '/teams/$teamId/bookings/$bookingId';
 }
 
 /// Quyết định điều hướng theo trạng thái đăng nhập (luồng màn 12).

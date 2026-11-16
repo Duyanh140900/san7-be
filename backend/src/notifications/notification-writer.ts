@@ -9,6 +9,7 @@ export interface NotificationPayload {
   teamId?: string;
   matchId?: string;
   eventId?: string;
+  bookingId?: string;
 }
 
 export interface NotifyInput {
@@ -125,4 +126,21 @@ export async function notifyTeamManagers(
   );
   if (data.length === 0) return [];
   return db.notification.createManyAndReturn({ data });
+}
+
+/** Mọi thành viên đang hoạt động của đội (trừ người thao tác). */
+export async function teamMemberIds(
+  db: Db,
+  teamId: string,
+  exceptUserId?: string,
+): Promise<string[]> {
+  const rows = await db.teamMember.findMany({
+    where: {
+      teamId,
+      status: 'active',
+      ...(exceptUserId ? { userId: { not: exceptUserId } } : {}),
+    },
+    select: { userId: true },
+  });
+  return rows.map((r) => r.userId);
 }

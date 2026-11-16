@@ -10,6 +10,7 @@ import { FundsModule } from './funds/funds.module.js';
 import { HealthController } from './health/health.controller.js';
 import { MembersModule } from './members/members.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
+import { PitchesModule } from './pitches/pitches.module.js';
 import { PostsModule } from './posts/posts.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { QueueModule } from './queue/queue.module.js';
@@ -52,6 +53,7 @@ import { UsersModule } from './users/users.module.js';
     RealtimeModule,
     NotificationsModule,
     PostsModule,
+    PitchesModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

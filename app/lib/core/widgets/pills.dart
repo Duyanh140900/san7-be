@@ -98,10 +98,19 @@ class SectionLabel extends StatelessWidget {
 
 /// Chip lọc nền trắng, chọn thì nền đen (như bản vẽ).
 class FilterPill extends StatelessWidget {
-  const FilterPill({super.key, required this.label, required this.selected, required this.onTap});
+  const FilterPill({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.elevated = false,
+  });
   final String label;
   final bool selected;
   final VoidCallback onTap;
+
+  /// Có bóng đổ nhẹ (khi đặt trên bản đồ).
+  final bool elevated;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -117,6 +126,15 @@ class FilterPill extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected ? AppColors.text : AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.pill),
+            boxShadow: elevated
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Text(
             label,

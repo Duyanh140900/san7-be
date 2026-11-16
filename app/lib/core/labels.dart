@@ -118,4 +118,18 @@ abstract final class Labels {
     RequestStatusKnown(value: RequestStatusValue.cancelled) => 'Đã huỷ',
     RequestStatusUnknown(:final rawValue) => rawValue,
   };
+
+  /// Tiện ích sân (khoá của API).
+  static const amenities = <String, String>{
+    'light': 'Đèn LED',
+    'new_turf': 'Cỏ nhân tạo mới',
+    'parking': 'Gửi xe',
+    'water': 'Nước uống',
+    'locker': 'Phòng thay đồ',
+  };
+
+  static String amenity(PitchDtoAmenitiesItem a) => switch (a) {
+    PitchDtoAmenitiesItemKnown(:final value) => amenities[value.value] ?? value.value,
+    PitchDtoAmenitiesItemUnknown(:final rawValue) => rawValue,
+  };
 }

@@ -22,6 +22,7 @@ export class NotificationPayloadDto {
   teamId?: string;
   @ApiPropertyOptional({ format: 'uuid' }) matchId?: string;
   @ApiPropertyOptional({ format: 'uuid' }) eventId?: string;
+  @ApiPropertyOptional({ format: 'uuid' }) bookingId?: string;
 }
 
 export class NotificationDto {

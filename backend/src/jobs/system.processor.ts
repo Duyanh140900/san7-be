@@ -1,6 +1,7 @@
 import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import type { Job, Queue } from 'bullmq';
+import { expireHold } from '../bookings/bookings.service.js';
 import { expireRequest } from '../posts/requests.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Jobs, SYSTEM_QUEUE } from '../queue/queue.constants.js';
@@ -37,6 +38,12 @@ export class SystemProcessor extends WorkerHost {
           );
         }
         return { expired: notes.length > 0 };
+      }
+      case Jobs.bookingExpire: {
+        const { bookingId } = job.data as { bookingId: string };
+        return {
+          released: await expireHold(this.prisma, bookingId, new Date()),
+        };
       }
       case Jobs.pushSend: {
         const { notificationIds } = job.data as { notificationIds: string[] };

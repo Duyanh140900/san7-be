@@ -12,6 +12,8 @@ import '../../features/funds/presentation/fund_transactions_screen.dart';
 import '../../features/funds/presentation/funds_page.dart';
 import '../../features/honors/presentation/honors_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
+import '../../features/pitches/presentation/booking_screen.dart';
+import '../../features/pitches/presentation/pitch_detail_screen.dart';
 import '../../features/pitches/presentation/pitches_screen.dart';
 import '../../features/post_create/presentation/post_create_screen.dart';
 import '../../features/posts/presentation/compare_requests_screen.dart';
@@ -71,6 +73,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
+      // Đặt sân (M3)
+      GoRoute(
+        path: '/pitch/:pitchId',
+        builder: (_, state) => PitchDetailScreen(
+          pitchId: state.pathParameters['pitchId']!,
+          args: state.extra is PitchDetailArgs ? state.extra! as PitchDetailArgs : null,
+        ),
+      ),
+      GoRoute(
+        path: '/teams/:teamId/bookings/:bookingId',
+        builder: (_, state) => BookingScreen(
+          teamId: state.pathParameters['teamId']!,
+          bookingId: state.pathParameters['bookingId']!,
+        ),
+      ),
       // Màn toàn màn hình của tab Đội (đặt trước shell để khớp trước /team/...)
       GoRoute(
         path: Routes.teamFundNew,

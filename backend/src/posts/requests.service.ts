@@ -344,15 +344,26 @@ export class RequestsService {
           },
         });
         matchId = match.id;
-        const ownerEvent = await tx.event.create({
-          data: {
-            ...base,
-            teamId: post.teamId,
-            kind: 'match',
-            title: `vs ${r.team.name}`,
-            matchId,
-          },
-        });
+        // Kèo gắn với sân đã đặt: lịch của lượt đặt thành lịch trận, không tạo trùng
+        const bookedEvent = post.bookingId
+          ? await tx.event.findFirst({
+              where: { bookingId: post.bookingId, teamId: post.teamId },
+              select: { id: true },
+            })
+          : null;
+        const ownerData = {
+          ...base,
+          teamId: post.teamId,
+          kind: 'match' as const,
+          title: `vs ${r.team.name}`,
+          matchId,
+        };
+        const ownerEvent = bookedEvent
+          ? await tx.event.update({
+              where: { id: bookedEvent.id },
+              data: ownerData,
+            })
+          : await tx.event.create({ data: ownerData });
         ownerEventId = ownerEvent.id;
         const requesterEvent = await tx.event.create({
           data: {

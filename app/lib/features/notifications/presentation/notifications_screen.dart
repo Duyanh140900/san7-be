@@ -46,7 +46,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       ref.read(notificationsRepositoryProvider).markRead([n.id]).then((_) => _refresh()).ignore();
     }
     final p = n.payload;
-    if (p.requestId != null && p.teamId != null) {
+    if (p.bookingId != null && p.teamId != null) {
+      await context.push(Routes.booking(p.teamId!, p.bookingId!));
+    } else if (p.requestId != null && p.teamId != null) {
       await context.push(Routes.request(p.teamId!, p.requestId!));
     } else if (p.postId != null) {
       await context.push(Routes.post(p.postId!));
@@ -193,6 +195,11 @@ Widget _icon(NotificationDto n) {
   final (bg, fg, icon) = switch (n.type) {
     'request.accepted' => (AppColors.greenSoft, AppColors.greenSoftText, AppIcons.checkCircle),
     'request.received' => (AppColors.primarySoft, AppColors.primarySoftText, AppIcons.ball),
+    _ when n.category == NotificationCategory.booking => (
+      AppColors.greenSoft,
+      AppColors.greenSoftText,
+      AppIcons.pin,
+    ),
     'request.expired' => (AppColors.warnSoft, AppColors.warnText, AppIcons.clock),
     _ when n.category == NotificationCategory.fund => (
       AppColors.orangeSoft,

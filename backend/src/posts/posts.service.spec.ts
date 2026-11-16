@@ -1,3 +1,4 @@
+import { Prisma } from '../generated/prisma/client.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
 import type { CreatePostDto } from './posts.dto.js';
 import type { NotificationsService } from '../notifications/notifications.service.js';
@@ -145,6 +146,7 @@ function setup() {
     team: {
       findUniqueOrThrow: vi.fn().mockResolvedValue({ area: 'Cầu Giấy' }),
     },
+    booking: { findFirst: vi.fn() },
     post: {
       create: vi.fn((a: { data: Record<string, unknown> }) =>
         Promise.resolve({
@@ -227,7 +229,7 @@ describe('PostsService', () => {
     await service.close(me, 'p1');
     expect(tx.post.update).toHaveBeenCalledWith({
       where: { id: 'p1' },
-      data: { status: 'closed' },
+      data: { status: 'closed', bookingId: null },
     });
     expect(tx.matchRequest.updateManyAndReturn).toHaveBeenCalled();
     expect(notifications.dispatch).toHaveBeenCalledWith([
@@ -252,6 +254,92 @@ describe('PostsService', () => {
     });
     await expect(service.close(me, 'p1')).rejects.toMatchObject({
       status: 409,
+    });
+  });
+});
+
+describe('PostsService.create với sân đã đặt', () => {
+  const HOUR_MS = 3_600_000;
+  const startAt = new Date(Date.now() + 30 * HOUR_MS);
+  const booked = {
+    id: 'b1',
+    pitchId: 'pi1',
+    status: 'confirmed',
+    startAt,
+    endAt: new Date(startAt.getTime() + 1.5 * HOUR_MS),
+    pitch: { name: 'Hà Đông Arena', district: 'Hà Đông' },
+  };
+
+  it('giờ, sân, khu vực lấy theo lượt đặt; bỏ giờ client gửi', async () => {
+    const { service, prisma } = setup();
+    prisma.booking.findFirst.mockResolvedValue(booked);
+    await service.create(
+      me,
+      dto({
+        bookingId: 'b1',
+        startAt: new Date(Date.now() + 99 * HOUR_MS),
+        endAt: new Date(Date.now() + 100 * HOUR_MS),
+      }),
+    );
+    expect(prisma.booking.findFirst).toHaveBeenCalledWith({
+      where: { id: 'b1', teamId: 't1' },
+      include: { pitch: { select: { name: true, district: true } } },
+    });
+    expect(prisma.post.create.mock.calls[0][0].data).toMatchObject({
+      bookingId: 'b1',
+      pitchId: 'pi1',
+      pitchName: 'Hà Đông Arena',
+      area: 'Hà Đông',
+      startAt,
+      endAt: booked.endAt,
+    });
+  });
+
+  it('lượt đặt của đội khác → 404; chưa xác nhận hoặc đã qua → 400', async () => {
+    const { service, prisma } = setup();
+    prisma.booking.findFirst.mockResolvedValue(null);
+    await expect(
+      service.create(me, dto({ bookingId: 'b1' })),
+    ).rejects.toMatchObject({ status: 404 });
+    prisma.booking.findFirst.mockResolvedValue({ ...booked, status: 'held' });
+    await expect(
+      service.create(me, dto({ bookingId: 'b1' })),
+    ).rejects.toMatchObject({ response: { code: 'booking_not_usable' } });
+    prisma.booking.findFirst.mockResolvedValue({
+      ...booked,
+      startAt: new Date(Date.now() - HOUR_MS),
+    });
+    await expect(
+      service.create(me, dto({ bookingId: 'b1' })),
+    ).rejects.toMatchObject({ response: { code: 'booking_not_usable' } });
+  });
+
+  it('chỉ kèo tìm đối mới gắn sân đã đặt', async () => {
+    const { service, prisma } = setup();
+    await expect(
+      service.create(
+        me,
+        dto({ type: 'recruit', playersNeeded: 2, bookingId: 'b1' }),
+      ),
+    ).rejects.toMatchObject({ response: { code: 'booking_not_allowed' } });
+    expect(prisma.booking.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('một sân chỉ đăng một kèo (trùng khoá → 409)', async () => {
+    const { service, prisma } = setup();
+    prisma.booking.findFirst.mockResolvedValue(booked);
+    prisma.post.create.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('dup', {
+        code: 'P2002',
+        clientVersion: 'test',
+        meta: { target: ['booking_id'] },
+      }),
+    );
+    await expect(
+      service.create(me, dto({ bookingId: 'b1' })),
+    ).rejects.toMatchObject({
+      status: 409,
+      response: { code: 'booking_already_posted' },
     });
   });
 });

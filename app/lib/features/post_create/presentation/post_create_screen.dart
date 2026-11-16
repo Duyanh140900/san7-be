@@ -14,6 +14,8 @@ import '../../../core/widgets/form_field_row.dart';
 import '../../../core/widgets/form_widgets.dart';
 import '../../../core/widgets/money_input.dart';
 import '../../../core/widgets/pills.dart';
+import '../../../core/widgets/pitch_art.dart';
+import '../../pitches/pitches_providers.dart';
 import '../../posts/data/posts_repository.dart';
 import '../../posts/posts_providers.dart';
 import '../../posts/presentation/post_widgets.dart';
@@ -54,6 +56,9 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
   final _players = TextEditingController();
   final _body = TextEditingController();
   bool _saving = false;
+
+  /// Sân đã đặt được chọn để đăng kèo (chỉ với kèo tìm đối).
+  BookingDto? _booking;
 
   @override
   void initState() {
@@ -136,9 +141,39 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     if (v != null) setState(() => _ratioWin = v);
   }
 
+  Future<void> _pickBooking(List<BookingDto> options) async {
+    final picked = await showModalBottomSheet<BookingDto>(
+      context: context,
+      useRootNavigator: true,
+      showDragHandle: true,
+      backgroundColor: AppColors.surface,
+      builder: (ctx) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            for (final b in options)
+              ListTile(
+                title: Text('${b.pitch.name} · sân ${b.courtNo}'),
+                subtitle: Text(Fmt.eventTime(b.startAt, b.endAt)),
+                onTap: () => Navigator.pop(ctx, b),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked == null) return;
+    setState(() {
+      _booking = picked;
+      if (_price.text.isEmpty) _price.text = MoneyInputFormatter.formatAmount(picked.price);
+    });
+  }
+
   Future<void> _save(MyTeamDto team) async {
-    final start = _startUtc;
-    if (start.isBefore(DateTime.now())) return showToast(context, 'Giờ đá đã qua, chọn giờ khác');
+    final booking = _type == PostTypeValue.findOpponent ? _booking : null;
+    final start = booking?.startAt ?? _startUtc;
+    if (booking == null && start.isBefore(DateTime.now())) {
+      return showToast(context, 'Giờ đá đã qua, chọn giờ khác');
+    }
     if (_type == PostTypeValue.passPitch && _pitch.text.trim().isEmpty) {
       return showToast(context, 'Nhập tên sân muốn pass');
     }
@@ -151,8 +186,9 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     final body = CreatePostDto(
       type: PostTypeKnown(_type),
       startAt: start,
-      endAt: start.add(Duration(minutes: _durationMin)),
-      pitchName: _pitch.text.trim().isEmpty ? null : _pitch.text.trim(),
+      endAt: booking?.endAt ?? start.add(Duration(minutes: _durationMin)),
+      pitchName: booking != null || _pitch.text.trim().isEmpty ? null : _pitch.text.trim(),
+      bookingId: booking?.id,
       level: TeamLevelKnown(level),
       deal: isFind ? PostDealKnown(_deal) : null,
       ratioWin: isFind && _deal == PostDealValue.split ? _ratioWin : null,
@@ -175,6 +211,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     setState(() => _saving = false);
     if (ok) {
       ref.invalidate(feedProvider);
+      ref.invalidate(teamBookingsProvider(team.teamId));
       context.pop();
       if (created != null) context.push(Routes.post(created!.id));
     }
@@ -192,6 +229,14 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     final end = _startUtc.add(Duration(minutes: _durationMin));
     final split = feeSplit(_priceValue, _ratioWin, 100 - _ratioWin);
     final customRatio = !_ratios.any((r) => r.$1 == _ratioWin);
+    final booking = _type == PostTypeValue.findOpponent ? _booking : null;
+    final bookable = _type == PostTypeValue.findOpponent
+        ? [
+            for (final b
+                in ref.watch(teamBookingsProvider(team.teamId)).value ?? const <BookingDto>[])
+              if (b.status == BookingStatus.confirmed && b.postId == null) b,
+          ]
+        : const <BookingDto>[];
 
     return Scaffold(
       body: SafeArea(
@@ -218,32 +263,47 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
                         value: team.name,
                         onTap: teams.length > 1 ? () => _pickTeam(teams) : null,
                       ),
-                      _ValueRow(label: 'Ngày', value: dateLabel, onTap: _pickDate),
-                      _ValueRow(
-                        label: 'Giờ',
-                        value: '${Fmt.time(_startUtc)} – ${Fmt.time(end)}',
-                        onTap: _pickTime,
-                      ),
+                      if (booking == null) ...[
+                        _ValueRow(label: 'Ngày', value: dateLabel, onTap: _pickDate),
+                        _ValueRow(
+                          label: 'Giờ',
+                          value: '${Fmt.time(_startUtc)} – ${Fmt.time(end)}',
+                          onTap: _pickTime,
+                        ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  PillSelector<int>(
-                    options: const [60, 90, 120],
-                    selected: _durationMin,
-                    labelOf: (m) => m == 90 ? '1 tiếng 30' : '${m ~/ 60} tiếng',
-                    onSelected: (m) => setState(() => _durationMin = m),
-                    padding: 0,
-                  ),
+                  if (booking == null) ...[
+                    const SizedBox(height: 10),
+                    PillSelector<int>(
+                      options: const [60, 90, 120],
+                      selected: _durationMin,
+                      labelOf: (m) => m == 90 ? '1 tiếng 30' : '${m ~/ 60} tiếng',
+                      onSelected: (m) => setState(() => _durationMin = m),
+                      padding: 0,
+                    ),
+                  ],
                   const SizedBox(height: 22),
                   const FormCaption('Sân'),
-                  FormFieldRow(
-                    controller: _pitch,
-                    hint: _type == PostTypeValue.passPitch
-                        ? 'Tên sân muốn pass, ví dụ Sân Phúc La, sân 2'
-                        : 'Tên sân (để trống nếu chưa có)',
-                    textCapitalization: TextCapitalization.words,
-                    inputFormatters: [LengthLimitingTextInputFormatter(120)],
-                  ),
+                  if (booking != null)
+                    _BookedPitchCard(
+                      booking: booking,
+                      onClear: () => setState(() => _booking = null),
+                    )
+                  else ...[
+                    if (bookable.isNotEmpty) ...[
+                      _PickBookedRow(onTap: () => _pickBooking(bookable)),
+                      const SizedBox(height: 10),
+                    ],
+                    FormFieldRow(
+                      controller: _pitch,
+                      hint: _type == PostTypeValue.passPitch
+                          ? 'Tên sân muốn pass, ví dụ Sân Phúc La, sân 2'
+                          : 'Tên sân (để trống nếu chưa có)',
+                      textCapitalization: TextCapitalization.words,
+                      inputFormatters: [LengthLimitingTextInputFormatter(120)],
+                    ),
+                  ],
                   if (_type != PostTypeValue.recruit) ...[
                     const SizedBox(height: 10),
                     FormFieldRow(
@@ -610,6 +670,56 @@ class _NoTeam extends StatelessWidget {
           ),
         ],
       ),
+    ),
+  );
+}
+
+/// Hàng "Chọn từ sân đã đặt" (chỉ hiện khi đội có lượt đặt sắp tới chưa gắn kèo).
+class _PickBookedRow extends StatelessWidget {
+  const _PickBookedRow({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => FormGroup(
+    children: [_ValueRow(label: 'Chọn từ sân đã đặt', value: '', onTap: onTap)],
+  );
+}
+
+/// Sân đã đặt được chọn: giờ và sân lấy theo lượt đặt.
+class _BookedPitchCard extends StatelessWidget {
+  const _BookedPitchCard({required this.booking, required this.onClear});
+  final BookingDto booking;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    padding: const EdgeInsets.all(12),
+    child: Row(
+      children: [
+        const PitchArt(size: 56, radius: 10),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${booking.pitch.name} · sân ${booking.courtNo}',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                Fmt.eventTime(booking.startAt, booking.endAt),
+                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              ),
+              const Text(
+                'Đã đặt · giờ và sân lấy theo lượt đặt',
+                style: TextStyle(fontSize: 12, color: AppColors.greenSoftText),
+              ),
+            ],
+          ),
+        ),
+        LinkButton('Bỏ chọn', onTap: onClear),
+      ],
     ),
   );
 }

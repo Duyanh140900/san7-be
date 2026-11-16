@@ -82,6 +82,8 @@ function setup() {
       create: vi.fn((args: { data: { teamId: string } }) =>
         Promise.resolve({ id: `e-${args.data.teamId}-${++n}` }),
       ),
+      findFirst: vi.fn().mockResolvedValue(null),
+      update: vi.fn().mockResolvedValue({ id: 'e-booked' }),
     },
     teamMember: {
       findMany: vi.fn(
@@ -269,6 +271,32 @@ describe('RequestsService.accept', () => {
       matchId: 'm1',
       eventId: expect.stringMatching(/^e-own/),
     });
+  });
+
+  it('kèo gắn với sân đã đặt: dùng lại lịch của lượt đặt, không tạo lịch trùng', async () => {
+    const { service, tx } = setup();
+    tx.matchRequest.findUnique.mockResolvedValue({ postId: 'p1' });
+    tx.matchRequest.findUniqueOrThrow.mockResolvedValue(
+      request({ post: post({ bookingId: 'b1' }) }),
+    );
+    tx.event.findFirst.mockResolvedValue({ id: 'e-booked' });
+    const res = await service.accept(owner, 'r1');
+    expect(tx.event.findFirst).toHaveBeenCalledWith({
+      where: { bookingId: 'b1', teamId: 'own' },
+      select: { id: true },
+    });
+    expect(tx.event.update).toHaveBeenCalledWith({
+      where: { id: 'e-booked' },
+      data: expect.objectContaining({
+        kind: 'match',
+        title: 'vs FC Mỹ Đình',
+        matchId: 'm1',
+      }),
+    });
+    // chỉ đội kia cần lịch mới
+    expect(tx.event.create).toHaveBeenCalledTimes(1);
+    expect(tx.event.create.mock.calls[0][0].data.teamId).toBe('gst');
+    expect(res.eventId).toBe('e-booked');
   });
 
   it('pass sân: không tạo trận, chỉ đội nhận sân có lịch', async () => {
