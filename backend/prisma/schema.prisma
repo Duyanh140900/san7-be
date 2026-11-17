@@ -290,8 +290,6 @@ model Event {
   endAt       DateTime  @map("end_at") @db.Timestamptz(6)
   location    String?
   note        String?
-  /// Khoá object ảnh biên lai đã finalize; chỉ có cho giao dịch quỹ của đúng đội.
-  receiptKey  String?   @map("receipt_key")
   /// số người tối thiểu cần đi
   minPlayers  Int?      @map("min_players") @db.SmallInt
   /// trận sinh ra khi chốt kèo (mỗi đội một event cùng matchId)
@@ -312,7 +310,6 @@ model Event {
   @@index([teamId, startAt])
   @@index([matchId])
   @@index([createdById])
-  @@index([receiptKey])
   @@map("events")
 }
 
@@ -348,6 +345,8 @@ model FundTransaction {
   /// khoá khoản do hệ thống tự ghi (vd tiền sân sau trận) để không ghi hai lần
   autoKey     String?   @unique @map("auto_key")
   note        String?
+  /// Khoá object ảnh biên lai đã finalize; chỉ có cho giao dịch quỹ của đúng đội.
+  receiptKey  String?   @map("receipt_key")
   paid        Boolean   @default(true)
   /// thời điểm tiền thực vào/ra quỹ (null = phạt chưa nộp); dùng cho thống kê theo tháng
   paidAt      DateTime? @map("paid_at") @db.Timestamptz(6)
@@ -365,6 +364,7 @@ model FundTransaction {
   @@index([memberId])
   @@index([eventId])
   @@index([createdById])
+  @@index([receiptKey])
   @@map("fund_transactions")
 }
 
