@@ -9,7 +9,7 @@ import { PostSchedulesService } from './schedules.service.js';
 @Controller('teams/:teamId/post-schedules')
 export class PostSchedulesController {
   constructor(private readonly schedules: PostSchedulesService) {}
-  @Get() @ApiOkResponse({ type: PostScheduleDto, isArray: true })
+  @Get() @TeamRoles('captain', 'vice') @ApiOkResponse({ type: PostScheduleDto, isArray: true })
   list(@CurrentMember() me: TeamMembership) { return this.schedules.list(me); }
   @Post() @TeamRoles('captain', 'vice') @ApiCreatedResponse({ type: PostScheduleDto })
   create(@CurrentMember() me: TeamMembership, @Body() dto: CreatePostScheduleDto) { return this.schedules.create(me, dto); }

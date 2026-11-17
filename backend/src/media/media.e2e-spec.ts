@@ -22,7 +22,7 @@ class TestAuthGuard implements CanActivate {
 
 describe('MediaController (e2e)', () => {
   let app: INestApplication;
-  const media = { createImageUpload: vi.fn() };
+  const media = { createImageUpload: vi.fn(), finalizeUpload: vi.fn(), readReceipt: vi.fn(), readPublicImage: vi.fn() };
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -84,5 +84,28 @@ describe('MediaController (e2e)', () => {
       .post('/v1/media/uploads')
       .send({ purpose: 'receipt', contentType: 'image/jpeg', size: 1000 })
       .expect(201);
+  });
+
+  it('purpose receipt nhận teamId UUID, từ chối teamId không hợp lệ', async () => {
+    media.createImageUpload.mockResolvedValue({ key: 'receipt-key' });
+    const teamId = '66666666-6666-4666-8666-666666666666';
+    await request(app.getHttpServer()).post('/v1/media/uploads').send({ purpose: 'receipt', contentType: 'image/png', size: 10, teamId }).expect(201);
+    expect(media.createImageUpload).toHaveBeenCalledWith(userId, expect.objectContaining({ teamId }));
+    await request(app.getHttpServer()).post('/v1/media/uploads').send({ purpose: 'receipt', contentType: 'image/png', size: 10, teamId: 'x' }).expect(400);
+  });
+
+  it('POST /v1/media/uploads/finalize chuyển đúng user và key', async () => {
+    media.finalizeUpload.mockResolvedValue({ key: 'public/a.webp', url: 'u' });
+    await request(app.getHttpServer()).post('/v1/media/uploads/finalize').send({ key: 'public/a.webp' }).expect(200).expect({ key: 'public/a.webp', url: 'u' });
+    expect(media.finalizeUpload).toHaveBeenCalledWith(userId, 'public/a.webp');
+    await request(app.getHttpServer()).post('/v1/media/uploads/finalize').send({}).expect(400);
+  });
+
+  it('GET /v1/media/receipts/:id truyền user đăng nhập; 403 khi không thuộc đội', async () => {
+    const id = '55555555-5555-4555-8555-555555555555';
+    media.readReceipt.mockRejectedValue(new AppError(HttpStatus.FORBIDDEN, 'media_forbidden', 'Chỉ thành viên đội được xem biên lai'));
+    await request(app.getHttpServer()).get(`/v1/media/receipts/${id}`).expect(403);
+    expect(media.readReceipt).toHaveBeenCalledWith(userId, id);
+    await request(app.getHttpServer()).get('/v1/media/receipts/not-a-uuid').expect(400);
   });
 });

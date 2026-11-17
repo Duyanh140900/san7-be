@@ -38,11 +38,11 @@ describe('PostSchedulesService', () => {
     expect(queue.remove).toHaveBeenCalledWith(postScheduleJobId('s1', post.scheduledAt));
   });
 
-  it('liệt kê lịch của đúng đội theo thời điểm đăng', async () => {
+  it('liệt kê lịch đang chờ của đúng đội (không trả lịch đã huỷ) theo thời điểm đăng', async () => {
     const { service, prisma } = setup();
     prisma.postSchedule.findMany.mockResolvedValue([]);
     await expect(service.list(me)).resolves.toEqual([]);
-    expect(prisma.postSchedule.findMany).toHaveBeenCalledWith({ where: { teamId: 't1' }, orderBy: { scheduledAt: 'asc' } });
+    expect(prisma.postSchedule.findMany).toHaveBeenCalledWith({ where: { teamId: 't1', status: 'scheduled' }, orderBy: { scheduledAt: 'asc' } });
   });
 });
 

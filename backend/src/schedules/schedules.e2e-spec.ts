@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { TeamMemberGuard } from '../common/team-member.guard.js';
+import { TEAM_ROLES_KEY, TeamMemberGuard } from '../common/team-member.guard.js';
 import { setupApp } from '../setup-app.js';
 import { PostSchedulesController } from './schedules.controller.js';
 import { PostSchedulesService } from './schedules.service.js';
@@ -37,6 +37,9 @@ describe('PostSchedulesController (e2e)', () => {
     schedules.list.mockResolvedValue([{ id: scheduleId }]);
     await request(app.getHttpServer()).get(`/v1/teams/${teamId}/post-schedules`).expect(200).expect([{ id: scheduleId }]);
     expect(schedules.list).toHaveBeenCalledWith(expect.objectContaining({ teamId }));
+  });
+  it('GET chỉ dành cho captain và vice (metadata vai trò của guard)', () => {
+    expect(Reflect.getMetadata(TEAM_ROLES_KEY, (PostSchedulesController.prototype as unknown as { list: object }).list)).toEqual(['captain', 'vice']);
   });
   it('DELETE hủy lịch theo UUID', async () => {
     await request(app.getHttpServer()).delete(`/v1/teams/${teamId}/post-schedules/${scheduleId}`).expect(204);

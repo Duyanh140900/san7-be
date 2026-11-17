@@ -257,6 +257,134 @@
         ]
       }
     },
+    "/v1/media/uploads": {
+      "post": {
+        "operationId": "Media_createUpload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadUrlDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "media"
+        ]
+      }
+    },
+    "/v1/media/uploads/finalize": {
+      "post": {
+        "operationId": "Media_finalize",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizeUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinalizedMediaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "media"
+        ]
+      }
+    },
+    "/v1/media/receipts/{id}": {
+      "get": {
+        "operationId": "Media_readReceipt",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ảnh WebP biên lai đã được xác minh"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "media"
+        ]
+      }
+    },
+    "/v1/media/public/{id}": {
+      "get": {
+        "operationId": "Media_readPublic",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ảnh WebP post/avatar đã được xác minh (biên lai không phục vụ ở đây)"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "media"
+        ]
+      }
+    },
     "/v1/posts/{postId}/comments": {
       "post": {
         "operationId": "Community_createComment",
@@ -613,42 +741,6 @@
         ],
         "tags": [
           "chat"
-        ]
-      }
-    },
-    "/v1/media/uploads": {
-      "post": {
-        "operationId": "Media_createUpload",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUploadDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UploadUrlDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "media"
         ]
       }
     },
@@ -3645,6 +3737,11 @@
             "type": "string",
             "maxLength": 50,
             "example": "Cầu Giấy"
+          },
+          "avatarKey": {
+            "type": "string",
+            "description": "Khoá ảnh đại diện (purpose=avatar) đã PUT lên quarantine; server xác minh rồi cập nhật avatarUrl",
+            "example": "public/00000000-0000-4000-8000-000000000000.webp"
           }
         }
       },
@@ -3706,6 +3803,121 @@
         "required": [
           "fcmToken",
           "platform"
+        ]
+      },
+      "MediaPurpose": {
+        "type": "string",
+        "enum": [
+          "post",
+          "avatar",
+          "receipt"
+        ]
+      },
+      "CreateUploadDto": {
+        "type": "object",
+        "properties": {
+          "purpose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MediaPurpose"
+              }
+            ]
+          },
+          "contentType": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ],
+            "example": "image/jpeg",
+            "description": "Loại ảnh cho phép: jpeg, png, webp"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10485760,
+            "description": "Dung lượng file (byte), tối đa 10MB"
+          },
+          "teamId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Bắt buộc khi purpose = receipt: đội được xem biên lai (người tải phải là thành viên active)"
+          }
+        },
+        "required": [
+          "purpose",
+          "contentType",
+          "size"
+        ]
+      },
+      "UploadUrlDto": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "example": "PUT"
+          },
+          "uploadUrl": {
+            "type": "string",
+            "description": "URL có chữ ký, app PUT nguyên file lên URL này"
+          },
+          "headers": {
+            "type": "object",
+            "description": "Header bắt buộc khi PUT (phải khớp chữ ký)",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "key": {
+            "type": "string",
+            "description": "Khoá ảnh sẽ được công khai sau bước xác minh nội dung"
+          },
+          "publicUrl": {
+            "type": "string",
+            "description": "URL xem ảnh sau khi tải lên xong"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "example": 300
+          }
+        },
+        "required": [
+          "method",
+          "uploadUrl",
+          "headers",
+          "key",
+          "publicUrl",
+          "expiresIn"
+        ]
+      },
+      "FinalizeUploadDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Khoá ảnh trả về lúc xin URL tải lên",
+            "example": "public/00000000-0000-4000-8000-000000000000.webp"
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "FinalizedMediaDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL xem ảnh: /v1/media/public/:id (post, avatar) hoặc /v1/media/receipts/:id (biên lai, cần đăng nhập)"
+          }
+        },
+        "required": [
+          "key",
+          "url"
         ]
       },
       "CreateCommentDto": {
@@ -3983,88 +4195,6 @@
         },
         "required": [
           "items"
-        ]
-      },
-      "MediaPurpose": {
-        "type": "string",
-        "enum": [
-          "post",
-          "avatar",
-          "receipt"
-        ]
-      },
-      "CreateUploadDto": {
-        "type": "object",
-        "properties": {
-          "purpose": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MediaPurpose"
-              }
-            ]
-          },
-          "contentType": {
-            "type": "string",
-            "enum": [
-              "image/jpeg",
-              "image/png",
-              "image/webp",
-              "image/heic"
-            ],
-            "example": "image/jpeg",
-            "description": "Loại ảnh cho phép: jpeg, png, webp, heic"
-          },
-          "size": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 10485760,
-            "description": "Dung lượng file (byte), tối đa 10MB"
-          }
-        },
-        "required": [
-          "purpose",
-          "contentType",
-          "size"
-        ]
-      },
-      "UploadUrlDto": {
-        "type": "object",
-        "properties": {
-          "method": {
-            "type": "string",
-            "example": "PUT"
-          },
-          "uploadUrl": {
-            "type": "string",
-            "description": "URL có chữ ký, app PUT nguyên file lên URL này"
-          },
-          "headers": {
-            "type": "object",
-            "description": "Header bắt buộc khi PUT (phải khớp chữ ký)",
-            "additionalProperties": {
-              "type": "string"
-            }
-          },
-          "key": {
-            "type": "string",
-            "description": "Khoá object, dạng users/{userId}/{purpose}/…"
-          },
-          "publicUrl": {
-            "type": "string",
-            "description": "URL xem ảnh sau khi tải lên xong"
-          },
-          "expiresIn": {
-            "type": "integer",
-            "example": 300
-          }
-        },
-        "required": [
-          "method",
-          "uploadUrl",
-          "headers",
-          "key",
-          "publicUrl",
-          "expiresIn"
         ]
       },
       "CreateTeamDto": {

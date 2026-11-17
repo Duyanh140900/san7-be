@@ -219,6 +219,7 @@ model Device {
 }
 
 model Team {
+  mediaUploads    MediaUpload[]
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name            String
   /// màu huy hiệu dạng #RRGGBB
@@ -446,6 +447,8 @@ model PostSchedule {
 model MediaUpload {
   id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   ownerId        String            @map("owner_id") @db.Uuid
+  /// Đội sở hữu ảnh (bắt buộc với receipt: chỉ thành viên active của đội được xem)
+  teamId         String?           @map("team_id") @db.Uuid
   purpose        String
   expectedSize   Int               @map("expected_size")
   quarantineKey  String            @unique @map("quarantine_key")
@@ -457,7 +460,8 @@ model MediaUpload {
   createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner User  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  team  Team? @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@index([ownerId, createdAt])
   @@index([status, expiresAt])

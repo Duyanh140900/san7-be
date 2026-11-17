@@ -1,12 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsString, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { Trim } from '../common/trim.js';
 
 export const IMAGE_TYPES = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
-  'image/heic': 'heic',
 } as const;
 
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -30,7 +29,7 @@ export class CreateUploadDto {
   @ApiProperty({
     enum: Object.keys(IMAGE_TYPES),
     example: 'image/jpeg',
-    description: 'Loại ảnh cho phép: jpeg, png, webp, heic',
+    description: 'Loại ảnh cho phép: jpeg, png, webp',
   })
   @Trim()
   @IsString()
@@ -45,6 +44,23 @@ export class CreateUploadDto {
   @IsInt()
   @Min(1)
   size: number;
+
+  @ApiPropertyOptional({ format: 'uuid', description: 'Bắt buộc khi purpose = receipt: đội được xem biên lai (người tải phải là thành viên active)' })
+  @IsOptional()
+  @IsUUID()
+  teamId?: string;
+}
+
+export class FinalizeUploadDto {
+  @ApiProperty({ description: 'Khoá ảnh trả về lúc xin URL tải lên', example: 'public/00000000-0000-4000-8000-000000000000.webp' })
+  @IsString()
+  key: string;
+}
+
+export class FinalizedMediaDto {
+  @ApiProperty() key: string;
+  @ApiProperty({ description: 'URL xem ảnh: /v1/media/public/:id (post, avatar) hoặc /v1/media/receipts/:id (biên lai, cần đăng nhập)' })
+  url: string;
 }
 
 export class UploadUrlDto {

@@ -90,6 +90,11 @@ export class UpdateMeDto {
   @IsString()
   @MaxLength(50)
   area?: string;
+
+  @ApiPropertyOptional({ description: 'Khoá ảnh đại diện (purpose=avatar) đã PUT lên quarantine; server xác minh rồi cập nhật avatarUrl', example: 'public/00000000-0000-4000-8000-000000000000.webp' })
+  @IsOptional()
+  @IsString()
+  avatarKey?: string;
 }
 
 export class RegisterDeviceDto {

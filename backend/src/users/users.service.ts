@@ -1,11 +1,15 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { AppError } from '../common/errors.js';
+import { MediaService } from '../media/media.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { MeDto, NotificationSettingsDto, RegisterDeviceDto, UpdateMeDto, UpdateNotificationSettingsDto } from './users.dto.js';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly media: MediaService,
+  ) {}
 
   async getMe(userId: string): Promise<MeDto> {
     const [user, aggregate, matches, mvps] = await Promise.all([
@@ -69,6 +73,7 @@ export class UsersService {
   }
 
   async updateMe(userId: string, dto: UpdateMeDto): Promise<MeDto> {
+    const avatarUrl = dto.avatarKey ? await this.media.useAvatar(userId, dto.avatarKey) : undefined;
     await this.prisma.user.update({
       where: { id: userId },
       data: {
@@ -76,6 +81,7 @@ export class UsersService {
         position: dto.position,
         shirtNumber: dto.shirtNumber,
         area: dto.area?.trim(),
+        avatarUrl,
       },
     });
     return this.getMe(userId);

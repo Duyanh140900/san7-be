@@ -11,9 +11,11 @@ function setup() {
     },
     notificationSettings: { upsert: vi.fn() },
   };
+  const media = { useAvatar: vi.fn().mockResolvedValue('http://api/v1/media/public/abc') };
   return {
-    service: new UsersService(prisma as unknown as PrismaService),
+    service: new UsersService(prisma as unknown as PrismaService, media as never),
     prisma,
+    media,
   };
 }
 
@@ -93,5 +95,25 @@ describe('UsersService', () => {
       },
       update: { userId: 'u2', platform: 'android' },
     });
+  });
+});
+
+describe('UsersService.updateMe avatar', () => {
+  it('avatarKey phải qua MediaService.useAvatar rồi mới ghi avatarUrl', async () => {
+    const { service, prisma, media } = setup();
+    prisma.user.findUnique.mockResolvedValue({ ...baseUser, memberships: [] });
+    await service.updateMe('u1', { avatarKey: 'public/x.webp' });
+    expect(media.useAvatar).toHaveBeenCalledWith('u1', 'public/x.webp');
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ avatarUrl: 'http://api/v1/media/public/abc' }) }),
+    );
+  });
+
+  it('không gửi avatarKey thì không đụng avatarUrl', async () => {
+    const { service, prisma, media } = setup();
+    prisma.user.findUnique.mockResolvedValue({ ...baseUser, memberships: [] });
+    await service.updateMe('u1', { name: 'B' });
+    expect(media.useAvatar).not.toHaveBeenCalled();
+    expect(prisma.user.update.mock.calls[0]![0].data.avatarUrl).toBeUndefined();
   });
 });

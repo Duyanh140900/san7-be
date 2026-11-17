@@ -113,7 +113,7 @@ export class PostSchedulesService {
 
   async list(me: TeamMembership): Promise<PostScheduleDto[]> {
     const rows = await this.prisma.postSchedule.findMany({
-      where: { teamId: me.teamId },
+      where: { teamId: me.teamId, status: 'scheduled' },
       orderBy: { scheduledAt: 'asc' },
     });
     return rows.map(toDto);
