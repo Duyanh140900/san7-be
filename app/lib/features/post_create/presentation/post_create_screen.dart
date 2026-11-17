@@ -19,13 +19,15 @@ import '../../../core/widgets/money_input.dart';
 import '../../../core/widgets/pills.dart';
 import '../../../core/widgets/pitch_art.dart';
 import '../../pitches/pitches_providers.dart';
+import '../../me/data/me_repository.dart';
+import '../../me/me_providers.dart';
 import '../../media/data/media_repository.dart';
 import '../../posts/data/posts_repository.dart';
 import '../../posts/posts_providers.dart';
 import '../../posts/presentation/post_widgets.dart';
 import 'widgets/image_attach_strip.dart';
 
-/// Màn 2 · Đăng kèo: tìm đối, tuyển người, pass sân. Hẹn lịch và ảnh/video có ở M5.
+/// Màn 2 · Đăng kèo: tìm đối, tuyển người, pass sân; kèm ảnh và hẹn lịch đăng.
 class PostCreateScreen extends ConsumerStatefulWidget {
   const PostCreateScreen({super.key});
 
@@ -63,6 +65,12 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
   bool _saving = false;
   List<PickedImage> _images = const [];
 
+  /// Thời điểm đăng: ngay hoặc hẹn lịch (giờ VN, mặc định 8:00 sáng mai).
+  bool _scheduled = false;
+  bool _repeatWeekly = false;
+  late DateTime _publishDate;
+  TimeOfDay _publishTime = const TimeOfDay(hour: 8, minute: 0);
+
   /// Sân đã đặt được chọn để đăng kèo (chỉ với kèo tìm đối).
   BookingDto? _booking;
 
@@ -73,6 +81,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     _date = DateTime.utc(now.year, now.month, now.day);
     // Đã quá 19:00 thì gợi ý ngày mai
     if (now.hour >= 18) _date = _date.add(const Duration(days: 1));
+    _publishDate = DateTime.utc(now.year, now.month, now.day).add(const Duration(days: 1));
   }
 
   @override
@@ -142,6 +151,33 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     if (picked != null) setState(() => _start = picked);
   }
 
+  DateTime get _publishUtc => DateTime.utc(
+    _publishDate.year,
+    _publishDate.month,
+    _publishDate.day,
+    _publishTime.hour,
+    _publishTime.minute,
+  ).subtract(const Duration(hours: 7));
+
+  Future<void> _pickPublishDate() async {
+    final now = Fmt.vn(DateTime.now());
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(_publishDate.year, _publishDate.month, _publishDate.day),
+      firstDate: DateTime(now.year, now.month, now.day),
+      lastDate: DateTime(now.year, now.month, now.day).add(const Duration(days: 60)),
+      locale: const Locale('vi'),
+    );
+    if (picked != null) {
+      setState(() => _publishDate = DateTime.utc(picked.year, picked.month, picked.day));
+    }
+  }
+
+  Future<void> _pickPublishTime() async {
+    final picked = await showTimePicker(context: context, initialTime: _publishTime);
+    if (picked != null) setState(() => _publishTime = picked);
+  }
+
   Future<void> _customRatio() async {
     final v = await showRatioDialog(context, title: 'Tỷ lệ tuỳ chỉnh', initial: _ratioWin);
     if (v != null) setState(() => _ratioWin = v);
@@ -187,6 +223,12 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     if (_type == PostTypeValue.recruit && _positions.isEmpty && players == null) {
       return showToast(context, 'Chọn vị trí hoặc số người cần', type: ToastType.warning);
     }
+    if (_scheduled && !_publishUtc.isAfter(DateTime.now())) {
+      return showToast(context, 'Giờ đăng đã qua, chọn giờ khác', type: ToastType.warning);
+    }
+    if (_scheduled && !_publishUtc.isBefore(start)) {
+      return showToast(context, 'Giờ đăng phải trước giờ đá', type: ToastType.warning);
+    }
     final level = _level ?? (team.level as TeamLevelKnown).value;
     final isFind = _type == PostTypeValue.findOpponent;
     setState(() => _saving = true);
@@ -220,6 +262,38 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
       mediaKeys: mediaKeys.isEmpty ? null : mediaKeys,
     );
     if (!mounted) return;
+    if (_scheduled) {
+      final sched = CreatePostScheduleDto(
+        type: body.type,
+        startAt: body.startAt,
+        endAt: body.endAt,
+        pitchName: body.pitchName,
+        level: body.level,
+        deal: body.deal,
+        ratioWin: body.ratioWin,
+        ratioLose: body.ratioLose,
+        pitchPrice: body.pitchPrice,
+        positions: body.positions,
+        playersNeeded: body.playersNeeded,
+        body: body.body,
+        bookingId: body.bookingId,
+        mediaKeys: body.mediaKeys,
+        scheduledAt: _publishUtc,
+        repeatWeekly: _repeatWeekly,
+      );
+      final ok = await runAction(
+        context,
+        () => ref.read(meRepositoryProvider).createSchedule(team.teamId, sched),
+        success: 'Đã hẹn lịch đăng kèo',
+      );
+      if (!mounted) return;
+      setState(() => _saving = false);
+      if (ok) {
+        ref.invalidate(postSchedulesProvider(team.teamId));
+        context.pop();
+      }
+      return;
+    }
     PostDto? created;
     final ok = await runAction(
       context,
@@ -505,6 +579,52 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
                     enabled: !_saving,
                     onChanged: (v) => setState(() => _images = v),
                   ),
+                  const SizedBox(height: 22),
+                  const FormCaption('Thời điểm đăng'),
+                  Segmented(
+                    labels: const ['Đăng ngay', 'Hẹn lịch'],
+                    index: _scheduled ? 1 : 0,
+                    onChanged: (i) => setState(() => _scheduled = i == 1),
+                  ),
+                  if (_scheduled) ...[
+                    const SizedBox(height: 10),
+                    FormGroup(
+                      children: [
+                        _ValueRow(
+                          label: 'Ngày đăng',
+                          value: '${Fmt.weekday(_publishUtc)}, ${Fmt.dayMonth(_publishUtc)}',
+                          onTap: _pickPublishDate,
+                        ),
+                        _ValueRow(
+                          label: 'Giờ đăng',
+                          value: Fmt.time(_publishUtc),
+                          onTap: _pickPublishTime,
+                        ),
+                        Container(
+                          constraints: const BoxConstraints(minHeight: AppSizes.tapTarget),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                child: Text('Lặp lại hàng tuần', style: TextStyle(fontSize: 16)),
+                              ),
+                              Switch(
+                                value: _repeatWeekly,
+                                onChanged: (v) => setState(() => _repeatWeekly = v),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(4, 6, 4, 0),
+                      child: Text(
+                        'Kèo sẽ tự lên Bảng tin đúng giờ đã hẹn. Lặp lại hàng tuần sẽ dời giờ đá thêm 7 ngày mỗi lần.',
+                        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 18),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
