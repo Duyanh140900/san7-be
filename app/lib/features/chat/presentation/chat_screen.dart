@@ -71,6 +71,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         );
         _add(msg);
         _markRead();
+        _refreshReadState();
       } catch (_) {}
     });
     _scroll.addListener(() {
@@ -87,6 +88,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _scroll.dispose();
     super.dispose();
   }
+
+  /// Tải lại trận để lấy `opponentLastReadAt` mới (hiện "Đã xem").
+  void _refreshReadState() =>
+      ref.invalidate(matchDetailProvider((teamId: widget.teamId, matchId: widget.matchId)));
 
   void _add(MessageDto m) {
     if (!mounted || _messages.any((x) => x.id == m.id)) return;
@@ -151,6 +156,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     try {
       final m = await ref.read(chatRepositoryProvider).send(widget.matchId, body);
       _add(m);
+      _refreshReadState();
       _input.clear();
     } catch (e) {
       if (mounted) showToast(context, ApiError.from(e).message, type: ToastType.error);
@@ -168,6 +174,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final m = match.value;
     final opponent = m == null ? null : (m.homeTeam.id == m.myTeamId ? m.awayTeam : m.homeTeam);
     final cancelled = m?.status == MatchStatus.cancelled;
+    final lastRead = DateTime.tryParse('${m?.additionalProperties['opponentLastReadAt'] ?? ''}');
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -178,7 +185,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               captainPhone: m?.opponentCaptainPhone,
             ),
             if (m != null) _PinnedMatch(match: m),
-            Expanded(child: _body(myId)),
+            Expanded(child: _body(myId, lastRead)),
             if (cancelled)
               const _ReadOnlyNotice()
             else ...[
@@ -191,7 +198,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _body(String? myId) {
+  Widget _body(String? myId, DateTime? lastRead) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_failed) {
       return Center(
@@ -217,8 +224,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       reverse: true,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       itemCount: _messages.length,
-      itemBuilder: (_, i) =>
-          ChatBubble(message: _messages[i], mine: _messages[i].sender.id == myId),
+      itemBuilder: (_, i) {
+        final mine = _messages[i].sender.id == myId;
+        // Chỉ ghi "Đã xem" dưới tin cuối cùng của tôi mà đội bạn đã đọc.
+        final seen =
+            mine &&
+            i == _messages.indexWhere((x) => x.sender.id == myId) &&
+            lastRead != null &&
+            !lastRead.isBefore(_messages[i].createdAt);
+        return ChatBubble(message: _messages[i], mine: mine, seen: seen);
+      },
     );
   }
 }
