@@ -248,7 +248,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                                 post: post,
                                 canRequest: canRequest(post),
                               ),
-                              MatchResultEntry() => _ResultCard(result: e),
+                              MatchResultEntry() => _ResultCard(result: e.result),
                             },
                             const SizedBox(height: 14),
                           ],
@@ -390,11 +390,11 @@ class _Empty extends StatelessWidget {
 /// Thẻ kết quả trận trên Bảng tin: tỉ số, người ghi bàn, MVP.
 class _ResultCard extends StatelessWidget {
   const _ResultCard({required this.result});
-  final MatchResultEntry result;
+  final FeedMatchResultDto result;
 
   @override
   Widget build(BuildContext context) {
-    Widget team(ResultTeam t) => Expanded(
+    Widget team(ResultTeamDto t) => Expanded(
       child: Column(
         children: [
           TeamAvatar(name: t.name, color: t.crestColor, size: 44),

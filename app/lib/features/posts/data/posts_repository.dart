@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../api/san7_api.dart';
@@ -7,62 +6,53 @@ import '../../../core/api/api_client.dart';
 
 /// Kèo: Bảng tin, đăng kèo, nhận kèo, xác nhận.
 class PostsRepository {
-  PostsRepository(this._api, this._dio);
+  PostsRepository(this._api);
   final San7Api _api;
-  final Dio _dio;
 
-  /// `GET /v1/feed`: trang gồm kèo và thẻ kết quả trận (`kind: match_result`), nên đọc
-  /// từng phần tử thay vì dùng `FeedPageDto` chỉ có kèo.
-  Future<FeedResult> feed({
-    PostTypeValue? type,
-    String? area,
-    String? q,
-    String? cursor,
-  }) => apiCall(() async {
-    final res = await _dio.get<Map<String, dynamic>>(
-      '/v1/feed',
-      queryParameters: {
-        'type': ?type?.value,
-        'area': ?area,
-        'q': ?((q ?? '').trim().isEmpty ? null : q!.trim()),
-        'cursor': ?cursor,
-        'limit': 20,
-      },
+  /// `GET /v1/feed`: trang gồm kèo và thẻ kết quả trận (`kind: match_result`).
+  Future<FeedResult> feed({PostTypeValue? type, String? area, String? q, String? cursor}) =>
+      apiCall(() async {
+        final page = await _api.posts.postsFeed(
+          type: type == null ? null : PostTypeKnown(type),
+          area: area,
+          q: (q ?? '').trim().isEmpty ? null : q!.trim(),
+          cursor: cursor,
+          limit: 20,
+        );
+        return FeedResult([
+          for (final i in page.items)
+            switch (i) {
+              PostDto() => PostEntry(i),
+              FeedMatchResultItemDto(:final result) => MatchResultEntry(result),
+            },
+        ], page.nextCursor);
+      });
+
+  /// Ứng tuyển kèo tuyển người (409 nếu đã ứng tuyển).
+  Future<PostApplicationDto> apply(String postId, {Position? position, String? note}) {
+    final text = (note ?? '').trim();
+    return apiCall(
+      () => _api.posts.postsApply(
+        postId: postId,
+        body: CreatePostApplicationDto(position: position, note: text.isEmpty ? null : text),
+      ),
     );
-    final data = res.data!;
-    final entries = <FeedEntry>[];
-    for (final raw in (data['items'] as List).cast<Map<String, dynamic>>()) {
-      entries.add(
-        raw['kind'] == 'match_result'
-            ? MatchResultEntry.fromJson(raw)
-            : PostEntry(PostDto.fromJson(raw)),
-      );
-    }
-    return FeedResult(entries, data['nextCursor'] as String?);
-  });
+  }
 
-  /// `POST /v1/posts/:id/applications`: ứng tuyển kèo tuyển người (409 nếu đã ứng tuyển).
-  Future<void> apply(String postId, {String? position, String? note}) => apiCall(
-    () => _dio.post<void>(
-      '/v1/posts/$postId/applications',
-      data: {
-        'position': ?position,
-        'note': ?((note ?? '').trim().isEmpty ? null : note!.trim()),
-      },
+  /// Danh sách ứng viên (đội trưởng/phó).
+  Future<List<PostApplicationDto>> applications(String postId) =>
+      apiCall(() => _api.posts.postsListApplications(postId: postId));
+
+  Future<PostApplicationDto> reviewApplication(
+    String postId,
+    String appId,
+    UpdatePostApplicationDtoStatus status,
+  ) => apiCall(
+    () => _api.posts.postsUpdateApplication(
+      postId: postId,
+      applicationId: appId,
+      body: UpdatePostApplicationDto(status: status),
     ),
-  );
-
-  /// `GET /v1/posts/:id/applications` (đội trưởng/phó).
-  Future<List<PostApplication>> applications(String postId) => apiCall(() async {
-    final res = await _dio.get<dynamic>('/v1/posts/$postId/applications');
-    final data = res.data;
-    final list = data is List ? data : (data as Map)['items'] as List;
-    return [for (final e in list.cast<Map<String, dynamic>>()) PostApplication.fromJson(e)];
-  });
-
-  /// `PATCH /v1/posts/:id/applications/:appId` với `status` (`accepted`/`rejected`).
-  Future<void> reviewApplication(String postId, String appId, String status) => apiCall(
-    () => _dio.patch<void>('/v1/posts/$postId/applications/$appId', data: {'status': status}),
   );
 
   Future<PostDetailDto> detail(String postId) =>
@@ -158,7 +148,7 @@ class PostsRepository {
 }
 
 final postsRepositoryProvider = Provider<PostsRepository>(
-  (ref) => PostsRepository(ref.watch(apiProvider), ref.watch(dioProvider)),
+  (ref) => PostsRepository(ref.watch(apiProvider)),
 );
 
 /// Một phần tử Bảng tin: kèo hoặc thẻ kết quả trận.
@@ -171,84 +161,13 @@ class PostEntry extends FeedEntry {
   final PostDto post;
 }
 
-class ResultTeam {
-  const ResultTeam({
-    required this.id,
-    required this.name,
-    required this.crestColor,
-    required this.score,
-  });
-  factory ResultTeam.fromJson(Map<String, dynamic> j) => ResultTeam(
-    id: '${j['id']}',
-    name: '${j['name']}',
-    crestColor: '${j['crestColor'] ?? '#248A3D'}',
-    score: (j['score'] as num?)?.toInt() ?? 0,
-  );
-  final String id;
-  final String name;
-  final String crestColor;
-  final int score;
-}
-
 class MatchResultEntry extends FeedEntry {
-  const MatchResultEntry({
-    required this.matchId,
-    required this.playedAt,
-    required this.teamA,
-    required this.teamB,
-    required this.scorers,
-    this.mvpName,
-  });
-  factory MatchResultEntry.fromJson(Map<String, dynamic> raw) {
-    final r = (raw['result'] ?? raw) as Map<String, dynamic>;
-    return MatchResultEntry(
-      matchId: '${r['matchId']}',
-      playedAt: DateTime.parse('${r['playedAt']}'),
-      teamA: ResultTeam.fromJson(r['teamA'] as Map<String, dynamic>),
-      teamB: ResultTeam.fromJson(r['teamB'] as Map<String, dynamic>),
-      scorers: [
-        for (final s in (r['scorers'] as List? ?? const []).cast<Map<String, dynamic>>())
-          (name: '${s['name']}', goals: (s['goals'] as num?)?.toInt() ?? 1),
-      ],
-      mvpName: r['mvpName'] as String?,
-    );
-  }
-  final String matchId;
-  final DateTime playedAt;
-  final ResultTeam teamA;
-  final ResultTeam teamB;
-  final List<({String name, int goals})> scorers;
-  final String? mvpName;
+  const MatchResultEntry(this.result);
+  final FeedMatchResultDto result;
 }
 
 class FeedResult {
   const FeedResult(this.items, this.nextCursor);
   final List<FeedEntry> items;
   final String? nextCursor;
-}
-
-/// Một lượt ứng tuyển vào kèo tuyển người.
-class PostApplication {
-  const PostApplication({
-    required this.id,
-    required this.name,
-    required this.status,
-    this.position,
-    this.note,
-  });
-  factory PostApplication.fromJson(Map<String, dynamic> j) {
-    final user = j['user'] is Map ? j['user'] as Map : const {};
-    return PostApplication(
-      id: '${j['id']}',
-      name: '${user['name'] ?? j['name'] ?? j['userName'] ?? 'Cầu thủ'}',
-      status: '${j['status'] ?? 'pending'}',
-      position: j['position'] as String?,
-      note: j['note'] as String?,
-    );
-  }
-  final String id;
-  final String name;
-  final String status;
-  final String? position;
-  final String? note;
 }

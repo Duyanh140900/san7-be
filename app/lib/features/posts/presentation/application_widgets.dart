@@ -10,29 +10,22 @@ import '../../../core/widgets/common.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
 
-final postApplicationsProvider = FutureProvider.autoDispose.family<List<PostApplication>, String>(
+final postApplicationsProvider = FutureProvider.autoDispose.family<List<PostApplicationDto>, String>(
   (ref, postId) => ref.watch(postsRepositoryProvider).applications(postId),
 );
 
-String? _positionLabel(String? v) {
-  if (v == null) return null;
-  for (final p in Labels.positions) {
-    if (p.$1.value == v) return p.$2;
-  }
-  return null;
-}
+String? _positionLabel(Position? v) => v == null ? null : Labels.position(v);
 
-String applicationStatusLabel(String status) => switch (status) {
-  'accepted' => 'Đã được nhận',
-  'rejected' => 'Bị từ chối',
-  'withdrawn' => 'Đã rút',
+String applicationStatusLabel(ApplicationStatus status) => switch (status) {
+  ApplicationStatus.accepted => 'Đã được nhận',
+  ApplicationStatus.rejected => 'Bị từ chối',
   _ => 'Đang chờ duyệt',
 };
 
 /// Hỏi vị trí và lời nhắn rồi gửi ứng tuyển thật. Trả true nếu gửi được.
 Future<bool> applyToPost(BuildContext context, WidgetRef ref, PostDto post) async {
   final note = TextEditingController();
-  String? position;
+  Position? position;
   final send = await showModalBottomSheet<bool>(
     context: context,
     useRootNavigator: true,
@@ -61,9 +54,9 @@ Future<bool> applyToPost(BuildContext context, WidgetRef ref, PostDto post) asyn
                   if (post.positions.isEmpty || post.positions.any((e) => Labels.position(e) == p.$2))
                     ChoiceChip(
                       label: Text(p.$2),
-                      selected: position == p.$1.value,
+                      selected: position == PositionKnown(p.$1),
                       onSelected: (_) =>
-                          setState(() => position = position == p.$1.value ? null : p.$1.value),
+                          setState(() => position = position == PositionKnown(p.$1) ? null : PositionKnown(p.$1)),
                     ),
               ],
             ),
@@ -113,7 +106,7 @@ Future<bool> applyToPost(BuildContext context, WidgetRef ref, PostDto post) asyn
 /// Khối "Đội hình" của kèo: cầu thủ đã chốt.
 class LineupSection extends StatelessWidget {
   const LineupSection({super.key, required this.lineup});
-  final List<({String name, String? position})> lineup;
+  final List<PostLineupPlayerDto> lineup;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -156,7 +149,7 @@ class ApplicationsSection extends ConsumerWidget {
       children: [
         const Text('Ứng viên', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        AsyncView<List<PostApplication>>(
+        AsyncView<List<PostApplicationDto>>(
           value: apps,
           onRetry: () => ref.invalidate(postApplicationsProvider(postId)),
           data: (list) => list.isEmpty
@@ -174,7 +167,7 @@ class ApplicationsSection extends ConsumerWidget {
 class _ApplicationRow extends ConsumerStatefulWidget {
   const _ApplicationRow({required this.postId, required this.app});
   final String postId;
-  final PostApplication app;
+  final PostApplicationDto app;
 
   @override
   ConsumerState<_ApplicationRow> createState() => _ApplicationRowState();
@@ -183,7 +176,7 @@ class _ApplicationRow extends ConsumerStatefulWidget {
 class _ApplicationRowState extends ConsumerState<_ApplicationRow> {
   bool _busy = false;
 
-  Future<void> _review(String status, String done) async {
+  Future<void> _review(UpdatePostApplicationDtoStatus status, String done) async {
     setState(() => _busy = true);
     final ok = await runAction(
       context,
@@ -206,7 +199,7 @@ class _ApplicationRowState extends ConsumerState<_ApplicationRow> {
   @override
   Widget build(BuildContext context) {
     final a = widget.app;
-    final pending = a.status == 'pending';
+    final pending = a.status == ApplicationStatus.pending;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -216,7 +209,7 @@ class _ApplicationRowState extends ConsumerState<_ApplicationRow> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  [a.name, ?_positionLabel(a.position)].join(' · '),
+                  [a.user.name, ?_positionLabel(a.position)].join(' · '),
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                 ),
                 if (a.note != null && a.note!.isNotEmpty)
@@ -238,13 +231,13 @@ class _ApplicationRowState extends ConsumerState<_ApplicationRow> {
                 minimumSize: const Size(44, 44),
                 foregroundColor: AppColors.red,
               ),
-              onPressed: _busy ? null : () => _review('rejected', 'Đã từ chối'),
+              onPressed: _busy ? null : () => _review(UpdatePostApplicationDtoStatus.rejected, 'Đã từ chối'),
               child: const Text('Từ chối'),
             ),
             const SizedBox(width: 4),
             FilledButton(
               style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
-              onPressed: _busy ? null : () => _review('accepted', 'Đã nhận cầu thủ'),
+              onPressed: _busy ? null : () => _review(UpdatePostApplicationDtoStatus.accepted, 'Đã nhận cầu thủ'),
               child: const Text('Nhận'),
             ),
           ],

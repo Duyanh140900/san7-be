@@ -106,13 +106,13 @@ class _Body extends ConsumerWidget {
                 _PitchRow(
                   name: post.pitchName!,
                   area: post.area,
-                  lat: _num(detail, 'venueLat'),
-                  lng: _num(detail, 'venueLng'),
+                  lat: detail.venueLat?.toDouble(),
+                  lng: detail.venueLng?.toDouble(),
                 ),
               ],
-              if (_lineup(detail) case final lineup when lineup.isNotEmpty) ...[
+              if (detail.lineup.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                LineupSection(lineup: lineup),
+                LineupSection(lineup: detail.lineup),
               ],
               if (detail.requestTeams.isNotEmpty) ...[
                 const SizedBox(height: 12),
@@ -244,11 +244,11 @@ class _Body extends ConsumerWidget {
       ];
     }
     if (post.type == PostType.recruit && post.status.isOpen) {
-      final applied = _str(detail, 'myApplicationStatus');
+      final applied = detail.myApplicationStatus;
       if (applied != null) {
         return [
           StatusBanner(
-            tone: applied == 'accepted' ? BannerTone.success : BannerTone.waiting,
+            tone: applied == ApplicationStatus.accepted ? BannerTone.success : BannerTone.waiting,
             child: Text(applicationStatusLabel(applied)),
           ),
         ];
@@ -373,25 +373,4 @@ class _PitchRow extends StatelessWidget {
       showToast(context, 'Không mở được bản đồ', type: ToastType.error);
     }
   }
-}
-
-/// Trường số backend thêm vào kèo (`venueLat`, `venueLng`), null khi chưa có.
-double? _num(PostDetailDto detail, String key) {
-  final v = detail.post.additionalProperties[key] ?? detail.additionalProperties[key];
-  return v is num ? v.toDouble() : null;
-}
-
-String? _str(PostDetailDto detail, String key) {
-  final v = detail.post.additionalProperties[key] ?? detail.additionalProperties[key];
-  return v is String ? v : null;
-}
-
-/// `lineup: [{userId, name, position?}]` backend thêm vào chi tiết kèo.
-List<({String name, String? position})> _lineup(PostDetailDto detail) {
-  final v = detail.additionalProperties['lineup'] ?? detail.post.additionalProperties['lineup'];
-  if (v is! List) return const [];
-  return [
-    for (final e in v)
-      if (e is Map) (name: '${e['name'] ?? ''}', position: e['position'] as String?),
-  ];
 }

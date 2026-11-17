@@ -126,7 +126,7 @@ class _PostList extends StatelessWidget {
                 )
               : Column(
                   children: [
-                    for (final p in page.items) ...[
+                    for (final p in page.items.whereType<PostDto>()) ...[
                       _MyPostCard(post: p),
                       const SizedBox(height: 12),
                     ],

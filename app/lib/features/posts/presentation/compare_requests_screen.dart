@@ -25,10 +25,7 @@ enum _Sort {
 }
 
 /// Khoảng cách (km) từ sân/khu vực kèo tới đội xin nhận; null khi backend chưa tính được.
-double? _distanceKm(MatchRequestDto r) {
-  final v = r.team.additionalProperties['distanceKm'] ?? r.additionalProperties['distanceKm'];
-  return v is num ? v.toDouble() : null;
-}
+double? _distanceKm(MatchRequestDto r) => r.distanceKm?.toDouble();
 
 int _levelIndex(TeamLevel l) => switch (l) {
   TeamLevelKnown(:final value) => Labels.levels.indexWhere((e) => e.$1 == value),
