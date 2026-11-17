@@ -56,7 +56,14 @@ export class UsersService {
 
   async updateNotificationSettings(userId: string, dto: UpdateNotificationSettingsDto): Promise<NotificationSettingsDto> {
     const setting = await this.prisma.notificationSettings.upsert({
-      where: { userId }, create: { userId, ...dto }, update: dto,
+      where: { userId },
+      create: {
+        userId,
+        matchUpdates: dto.matchUpdates,
+        teamActivity: dto.teamActivity,
+        community: dto.community,
+      },
+      update: dto,
     });
     return { matchUpdates: setting.matchUpdates, teamActivity: setting.teamActivity, community: setting.community };
   }
