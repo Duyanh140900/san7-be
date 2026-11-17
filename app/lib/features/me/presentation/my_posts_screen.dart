@@ -9,6 +9,7 @@ import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
 import '../../posts/presentation/post_widgets.dart';
 import '../me_providers.dart';
+import 'post_schedules_tab.dart';
 
 /// Màn 10 · Kèo của tôi: Đang mở, Lịch đăng, Đã chốt.
 class MyPostsScreen extends ConsumerStatefulWidget {
@@ -67,7 +68,7 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
                   empty: 'Bạn chưa có kèo nào đang mở',
                   onRefresh: () => ref.refresh(myPostsProvider(PostStatus.open).future),
                 ),
-                1 => const _SchedulesInfo(),
+                1 => const PostSchedulesTab(),
                 _ => _PostList(
                   value: matched,
                   empty: 'Chưa có kèo nào đã chốt',
@@ -157,22 +158,6 @@ class _MyPostCard extends StatelessWidget {
             ),
           ],
         ],
-      ),
-    ),
-  );
-}
-
-/// Backend chưa có API liệt kê lịch đăng (chỉ tạo/sửa/huỷ), nên tab này báo rõ thay vì hiện danh sách giả.
-class _SchedulesInfo extends StatelessWidget {
-  const _SchedulesInfo();
-
-  @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-    child: AppCard(
-      child: Text(
-        'Danh sách lịch đăng sẽ hiện ở đây khi máy chủ hỗ trợ xem lịch đã hẹn.',
-        style: TextStyle(fontSize: 15, color: AppColors.textSecondary, height: 1.4),
       ),
     ),
   );

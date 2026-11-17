@@ -12,6 +12,13 @@ class MeRepository {
   Future<FeedPageDto> myPosts({PostStatus? status, String? cursor}) =>
       apiCall(() => _api.posts.postsMyPosts(status: status, cursor: cursor, limit: 20));
 
+  Future<List<PostScheduleDto>> postSchedules(String teamId) =>
+      apiCall(() => _api.postSchedules.postSchedulesList(teamId: teamId));
+
+  Future<void> cancelSchedule(String teamId, String scheduleId) => apiCall(
+    () => _api.postSchedules.postSchedulesCancel(teamId: teamId, scheduleId: scheduleId),
+  );
+
   Future<NotificationSettingsDto> notificationSettings() =>
       apiCall(() => _api.users.usersGetNotificationSettings());
 

@@ -11,3 +11,8 @@ final myPostsProvider = FutureProvider.autoDispose.family<FeedPageDto, PostStatu
 final notificationSettingsProvider = FutureProvider.autoDispose<NotificationSettingsDto>(
   (ref) => ref.watch(meRepositoryProvider).notificationSettings(),
 );
+
+/// Lịch đăng kèo của một đội (đội trưởng/phó).
+final postSchedulesProvider = FutureProvider.autoDispose.family<List<PostScheduleDto>, String>(
+  (ref, teamId) => ref.watch(meRepositoryProvider).postSchedules(teamId),
+);
