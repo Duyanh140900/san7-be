@@ -10,6 +10,7 @@ describe('SystemProcessor post schedule', () => {
     const processor = new SystemProcessor(
       {} as never,
       {} as never,
+      {} as never,
       queue as unknown as Queue,
     );
     vi.spyOn(schedules, 'publishPostSchedule').mockResolvedValue({ published: true, nextAt });

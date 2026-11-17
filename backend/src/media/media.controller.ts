@@ -1,7 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Header, Param, ParseUUIDPipe, Post, StreamableFile } from '@nestjs/common';
+import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUser, type AuthUser } from '../common/auth.decorators.js';
+import { Public } from '../common/auth.decorators.js';
 import { CreateUploadDto, UploadUrlDto } from './media.dto.js';
 import { MediaService } from './media.service.js';
 
@@ -20,5 +21,14 @@ export class MediaController {
     @Body() dto: CreateUploadDto,
   ): Promise<UploadUrlDto> {
     return this.media.createImageUpload(user.userId, dto);
+  }
+
+  /** Chỉ trả ảnh đã re-encode; browser không được MIME-sniff nội dung. */
+  @Public()
+  @Get('public/:id')
+  @Header('X-Content-Type-Options', 'nosniff')
+  @ApiOkResponse({ description: 'Ảnh WebP đã được xác minh' })
+  readPublic(@Param('id', ParseUUIDPipe) id: string): Promise<StreamableFile> {
+    return this.media.readPublicImage(id);
   }
 }

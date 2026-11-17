@@ -1,12 +1,13 @@
 import type { Queue } from 'bullmq';
 import type { TeamMembership } from '../common/team-member.guard.js';
 import type { PrismaService } from '../prisma/prisma.service.js';
+import type { CreatePostScheduleDto } from './schedules.dto.js';
 import { PostSchedulesService, postScheduleJobId, publishPostSchedule } from './schedules.service.js';
 
 const now = new Date('2026-11-16T10:00:00.000Z');
 const me: TeamMembership = { teamId: 't1', userId: 'u1', role: 'captain' };
 const post = {
-  type: 'find_opponent', startAt: new Date('2026-11-18T19:00:00.000Z'), endAt: new Date('2026-11-18T20:30:00.000Z'),
+  type: 'find_opponent' as unknown as CreatePostScheduleDto['type'], startAt: new Date('2026-11-18T19:00:00.000Z'), endAt: new Date('2026-11-18T20:30:00.000Z'),
   level: 'tb', deal: 'friendly', scheduledAt: new Date('2026-11-17T10:00:00.000Z'), repeatWeekly: false,
 };
 

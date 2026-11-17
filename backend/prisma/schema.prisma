@@ -130,6 +130,16 @@ enum PostScheduleStatus {
   cancelled
 }
 
+/// Vòng đời upload ảnh: object luôn vào quarantine trước, chỉ `ready` mới
+/// được phép tham chiếu từ dữ liệu nghiệp vụ.
+enum MediaUploadStatus {
+  pending
+  processing
+  ready
+  rejected
+  expired
+}
+
 model User {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   googleSub   String    @unique @map("google_sub")
@@ -161,6 +171,7 @@ model User {
   reactions            Reaction[]
   postSchedules        PostSchedule[]
   notificationSettings NotificationSettings?
+  mediaUploads         MediaUpload[]
 
   @@map("users")
 }
@@ -428,6 +439,29 @@ model PostSchedule {
   @@index([teamId, status, scheduledAt])
   @@index([authorId, status, scheduledAt])
   @@map("post_schedules")
+}
+
+/// Ý định upload được tạo trước khi cấp presigned PUT URL. Đây là nguồn sự
+/// thật để giới hạn quota, kiểm tra ownership và dọn object quarantine.
+model MediaUpload {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerId        String            @map("owner_id") @db.Uuid
+  purpose        String
+  expectedSize   Int               @map("expected_size")
+  quarantineKey  String            @unique @map("quarantine_key")
+  publicKey      String            @unique @map("public_key")
+  status         MediaUploadStatus @default(pending)
+  expiresAt      DateTime          @map("expires_at") @db.Timestamptz(6)
+  finalizedAt    DateTime?         @map("finalized_at") @db.Timestamptz(6)
+  referencedAt   DateTime?         @map("referenced_at") @db.Timestamptz(6)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, createdAt])
+  @@index([status, expiresAt])
+  @@map("media_uploads")
 }
 
 /// Bình luận dưới kèo. Chỉ M5 dùng bình luận cấp một; parent/reply có thể bổ sung sau.

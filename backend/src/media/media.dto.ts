@@ -10,6 +10,10 @@ export const IMAGE_TYPES = {
 } as const;
 
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+/** Chặn ảnh bom (decompression bomb) trước khi re-encode. */
+export const MAX_IMAGE_PIXELS = 40_000_000;
+/** Tổng dung lượng mà một tài khoản có thể xin URL trong một ngày UTC. */
+export const DAILY_UPLOAD_QUOTA_BYTES = 50 * 1024 * 1024;
 export const UPLOAD_URL_TTL_SECONDS = 300;
 
 export enum MediaPurpose {
@@ -55,7 +59,7 @@ export class UploadUrlDto {
     additionalProperties: { type: 'string' },
   })
   headers: Record<string, string>;
-  @ApiProperty({ description: 'Khoá object, dạng users/{userId}/{purpose}/…' })
+  @ApiProperty({ description: 'Khoá ảnh sẽ được công khai sau bước xác minh nội dung' })
   key: string;
   @ApiProperty({ description: 'URL xem ảnh sau khi tải lên xong' })
   publicUrl: string;

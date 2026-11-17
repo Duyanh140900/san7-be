@@ -15,6 +15,8 @@ export interface Env {
   S3_ENDPOINT: string;
   /** URL client bên ngoài dùng để tải lên/xem ảnh (có thể khác S3_ENDPOINT nội bộ) */
   S3_PUBLIC_URL: string;
+  /** Base URL ngoài cho endpoint GET /v1/media/public/:id. */
+  MEDIA_PUBLIC_URL: string;
   S3_REGION: string;
   S3_BUCKET: string;
   S3_ACCESS_KEY: string;
@@ -52,6 +54,7 @@ export function validateEnv(raw: Record<string, string | undefined>): Env {
     FIREBASE_SERVICE_ACCOUNT: String(raw.FIREBASE_SERVICE_ACCOUNT ?? ''),
     S3_ENDPOINT: String(raw.S3_ENDPOINT ?? ''),
     S3_PUBLIC_URL: String(raw.S3_PUBLIC_URL ?? raw.S3_ENDPOINT ?? ''),
+    MEDIA_PUBLIC_URL: String(raw.MEDIA_PUBLIC_URL ?? `http://localhost:${raw.PORT ?? 3000}/v1/media/public`),
     S3_REGION: String(raw.S3_REGION ?? 'us-east-1'),
     S3_BUCKET: String(raw.S3_BUCKET ?? 'media'),
     S3_ACCESS_KEY: String(raw.S3_ACCESS_KEY ?? ''),

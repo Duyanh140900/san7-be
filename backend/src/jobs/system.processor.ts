@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { Jobs, SYSTEM_QUEUE } from '../queue/queue.constants.js';
 import { PushService } from './push.service.js';
 import { postScheduleJobId, publishPostSchedule } from '../schedules/schedules.service.js';
+import { MediaService } from '../media/media.service.js';
 
 export { SYSTEM_QUEUE };
 
@@ -19,6 +20,7 @@ export class SystemProcessor extends WorkerHost {
   constructor(
     private readonly prisma: PrismaService,
     private readonly push: PushService,
+    private readonly media: MediaService,
     @InjectQueue(SYSTEM_QUEUE) private readonly queue: Queue,
   ) {
     super();
@@ -75,6 +77,8 @@ export class SystemProcessor extends WorkerHost {
         }
         return result;
       }
+      case Jobs.mediaCleanup:
+        return { deleted: await this.media.cleanupExpired() };
       default:
         throw new Error(`Job không xác định: ${job.name}`);
     }

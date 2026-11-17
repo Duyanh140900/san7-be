@@ -6,6 +6,7 @@ import { PrismaModule } from '../prisma/prisma.module.js';
 import { QueueModule } from '../queue/queue.module.js';
 import { PushService } from './push.service.js';
 import { SystemProcessor } from './system.processor.js';
+import { MediaModule } from '../media/media.module.js';
 
 /** Module của tiến trình worker: chỉ chạy processor BullMQ, không mở HTTP. */
 @Module({
@@ -26,6 +27,7 @@ import { SystemProcessor } from './system.processor.js';
     }),
     QueueModule,
     PrismaModule,
+    MediaModule,
   ],
   providers: [SystemProcessor, PushService],
 })

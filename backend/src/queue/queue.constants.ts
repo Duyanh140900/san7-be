@@ -14,4 +14,6 @@ export const Jobs = {
   pushSend: 'push.send',
   /** Công bố lịch đăng kèo: data { scheduleId } */
   postSchedulePublish: 'post-schedule.publish',
+  /** Xóa object quarantine/ảnh chưa được dữ liệu nghiệp vụ tham chiếu. */
+  mediaCleanup: 'media.cleanup',
 } as const;

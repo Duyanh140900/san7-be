@@ -1,192 +1,182 @@
 import { randomUUID } from 'node:crypto';
+import { Readable } from 'node:stream';
 import {
   CreateBucketCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
   HeadBucketCommand,
-  HeadObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { HttpStatus, Injectable, Logger, OnModuleInit, StreamableFile } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import type { Queue } from 'bullmq';
+import sharp from 'sharp';
 import { AppError } from '../common/errors.js';
 import type { Env } from '../common/env.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { Jobs, SYSTEM_QUEUE } from '../queue/queue.constants.js';
 import {
+  DAILY_UPLOAD_QUOTA_BYTES,
   IMAGE_TYPES,
   MAX_IMAGE_BYTES,
+  MAX_IMAGE_PIXELS,
   UPLOAD_URL_TTL_SECONDS,
   type CreateUploadDto,
   type UploadUrlDto,
 } from './media.dto.js';
 
-/** Tải ảnh lên kho S3 (SeaweedFS) bằng URL có chữ ký; key luôn nằm dưới users/{userId}/. */
+/** Object client PUT luôn nằm ở quarantine; chỉ ảnh đã Sharp decode + re-encode mới public. */
 @Injectable()
 export class MediaService implements OnModuleInit {
   private readonly logger = new Logger(MediaService.name);
   private readonly bucket: string;
-  private readonly publicUrl: string;
-  private readonly enabled: boolean;
+  private readonly uploadUrlBase: string;
+  private readonly mediaUrlBase: string;
   private readonly admin?: S3Client;
   private readonly signer?: S3Client;
 
-  constructor(config: ConfigService<Env, true>) {
+  constructor(
+    config: ConfigService<Env, true>,
+    private readonly prisma: PrismaService,
+    @InjectQueue(SYSTEM_QUEUE) private readonly queue: Queue,
+  ) {
     const endpoint = config.get('S3_ENDPOINT', { infer: true });
     const publicUrl = config.get('S3_PUBLIC_URL', { infer: true });
     this.bucket = config.get('S3_BUCKET', { infer: true });
-    this.publicUrl = (publicUrl || endpoint).replace(/\/+$/, '');
-    this.enabled = Boolean(endpoint);
-    if (!this.enabled) return;
+    this.uploadUrlBase = (publicUrl || endpoint).replace(/\/+$/, '');
+    this.mediaUrlBase = config.get('MEDIA_PUBLIC_URL', { infer: true }).replace(/\/+$/, '');
+    if (!endpoint) return;
     const base = {
-      region: config.get('S3_REGION', { infer: true }),
-      forcePathStyle: true,
-      // SeaweedFS S3 không hiểu checksum CRC32 tự động của AWS SDK và trả BadDigest.
+      region: config.get('S3_REGION', { infer: true }), forcePathStyle: true,
       requestChecksumCalculation: 'WHEN_REQUIRED' as const,
-      credentials: {
-        accessKeyId: config.get('S3_ACCESS_KEY', { infer: true }),
-        secretAccessKey: config.get('S3_SECRET_KEY', { infer: true }),
-      },
+      credentials: { accessKeyId: config.get('S3_ACCESS_KEY', { infer: true }), secretAccessKey: config.get('S3_SECRET_KEY', { infer: true }) },
     };
-    // admin gọi qua mạng nội bộ; signer ký theo host mà app bên ngoài truy cập được
     this.admin = new S3Client({ ...base, endpoint });
-    this.signer = new S3Client({ ...base, endpoint: this.publicUrl });
+    this.signer = new S3Client({ ...base, endpoint: this.uploadUrlBase });
   }
 
-  /** Tạo bucket nếu chưa có. Lỗi không làm API dừng (kho file có thể khởi động chậm hơn). */
   async onModuleInit(): Promise<void> {
-    if (!this.admin) return;
-    try {
-      await this.admin.send(new HeadBucketCommand({ Bucket: this.bucket }));
-    } catch {
-      try {
-        await this.admin.send(new CreateBucketCommand({ Bucket: this.bucket }));
-        this.logger.log(`Đã tạo bucket ${this.bucket}`);
-      } catch (err) {
-        this.logger.warn(
-          `Chưa chuẩn bị được bucket ${this.bucket}: ${(err as Error).message}`,
-        );
+    if (this.admin) {
+      try { await this.admin.send(new HeadBucketCommand({ Bucket: this.bucket })); }
+      catch {
+        try { await this.admin.send(new CreateBucketCommand({ Bucket: this.bucket })); this.logger.log(`Đã tạo bucket ${this.bucket}`); }
+        catch (err) { this.logger.warn(`Chưa chuẩn bị được bucket ${this.bucket}: ${(err as Error).message}`); }
       }
     }
+    await this.queue.upsertJobScheduler(
+      'media-cleanup',
+      { every: 60 * 60 * 1000 },
+      { name: Jobs.mediaCleanup, data: {}, opts: { removeOnComplete: true, removeOnFail: 100 } },
+    ).catch((err: unknown) => this.logger.warn(`Không lên lịch dọn upload: ${(err as Error).message}`));
   }
 
-  async createImageUpload(
-    userId: string,
-    dto: CreateUploadDto,
-  ): Promise<UploadUrlDto> {
-    if (!this.signer) {
-      throw new AppError(
-        HttpStatus.SERVICE_UNAVAILABLE,
-        'storage_unavailable',
-        'Kho ảnh chưa được cấu hình',
-      );
-    }
+  async createImageUpload(userId: string, dto: CreateUploadDto): Promise<UploadUrlDto> {
+    if (!this.signer) throw this.storageUnavailable();
     const contentType = dto.contentType.toLowerCase();
-    const ext = IMAGE_TYPES[contentType as keyof typeof IMAGE_TYPES];
-    if (!ext) {
-      throw new AppError(
-        HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-        'media_type_not_allowed',
-        'Chỉ nhận ảnh JPEG, PNG, WebP hoặc HEIC',
-      );
-    }
-    if (dto.size > MAX_IMAGE_BYTES) {
-      throw new AppError(
-        HttpStatus.PAYLOAD_TOO_LARGE,
-        'media_too_large',
-        'Ảnh tối đa 10MB',
-      );
-    }
-    const key = `users/${userId}/${dto.purpose}/${randomUUID()}.${ext}`;
-    // Content-Type và Content-Length nằm trong chữ ký: PUT sai loại/dung lượng bị kho từ chối
-    const uploadUrl = await getSignedUrl(
-      this.signer,
-      new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        ContentType: contentType,
-        ContentLength: dto.size,
-      }),
-      {
-        expiresIn: UPLOAD_URL_TTL_SECONDS,
-        signableHeaders: new Set(['content-type', 'content-length']),
-      },
-    );
-    return {
-      method: 'PUT',
-      uploadUrl,
-      headers: { 'Content-Type': contentType },
-      key,
-      publicUrl: this.publicUrlFor(key),
-      expiresIn: UPLOAD_URL_TTL_SECONDS,
-    };
+    if (!(contentType in IMAGE_TYPES)) throw new AppError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, 'media_type_not_allowed', 'Chỉ nhận ảnh JPEG, PNG, WebP hoặc HEIC');
+    if (dto.size > MAX_IMAGE_BYTES) throw new AppError(HttpStatus.PAYLOAD_TOO_LARGE, 'media_too_large', 'Ảnh tối đa 10MB');
+
+    const now = new Date();
+    const id = randomUUID();
+    const quarantineKey = `quarantine/${id}.upload`;
+    const publicKey = `public/${id}.webp`;
+    const expiresAt = new Date(now.getTime() + UPLOAD_URL_TTL_SECONDS * 1000);
+    await this.prisma.$transaction(async (tx) => {
+      const quota = await tx.mediaUpload.aggregate({ where: { ownerId: userId, createdAt: { gte: startOfUtcDay(now) } }, _sum: { expectedSize: true } });
+      if ((quota._sum.expectedSize ?? 0) + dto.size > DAILY_UPLOAD_QUOTA_BYTES) {
+        throw new AppError(HttpStatus.TOO_MANY_REQUESTS, 'media_daily_quota_exceeded', 'Đã dùng hết quota tải ảnh hôm nay');
+      }
+      await tx.mediaUpload.create({ data: { id, ownerId: userId, purpose: dto.purpose, expectedSize: dto.size, quarantineKey, publicKey, expiresAt } });
+    }, { isolationLevel: 'Serializable' });
+    const uploadUrl = await getSignedUrl(this.signer, new PutObjectCommand({
+      Bucket: this.bucket, Key: quarantineKey, ContentType: contentType, ContentLength: dto.size,
+    }), { expiresIn: UPLOAD_URL_TTL_SECONDS, signableHeaders: new Set(['content-type', 'content-length']) });
+    return { method: 'PUT', uploadUrl, headers: { 'Content-Type': contentType }, key: publicKey, publicUrl: this.publicUrlFor(publicKey), expiresIn: UPLOAD_URL_TTL_SECONDS };
   }
 
-  /** URL xem ảnh của một key. */
+  /** URL API phục vụ ảnh đã xử lý, không lộ object S3/quarantine. */
   publicUrlFor(key: string): string {
-    return `${this.publicUrl}/${this.bucket}/${key}`;
+    const id = /^public\/([0-9a-f-]{36})\.webp$/i.exec(key)?.[1];
+    return id ? `${this.mediaUrlBase}/${id}` : `${this.mediaUrlBase}/missing`;
   }
 
-  /** Key phải thuộc về user (dùng khi gắn ảnh vào kèo/hồ sơ, tránh gắn ảnh của người khác). */
-  assertOwnedKey(userId: string, key: string): void {
-    if (!key.startsWith(`users/${userId}/`) || key.includes('..')) {
-      throw new AppError(
-        HttpStatus.FORBIDDEN,
-        'media_forbidden',
-        'Ảnh không thuộc về bạn',
-      );
-    }
+  assertOwnedKey(_userId: string, key: string): void {
+    if (!/^public\/[0-9a-f-]{36}\.webp$/i.test(key)) throw new AppError(HttpStatus.FORBIDDEN, 'media_forbidden', 'Ảnh không thuộc về bạn');
   }
 
-  /** Kiểm tra ảnh đã tải lên, thuộc user và vẫn nằm trong giới hạn trước khi gắn vào kèo. */
+  /** Finalize mỗi key đúng một lần, rồi đánh dấu chúng đã được tham chiếu. */
   async assertUsablePostMedia(userId: string, keys: string[]): Promise<void> {
     if (keys.length === 0) return;
-    if (!this.admin) {
-      throw new AppError(
-        HttpStatus.SERVICE_UNAVAILABLE,
-        'storage_unavailable',
-        'Kho ảnh chưa được cấu hình',
-      );
-    }
-    await Promise.all(
-      keys.map(async (key) => {
-        this.assertOwnedKey(userId, key);
-        if (!key.startsWith(`users/${userId}/post/`)) {
-          throw new AppError(
-            HttpStatus.FORBIDDEN,
-            'media_forbidden',
-            'Chỉ ảnh tải lên cho kèo mới được gắn vào kèo',
-          );
-        }
-        try {
-          const object = await this.admin!.send(
-            new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
-          );
-          const contentType = object.ContentType?.toLowerCase();
-          if (!contentType || !(contentType in IMAGE_TYPES)) {
-            throw new AppError(
-              HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-              'media_type_not_allowed',
-              'Ảnh tải lên không đúng định dạng cho phép',
-            );
-          }
-          if (
-            object.ContentLength === undefined ||
-            object.ContentLength > MAX_IMAGE_BYTES
-          ) {
-            throw new AppError(
-              HttpStatus.PAYLOAD_TOO_LARGE,
-              'media_too_large',
-              'Ảnh tối đa 10MB',
-            );
-          }
-        } catch (err) {
-          if (err instanceof AppError) throw err;
-          throw new AppError(
-            HttpStatus.BAD_REQUEST,
-            'media_not_uploaded',
-            'Ảnh chưa được tải lên hoặc không còn tồn tại',
-          );
-        }
-      }),
-    );
+    if (new Set(keys).size !== keys.length) throw new AppError(HttpStatus.BAD_REQUEST, 'duplicate_media_key', 'Không được chọn trùng ảnh');
+    for (const key of keys) { this.assertOwnedKey(userId, key); await this.finalize(userId, key, 'post'); }
+    await this.prisma.mediaUpload.updateMany({ where: { ownerId: userId, publicKey: { in: keys }, status: 'ready' }, data: { referencedAt: new Date() } });
   }
+
+  async readPublicImage(id: string): Promise<StreamableFile> {
+    if (!this.admin) throw this.storageUnavailable();
+    const upload = await this.prisma.mediaUpload.findFirst({ where: { id, publicKey: `public/${id}.webp`, status: 'ready' }, select: { publicKey: true } });
+    if (!upload) throw new AppError(HttpStatus.NOT_FOUND, 'media_not_found', 'Không tìm thấy ảnh');
+    try {
+      const object = await this.admin.send(new GetObjectCommand({ Bucket: this.bucket, Key: upload.publicKey }));
+      if (!object.Body || !(object.Body instanceof Readable)) throw new Error('empty object body');
+      return new StreamableFile(object.Body, { type: 'image/webp', disposition: 'inline' });
+    } catch (err) {
+      if (err instanceof AppError) throw err;
+      throw new AppError(HttpStatus.NOT_FOUND, 'media_not_found', 'Không tìm thấy ảnh');
+    }
+  }
+
+  /** Job BullMQ: xóa object quarantine/hay ảnh finalized chưa được tham chiếu khi hết hạn. */
+  async cleanupExpired(now = new Date()): Promise<number> {
+    if (!this.admin) return 0;
+    const stale = await this.prisma.mediaUpload.findMany({
+      where: { referencedAt: null, expiresAt: { lte: now }, status: { in: ['pending', 'processing', 'ready', 'rejected'] } },
+      take: 100, select: { id: true, quarantineKey: true, publicKey: true },
+    });
+    await Promise.all(stale.map(async (row) => {
+      await Promise.allSettled([
+        this.admin!.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: row.quarantineKey })),
+        this.admin!.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: row.publicKey })),
+      ]);
+      await this.prisma.mediaUpload.updateMany({ where: { id: row.id, referencedAt: null }, data: { status: 'expired' } });
+    }));
+    return stale.length;
+  }
+
+  private async finalize(userId: string, publicKey: string, purpose: string): Promise<void> {
+    if (!this.admin) throw this.storageUnavailable();
+    const pending = await this.prisma.mediaUpload.updateMany({
+      where: { ownerId: userId, publicKey, purpose, status: 'pending', expiresAt: { gt: new Date() } }, data: { status: 'processing' },
+    });
+    if (pending.count === 0) {
+      const existing = await this.prisma.mediaUpload.findFirst({ where: { ownerId: userId, publicKey, purpose }, select: { status: true } });
+      if (existing?.status === 'ready') return;
+      throw new AppError(HttpStatus.BAD_REQUEST, 'media_not_uploaded', 'Ảnh chưa tải xong, đã hết hạn hoặc đang được xử lý');
+    }
+    const upload = await this.prisma.mediaUpload.findFirstOrThrow({ where: { ownerId: userId, publicKey }, select: { id: true, quarantineKey: true, expectedSize: true } });
+    try {
+      const object = await this.admin.send(new GetObjectCommand({ Bucket: this.bucket, Key: upload.quarantineKey }));
+      const bytes = await object.Body?.transformToByteArray();
+      if (!bytes || bytes.byteLength !== upload.expectedSize || bytes.byteLength > MAX_IMAGE_BYTES) throw new Error('size mismatch');
+      const image = sharp(Buffer.from(bytes), { limitInputPixels: MAX_IMAGE_PIXELS, failOn: 'error' });
+      const metadata = await image.metadata();
+      if (!metadata.width || !metadata.height || metadata.width * metadata.height > MAX_IMAGE_PIXELS) throw new Error('invalid image dimensions');
+      const cleaned = await image.rotate().webp({ quality: 85 }).toBuffer();
+      await this.admin.send(new PutObjectCommand({ Bucket: this.bucket, Key: publicKey, Body: cleaned, ContentType: 'image/webp', CacheControl: 'public, max-age=31536000, immutable' }));
+      await this.admin.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: upload.quarantineKey }));
+      await this.prisma.mediaUpload.update({ where: { id: upload.id }, data: { status: 'ready', finalizedAt: new Date() } });
+    } catch (err) {
+      await this.admin.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: upload.quarantineKey })).catch(() => undefined);
+      await this.prisma.mediaUpload.update({ where: { id: upload.id }, data: { status: 'rejected' } }).catch(() => undefined);
+      this.logger.warn(`Từ chối upload ${upload.id}: ${(err as Error).message}`);
+      throw new AppError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, 'invalid_image_content', 'File tải lên không phải ảnh hợp lệ');
+    }
+  }
+
+  private storageUnavailable() { return new AppError(HttpStatus.SERVICE_UNAVAILABLE, 'storage_unavailable', 'Kho ảnh chưa được cấu hình'); }
 }
+
+function startOfUtcDay(now: Date): Date { return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())); }
