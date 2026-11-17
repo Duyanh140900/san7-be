@@ -12,6 +12,7 @@ import {
   writeNotifications,
 } from '../notifications/notification-writer.js';
 import { NotificationsService } from '../notifications/notifications.service.js';
+import { MediaService } from '../media/media.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Jobs, SYSTEM_QUEUE } from '../queue/queue.constants.js';
 import { RealtimeService } from '../realtime/realtime.service.js';
@@ -145,6 +146,7 @@ export class RequestsService {
     private readonly notifications: NotificationsService,
     private readonly realtime: RealtimeService,
     @InjectQueue(SYSTEM_QUEUE) private readonly queue: Queue,
+    private readonly media: MediaService,
   ) {}
 
   /** Đội của tôi (me.teamId) gửi yêu cầu nhận kèo. */
@@ -295,7 +297,7 @@ export class RequestsService {
     const status = effectiveStatus(r, now);
     return {
       request: toRequestDto(r, stats.get(r.teamId), now),
-      post: toPostDto(r.post),
+      post: toPostDto(r.post, (key) => this.media.publicUrlFor(key)),
       side,
       canRespond: status === 'pending' && MANAGER_ROLES.includes(me.role),
       otherPending: others.map((o) => o.team),

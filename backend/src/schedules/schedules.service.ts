@@ -5,6 +5,7 @@ import { AppError } from '../common/errors.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
 import type { Prisma, PostSchedule } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { MediaService } from '../media/media.service.js';
 import { Jobs, SYSTEM_QUEUE } from '../queue/queue.constants.js';
 import { normalizePost } from '../posts/posts.service.js';
 import type { CreatePostDto } from '../posts/posts.dto.js';
@@ -14,12 +15,68 @@ type StoredPost = Omit<CreatePostDto, 'startAt' | 'endAt'> & { startAt: string; 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 function toStored(dto: CreatePostDto): StoredPost {
-  return { ...dto, startAt: dto.startAt.toISOString(), endAt: dto.endAt.toISOString() };
+  return {
+    type: dto.type,
+    startAt: dto.startAt.toISOString(),
+    endAt: dto.endAt.toISOString(),
+    pitchName: dto.pitchName,
+    area: dto.area,
+    level: dto.level,
+    deal: dto.deal,
+    ratioWin: dto.ratioWin,
+    ratioLose: dto.ratioLose,
+    pitchPrice: dto.pitchPrice,
+    positions: dto.positions,
+    playersNeeded: dto.playersNeeded,
+    body: dto.body,
+    bookingId: dto.bookingId,
+    mediaKeys: dto.mediaKeys,
+  };
 }
 
 function fromStored(payload: Prisma.JsonValue): CreatePostDto {
   const raw = payload as unknown as StoredPost;
-  return { ...raw, startAt: new Date(raw.startAt), endAt: new Date(raw.endAt) };
+  return {
+    type: raw.type,
+    startAt: new Date(raw.startAt),
+    endAt: new Date(raw.endAt),
+    pitchName: raw.pitchName,
+    area: raw.area,
+    level: raw.level,
+    deal: raw.deal,
+    ratioWin: raw.ratioWin,
+    ratioLose: raw.ratioLose,
+    pitchPrice: raw.pitchPrice,
+    positions: raw.positions,
+    playersNeeded: raw.playersNeeded,
+    body: raw.body,
+    bookingId: raw.bookingId,
+    mediaKeys: raw.mediaKeys,
+  };
+}
+
+function withTimes(
+  dto: CreatePostDto,
+  startAt: Date,
+  endAt: Date,
+): CreatePostDto {
+  return {
+    type: dto.type,
+    startAt,
+    endAt,
+    pitchName: dto.pitchName,
+    area: dto.area,
+    level: dto.level,
+    deal: dto.deal,
+    ratioWin: dto.ratioWin,
+    ratioLose: dto.ratioLose,
+    pitchPrice: dto.pitchPrice,
+    positions: dto.positions,
+    playersNeeded: dto.playersNeeded,
+    body: dto.body,
+    bookingId: dto.bookingId,
+    mediaKeys: dto.mediaKeys,
+  };
 }
 
 function toDto(row: PostSchedule): PostScheduleDto {
@@ -36,11 +93,13 @@ export class PostSchedulesService {
   constructor(
     private readonly prisma: PrismaService,
     @InjectQueue(SYSTEM_QUEUE) private readonly queue: Queue,
+    private readonly media: MediaService,
   ) {}
 
   async create(me: TeamMembership, dto: CreatePostScheduleDto): Promise<PostScheduleDto> {
     this.assertFuture(dto.scheduledAt);
     normalizePost(dto, new Date(dto.scheduledAt.getTime() - 1));
+    await this.media.assertUsablePostMedia(me.userId, dto.mediaKeys ?? []);
     const row = await this.prisma.postSchedule.create({
       data: { teamId: me.teamId, authorId: me.userId, payload: toStored(dto), scheduledAt: dto.scheduledAt, repeatWeekly: dto.repeatWeekly ?? false },
     });
@@ -52,6 +111,7 @@ export class PostSchedulesService {
     const existing = await this.mine(me, id);
     this.assertFuture(dto.scheduledAt);
     normalizePost(dto, new Date(dto.scheduledAt.getTime() - 1));
+    await this.media.assertUsablePostMedia(me.userId, dto.mediaKeys ?? []);
     const row = await this.prisma.postSchedule.update({
       where: { id: existing.id },
       data: { payload: toStored(dto), scheduledAt: dto.scheduledAt, repeatWeekly: dto.repeatWeekly ?? false },
@@ -93,12 +153,16 @@ export async function publishPostSchedule(prisma: PrismaService, scheduleId: str
     const dto = fromStored(schedule.payload);
     const data = normalizePost(dto, now);
     const team = await tx.team.findUniqueOrThrow({ where: { id: schedule.teamId }, select: { area: true } });
-    const post = await tx.post.create({ data: { ...data, teamId: schedule.teamId, authorId: schedule.authorId, area: dto.area || team.area } });
+    const post = await tx.post.create({ data: { ...data, teamId: schedule.teamId, authorId: schedule.authorId, area: dto.area || team.area, media: dto.mediaKeys ?? [] } });
     if (!schedule.repeatWeekly) {
       await tx.postSchedule.update({ where: { id: schedule.id }, data: { status: 'cancelled', publishedPostId: post.id } });
       return { published: true, nextAt: null };
     }
-    const nextDto = { ...dto, startAt: new Date(dto.startAt.getTime() + WEEK_MS), endAt: new Date(dto.endAt.getTime() + WEEK_MS) };
+    const nextDto = withTimes(
+      dto,
+      new Date(dto.startAt.getTime() + WEEK_MS),
+      new Date(dto.endAt.getTime() + WEEK_MS),
+    );
     const nextAt = new Date(schedule.scheduledAt.getTime() + WEEK_MS);
     await tx.postSchedule.update({ where: { id: schedule.id }, data: { payload: toStored(nextDto), scheduledAt: nextAt } });
     return { published: true, nextAt };

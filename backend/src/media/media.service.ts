@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   CreateBucketCommand,
   HeadBucketCommand,
+  HeadObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -38,6 +39,8 @@ export class MediaService implements OnModuleInit {
     const base = {
       region: config.get('S3_REGION', { infer: true }),
       forcePathStyle: true,
+      // SeaweedFS S3 không hiểu checksum CRC32 tự động của AWS SDK và trả BadDigest.
+      requestChecksumCalculation: 'WHEN_REQUIRED' as const,
       credentials: {
         accessKeyId: config.get('S3_ACCESS_KEY', { infer: true }),
         secretAccessKey: config.get('S3_SECRET_KEY', { infer: true }),
@@ -131,5 +134,59 @@ export class MediaService implements OnModuleInit {
         'Ảnh không thuộc về bạn',
       );
     }
+  }
+
+  /** Kiểm tra ảnh đã tải lên, thuộc user và vẫn nằm trong giới hạn trước khi gắn vào kèo. */
+  async assertUsablePostMedia(userId: string, keys: string[]): Promise<void> {
+    if (keys.length === 0) return;
+    if (!this.admin) {
+      throw new AppError(
+        HttpStatus.SERVICE_UNAVAILABLE,
+        'storage_unavailable',
+        'Kho ảnh chưa được cấu hình',
+      );
+    }
+    await Promise.all(
+      keys.map(async (key) => {
+        this.assertOwnedKey(userId, key);
+        if (!key.startsWith(`users/${userId}/post/`)) {
+          throw new AppError(
+            HttpStatus.FORBIDDEN,
+            'media_forbidden',
+            'Chỉ ảnh tải lên cho kèo mới được gắn vào kèo',
+          );
+        }
+        try {
+          const object = await this.admin!.send(
+            new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
+          );
+          const contentType = object.ContentType?.toLowerCase();
+          if (!contentType || !(contentType in IMAGE_TYPES)) {
+            throw new AppError(
+              HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+              'media_type_not_allowed',
+              'Ảnh tải lên không đúng định dạng cho phép',
+            );
+          }
+          if (
+            object.ContentLength === undefined ||
+            object.ContentLength > MAX_IMAGE_BYTES
+          ) {
+            throw new AppError(
+              HttpStatus.PAYLOAD_TOO_LARGE,
+              'media_too_large',
+              'Ảnh tối đa 10MB',
+            );
+          }
+        } catch (err) {
+          if (err instanceof AppError) throw err;
+          throw new AppError(
+            HttpStatus.BAD_REQUEST,
+            'media_not_uploaded',
+            'Ảnh chưa được tải lên hoặc không còn tồn tại',
+          );
+        }
+      }),
+    );
   }
 }

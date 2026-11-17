@@ -168,11 +168,16 @@ function setup() {
     },
   };
   const notifications = { dispatch: vi.fn() };
+  const media = {
+    assertUsablePostMedia: vi.fn().mockResolvedValue(undefined),
+    publicUrlFor: vi.fn((key: string) => `http://storage/media/${key}`),
+  };
   const service = new PostsService(
     prisma as unknown as PrismaService,
     notifications as unknown as NotificationsService,
+    media as never,
   );
-  return { service, prisma, tx, notifications };
+  return { service, prisma, tx, notifications, media };
 }
 
 describe('PostsService', () => {
@@ -193,6 +198,24 @@ describe('PostsService', () => {
     });
     expect(p.pitchPrice).toBe(600_000);
     expect(p.requestCount).toBe(0);
+  });
+
+  it('validates owned media and maps it to a public URL', async () => {
+    const { service, prisma, media } = setup();
+    const mediaKeys = ['users/u1/post/a.jpg'];
+    const result = await service.create(
+      me,
+      dto({
+        startAt: new Date(Date.now() + 24 * HOUR),
+        endAt: new Date(Date.now() + 25 * HOUR),
+        mediaKeys,
+      }),
+    );
+    expect(media.assertUsablePostMedia).toHaveBeenCalledWith('u1', mediaKeys);
+    expect(prisma.post.create.mock.calls[0][0].data.media).toEqual(mediaKeys);
+    expect(result.media).toEqual([
+      { key: mediaKeys[0], url: `http://storage/media/${mediaKeys[0]}` },
+    ]);
   });
 
   it('Bảng tin: chỉ kèo mở chưa tới giờ, lọc loại + khu vực, phân trang cursor', async () => {

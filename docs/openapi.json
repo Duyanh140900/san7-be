@@ -5196,6 +5196,23 @@
           "friendly"
         ]
       },
+      "PostMediaDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "users/<user-id>/post/<image-id>.jpg"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "key",
+          "url"
+        ]
+      },
       "PostStatus": {
         "type": "string",
         "enum": [
@@ -5270,6 +5287,12 @@
           "body": {
             "type": "string"
           },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PostMediaDto"
+            }
+          },
           "status": {
             "allOf": [
               {
@@ -5295,6 +5318,7 @@
           "area",
           "level",
           "positions",
+          "media",
           "status",
           "createdAt",
           "requestCount"
@@ -5474,6 +5498,14 @@
             "type": "string",
             "format": "uuid",
             "description": "Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName"
+          },
+          "mediaKeys": {
+            "maxItems": 4,
+            "description": "Khóa ảnh đã tải lên bằng API media, theo thứ tự hiển thị",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -5772,6 +5804,14 @@
             "format": "uuid",
             "description": "Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName"
           },
+          "mediaKeys": {
+            "maxItems": 4,
+            "description": "Khóa ảnh đã tải lên bằng API media, theo thứ tự hiển thị",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "scheduledAt": {
             "type": "string",
             "format": "date-time"
@@ -5912,6 +5952,14 @@
             "type": "string",
             "format": "uuid",
             "description": "Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName"
+          },
+          "mediaKeys": {
+            "maxItems": 4,
+            "description": "Khóa ảnh đã tải lên bằng API media, theo thứ tự hiển thị",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "scheduledAt": {
             "type": "string",

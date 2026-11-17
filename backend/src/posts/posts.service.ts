@@ -7,6 +7,7 @@ import {
   resolveRequestNotifications,
 } from '../notifications/notification-writer.js';
 import { NotificationsService } from '../notifications/notifications.service.js';
+import { MediaService } from '../media/media.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
   effectiveStatus,
@@ -108,10 +109,13 @@ export class PostsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    private readonly media: MediaService,
   ) {}
 
   async create(me: TeamMembership, dto: CreatePostDto): Promise<PostDto> {
     const now = new Date();
+    const mediaKeys = dto.mediaKeys ?? [];
+    await this.media.assertUsablePostMedia(me.userId, mediaKeys);
     // Chọn từ sân đã đặt: giờ, sân lấy theo lượt đặt
     if (dto.bookingId && dto.type !== 'find_opponent') {
       throw new AppError(
@@ -142,6 +146,7 @@ export class PostsService {
           ...data,
           teamId: me.teamId,
           authorId: me.userId,
+          media: mediaKeys,
           area: dto.area || booking?.pitch.district || team.area,
           ...(booking
             ? {
@@ -153,7 +158,7 @@ export class PostsService {
         },
         include: postInclude(now),
       });
-      return toPostDto(post);
+      return this.toPostDto(post);
     } catch (e) {
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
@@ -211,7 +216,7 @@ export class PostsService {
     });
     const page = rows.slice(0, limit);
     return {
-      items: page.map(toPostDto),
+      items: page.map((post) => this.toPostDto(post)),
       nextCursor: rows.length > limit ? page[page.length - 1].id : undefined,
     };
   }
@@ -226,7 +231,10 @@ export class PostsService {
       ...(q.cursor ? { cursor: { id: q.cursor }, skip: 1 } : {}),
     });
     const items = rows.slice(0, limit);
-    return { items: items.map(toPostDto), nextCursor: rows.length > limit ? items.at(-1)?.id : undefined };
+    return {
+      items: items.map((post) => this.toPostDto(post)),
+      nextCursor: rows.length > limit ? items.at(-1)?.id : undefined,
+    };
   }
 
   async detail(userId: string, postId: string): Promise<PostDetailDto> {
@@ -256,7 +264,7 @@ export class PostsService {
       }),
     ]);
     return {
-      post: toPostDto(post),
+      post: this.toPostDto(post),
       canManage: managedIds.includes(post.teamId),
       myRequest: mine
         ? {
@@ -327,5 +335,9 @@ export class PostsService {
       'post_not_found',
       'Không tìm thấy kèo',
     );
+  }
+
+  private toPostDto(post: Parameters<typeof toPostDto>[0]): PostDto {
+    return toPostDto(post, (key) => this.media.publicUrlFor(key));
   }
 }

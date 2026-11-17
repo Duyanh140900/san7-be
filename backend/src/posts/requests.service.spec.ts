@@ -112,13 +112,17 @@ function setup() {
   const notifications = { dispatch: vi.fn() };
   const realtime = { toTeam: vi.fn() };
   const queue = { add: vi.fn() };
+  const media = {
+    publicUrlFor: vi.fn((key: string) => `http://storage/media/${key}`),
+  };
   const service = new RequestsService(
     prisma as unknown as PrismaService,
     notifications as unknown as NotificationsService,
     realtime as unknown as RealtimeService,
     queue as unknown as Queue,
+    media as never,
   );
-  return { service, tx, prisma, notifications, realtime, queue };
+  return { service, tx, prisma, notifications, realtime, queue, media };
 }
 
 const notes = (tx: ReturnType<typeof setup>['tx']) =>

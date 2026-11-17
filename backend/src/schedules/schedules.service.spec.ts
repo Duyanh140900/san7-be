@@ -13,7 +13,8 @@ const post = {
 function setup() {
   const prisma = { postSchedule: { create: vi.fn(), findFirst: vi.fn(), update: vi.fn(), findUnique: vi.fn() }, $transaction: vi.fn() };
   const queue = { add: vi.fn().mockResolvedValue({}), remove: vi.fn().mockResolvedValue(undefined) };
-  return { service: new PostSchedulesService(prisma as unknown as PrismaService, queue as unknown as Queue), prisma, queue };
+  const media = { assertUsablePostMedia: vi.fn().mockResolvedValue(undefined) };
+  return { service: new PostSchedulesService(prisma as unknown as PrismaService, queue as unknown as Queue, media as never), prisma, queue, media };
 }
 
 describe('PostSchedulesService', () => {

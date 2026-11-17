@@ -49,6 +49,7 @@ describe('MediaService - presigned upload', () => {
     expect(url.searchParams.get('X-Amz-SignedHeaders')).toContain(
       'content-length',
     );
+    expect(url.searchParams.has('x-amz-checksum-crc32')).toBe(false);
     expect(res.headers).toEqual({ 'Content-Type': 'image/jpeg' });
     expect(res.publicUrl).toBe(`http://localhost:8333/media/${res.key}`);
     expect(res.method).toBe('PUT');
@@ -120,5 +121,30 @@ describe('MediaService - presigned upload', () => {
     ]) {
       expect(() => service.assertOwnedKey(userId, key)).toThrow(AppError);
     }
+  });
+
+  it('chỉ cho gắn ảnh post đã tải lên, đúng loại và không quá giới hạn', async () => {
+    const service = make();
+    const admin = { send: vi.fn().mockResolvedValue({
+      ContentType: 'image/png',
+      ContentLength: 10,
+    }) };
+    Object.defineProperty(service, 'admin', { value: admin });
+    const key = `users/${userId}/post/a.png`;
+
+    await expect(service.assertUsablePostMedia(userId, [key])).resolves.toBeUndefined();
+    expect(admin.send).toHaveBeenCalledTimes(1);
+
+    await expect(
+      service.assertUsablePostMedia(userId, [`users/${userId}/avatar/a.png`]),
+    ).rejects.toMatchObject({ response: { code: 'media_forbidden' } });
+
+    admin.send.mockResolvedValueOnce({
+      ContentType: 'image/png',
+      ContentLength: 10 * 1024 * 1024 + 1,
+    });
+    await expect(service.assertUsablePostMedia(userId, [key])).rejects.toMatchObject({
+      response: { code: 'media_too_large' },
+    });
   });
 });

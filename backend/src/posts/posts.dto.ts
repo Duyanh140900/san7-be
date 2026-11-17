@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
+  ArrayUnique,
   IsArray,
   IsDate,
   IsEnum,
@@ -137,6 +138,19 @@ export class CreatePostDto {
   @IsOptional()
   @IsUUID()
   bookingId?: string;
+
+  @ApiPropertyOptional({
+    type: [String],
+    maxItems: 4,
+    description: 'Khóa ảnh đã tải lên bằng API media, theo thứ tự hiển thị',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(4)
+  @ArrayUnique()
+  @IsString({ each: true })
+  @MaxLength(512, { each: true })
+  mediaKeys?: string[];
 }
 
 export class FeedQuery {
@@ -235,6 +249,11 @@ export class TeamBriefDto {
   @ApiProperty({ enum: TeamLevel, enumName: 'TeamLevel' }) level: TeamLevel;
 }
 
+export class PostMediaDto {
+  @ApiProperty({ example: 'users/<user-id>/post/<image-id>.jpg' }) key: string;
+  @ApiProperty({ format: 'uri' }) url: string;
+}
+
 export class PostDto {
   @ApiProperty({ format: 'uuid' }) id: string;
   @ApiProperty({ enum: PostType, enumName: 'PostType' }) type: PostType;
@@ -253,6 +272,7 @@ export class PostDto {
   positions: Position[];
   @ApiPropertyOptional({ type: 'integer' }) playersNeeded?: number | null;
   @ApiPropertyOptional({ type: String }) body?: string | null;
+  @ApiProperty({ type: [PostMediaDto] }) media: PostMediaDto[];
   @ApiProperty({ enum: PostStatus, enumName: 'PostStatus' })
   status: PostStatus;
   @ApiProperty({ type: String, format: 'date-time' }) createdAt: Date;

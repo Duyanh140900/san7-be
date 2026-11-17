@@ -385,6 +385,8 @@ model Post {
   positions     Position[]
   playersNeeded Int?       @map("players_needed") @db.SmallInt
   body          String?
+  /// Khóa object ảnh, theo thứ tự hiển thị (tối đa 4; kiểm tra sở hữu trước khi lưu).
+  media         String[]   @default([])
   status        PostStatus @default(open)
   createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)

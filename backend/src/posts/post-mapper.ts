@@ -32,7 +32,10 @@ export type PostRow = Prisma.PostGetPayload<{
   include: ReturnType<typeof postInclude>;
 }>;
 
-export function toPostDto(p: PostRow): PostDto {
+export function toPostDto(
+  p: PostRow,
+  publicUrlFor: (key: string) => string,
+): PostDto {
   return {
     id: p.id,
     type: p.type,
@@ -49,6 +52,7 @@ export function toPostDto(p: PostRow): PostDto {
     positions: p.positions,
     playersNeeded: p.playersNeeded,
     body: p.body,
+    media: (p.media ?? []).map((key) => ({ key, url: publicUrlFor(key) })),
     status: p.status,
     createdAt: p.createdAt,
     requestCount: p._count.requests,
