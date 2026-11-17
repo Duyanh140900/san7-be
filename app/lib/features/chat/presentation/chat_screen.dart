@@ -154,6 +154,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final myId = auth is AuthSignedIn ? auth.me.id : null;
     final m = match.value;
     final opponent = m == null ? null : (m.homeTeam.id == m.myTeamId ? m.awayTeam : m.homeTeam);
+    final cancelled = m?.status == MatchStatus.cancelled;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -161,8 +162,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             DetailHeader(backLabel: 'Trận', title: opponent?.name ?? 'Nhắn tin'),
             if (m != null) _PinnedMatch(match: m),
             Expanded(child: _body(myId)),
-            _QuickReplies(onTap: _send),
-            _Composer(controller: _input, sending: _sending, onSend: () => _send(_input.text)),
+            if (cancelled)
+              const _ReadOnlyNotice()
+            else ...[
+              _QuickReplies(onTap: _send),
+              _Composer(controller: _input, sending: _sending, onSend: () => _send(_input.text)),
+            ],
           ],
         ),
       ),
@@ -251,7 +256,12 @@ class ChatBubble extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: mine ? AppColors.primary : AppColors.surface,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(18),
+                  topRight: const Radius.circular(18),
+                  bottomLeft: Radius.circular(mine ? 18 : 6),
+                  bottomRight: Radius.circular(mine ? 6 : 18),
+                ),
               ),
               child: Text(
                 message.body,
@@ -272,6 +282,22 @@ class ChatBubble extends StatelessWidget {
           ],
         ),
       ),
+    ),
+  );
+}
+
+class _ReadOnlyNotice extends StatelessWidget {
+  const _ReadOnlyNotice();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+    color: AppColors.surface,
+    child: const Text(
+      'Trận đấu đã huỷ — chỉ có thể xem lại tin nhắn cũ',
+      textAlign: TextAlign.center,
+      style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
     ),
   );
 }
