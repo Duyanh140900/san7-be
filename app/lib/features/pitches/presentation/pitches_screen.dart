@@ -184,6 +184,10 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
                       urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'vn.san7.app',
                     ),
+                    const SimpleAttributionWidget(
+                      source: Text('© OpenStreetMap contributors'),
+                      alignment: Alignment.bottomLeft,
+                    ),
                     if (me != null)
                       MarkerLayer(
                         markers: [Marker(point: me, width: 44, height: 44, child: const _MyDot())],
@@ -673,7 +677,7 @@ class _Sheet extends StatelessWidget {
             const SizedBox(height: 6),
             const Center(
               child: Text(
-                'Bản đồ © OpenStreetMap',
+                '© OpenStreetMap contributors',
                 style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
               ),
             ),
