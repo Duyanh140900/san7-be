@@ -11,6 +11,7 @@ import 'models/match_request_dto.dart' as models show MatchRequestDto;
 import 'models/my_request_dto.dart' as models show MyRequestDto;
 import 'models/post_detail_dto.dart' as models show PostDetailDto;
 import 'models/post_dto.dart' as models show PostDto;
+import 'models/post_status.dart' as models show PostStatus;
 import 'models/post_type.dart' as models show PostType;
 import 'models/request_detail_dto.dart' as models show RequestDetailDto;
 import 'models/send_request_dto.dart' as models show SendRequestDto;
@@ -86,6 +87,41 @@ class PostsClient {
       cancelToken: cancelToken,
     );
     return models.PostDetailDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.FeedPageDto> postsMyPosts({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    models.PostStatus? status,
+    String? cursor,
+    int? limit,
+  }) async {
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/me/posts",
+      options: _options,
+      queryParameters: <String, Object?>{
+        if (status != null) "status": status.toJson(),
+        if (cursor != null) "cursor": cursor,
+        if (limit != null) "limit": limit,
+      },
+      cancelToken: cancelToken,
+    );
+    return models.FeedPageDto.fromJson(response.data as Map<String, Object?>);
   }
 
   Future<models.PostDto> teamPostsCreate({

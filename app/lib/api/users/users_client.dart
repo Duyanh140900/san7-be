@@ -5,8 +5,10 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
 import '../auth/models/me_dto.dart' as models show MeDto;
+import 'models/notification_settings_dto.dart' as models show NotificationSettingsDto;
 import 'models/register_device_dto.dart' as models show RegisterDeviceDto;
 import 'models/update_me_dto.dart' as models show UpdateMeDto;
+import 'models/update_notification_settings_dto.dart' as models show UpdateNotificationSettingsDto;
 
 class UsersClient {
   UsersClient(this._transport);
@@ -72,6 +74,67 @@ class UsersClient {
       cancelToken: cancelToken,
     );
     return models.MeDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.NotificationSettingsDto> usersGetNotificationSettings({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+  }) async {
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/me/notification-settings",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.NotificationSettingsDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.NotificationSettingsDto> usersUpdateNotificationSettings({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required models.UpdateNotificationSettingsDto body,
+  }) async {
+    final _options = (options ?? Options()).copyWith(
+      method: "PATCH",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/me/notification-settings",
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.NotificationSettingsDto.fromJson(response.data as Map<String, Object?>);
   }
 
   Future<void> usersRegisterDevice({

@@ -7,14 +7,17 @@ import 'exports.dart'
     show
         AuthClient,
         BookingsClient,
+        ChatClient,
         CommunityClient,
         EventsClient,
         FundsClient,
         HealthClient,
         MatchesClient,
+        MediaClient,
         MembersClient,
         NotificationsClient,
         PitchesClient,
+        PostSchedulesClient,
         PostsClient,
         TeamsClient,
         UsersClient;
@@ -36,14 +39,17 @@ final class San7Api {
 
   late final clients.AuthClient auth = clients.AuthClient(_client);
   late final clients.BookingsClient bookings = clients.BookingsClient(_client);
+  late final clients.ChatClient chat = clients.ChatClient(_client);
   late final clients.CommunityClient community = clients.CommunityClient(_client);
   late final clients.EventsClient events = clients.EventsClient(_client);
   late final clients.FundsClient funds = clients.FundsClient(_client);
   late final clients.HealthClient health = clients.HealthClient(_client);
   late final clients.MatchesClient matches = clients.MatchesClient(_client);
+  late final clients.MediaClient media = clients.MediaClient(_client);
   late final clients.MembersClient members = clients.MembersClient(_client);
   late final clients.NotificationsClient notifications = clients.NotificationsClient(_client);
   late final clients.PitchesClient pitches = clients.PitchesClient(_client);
+  late final clients.PostSchedulesClient postSchedules = clients.PostSchedulesClient(_client);
   late final clients.PostsClient posts = clients.PostsClient(_client);
   late final clients.TeamsClient teams = clients.TeamsClient(_client);
   late final clients.UsersClient users = clients.UsersClient(_client);
