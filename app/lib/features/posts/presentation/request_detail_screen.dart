@@ -13,6 +13,7 @@ import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../../team/team_providers.dart';
+import '../../chat/presentation/chat_launcher.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
 import 'post_widgets.dart';
@@ -195,6 +196,15 @@ class _RequestDetailScreenState extends ConsumerState<RequestDetailScreen> {
                 ? context.push(Routes.teamEvent(d.eventId!))
                 : context.go(Routes.teamSchedule),
             child: const Text('Xem lịch đội'),
+          ),
+          SoftButton(
+            label: 'Nhắn tin',
+            onPressed: () => openChatForEvent(
+              context,
+              ref,
+              teamId: d.eventId != null && currentTeam != null ? currentTeam : widget.teamId,
+              eventId: d.eventId,
+            ),
           ),
         ],
       );

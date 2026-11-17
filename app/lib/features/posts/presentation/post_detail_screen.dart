@@ -10,6 +10,7 @@ import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/team_crest.dart';
+import '../../chat/presentation/chat_launcher.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
 import 'post_widgets.dart';
@@ -205,6 +206,14 @@ class _Body extends ConsumerWidget {
           label: 'Xem yêu cầu',
           onPressed: () => context.push(Routes.request(mine.teamId, mine.id)),
         ),
+        if (mine.status == RequestStatus.accepted) ...[
+          const SizedBox(height: 8),
+          SoftButton(
+            label: 'Nhắn tin',
+            onPressed: () =>
+                openChatForRequest(context, ref, teamId: mine.teamId, requestId: mine.id),
+          ),
+        ],
       ];
     }
 

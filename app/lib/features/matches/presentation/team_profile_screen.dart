@@ -9,6 +9,7 @@ import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/team_crest.dart';
+import '../../chat/presentation/chat_launcher.dart';
 import '../../posts/presentation/post_widgets.dart';
 import '../matches_providers.dart';
 
@@ -56,8 +57,7 @@ class TeamProfileScreen extends ConsumerWidget {
                     Expanded(
                       child: SoftButton(
                         label: 'Nhắn tin',
-                        color: AppColors.textSecondary,
-                        onPressed: () => showToast(context, 'Nhắn tin giữa các đội có ở bản sau'),
+                        onPressed: () => openChatWithTeam(context, ref, teamId),
                       ),
                     ),
                     const SizedBox(width: 8),

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/api/api_error.dart';
@@ -65,9 +66,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final raw = data['message'];
       if (raw is! Map) return;
       try {
-        _add(
-          MessageDto.fromJson(withoutNulls(jsonDecode(jsonEncode(raw))) as Map<String, dynamic>),
+        final msg = MessageDto.fromJson(
+          withoutNulls(jsonDecode(jsonEncode(raw))) as Map<String, dynamic>,
         );
+        _add(msg);
+        _markRead();
+        _refreshReadState();
       } catch (_) {}
     });
     _scroll.addListener(() {
@@ -90,6 +94,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     setState(() => _messages.insert(0, m));
   }
 
+  /// Báo đã xem rồi tải lại trận để lấy `lastReadAt` mới của đội bạn. Lỗi thì bỏ qua.
+  Future<void> _markRead() async {
+    try {
+      await ref.read(chatRepositoryProvider).markRead(widget.matchId);
+    } catch (_) {}
+  }
+
+  void _refreshReadState() =>
+      ref.invalidate(matchDetailProvider((teamId: widget.teamId, matchId: widget.matchId)));
+
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -105,6 +119,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _cursor = page.nextCursor;
         _loading = false;
       });
+      _markRead();
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -141,6 +156,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final m = await ref.read(chatRepositoryProvider).send(widget.matchId, body);
       _add(m);
       _input.clear();
+      _refreshReadState();
     } catch (e) {
       if (mounted) showToast(context, ApiError.from(e).message, type: ToastType.error);
     } finally {
@@ -157,13 +173,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final m = match.value;
     final opponent = m == null ? null : (m.homeTeam.id == m.myTeamId ? m.awayTeam : m.homeTeam);
     final cancelled = m?.status == MatchStatus.cancelled;
+    final lastRead = DateTime.tryParse('${opponent?.additionalProperties['lastReadAt'] ?? ''}');
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             _ChatHeader(opponent: opponent),
             if (m != null) _PinnedMatch(match: m),
-            Expanded(child: _body(myId)),
+            Expanded(child: _body(myId, lastRead)),
             if (cancelled)
               const _ReadOnlyNotice()
             else ...[
@@ -176,7 +193,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _body(String? myId) {
+  Widget _body(String? myId, DateTime? lastRead) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_failed) {
       return Center(
@@ -202,14 +219,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       reverse: true,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       itemCount: _messages.length,
-      itemBuilder: (_, i) =>
-          ChatBubble(message: _messages[i], mine: _messages[i].sender.id == myId),
+      itemBuilder: (_, i) {
+        final mine = _messages[i].sender.id == myId;
+        // Chỉ ghi "Đã xem" dưới tin cuối cùng của tôi mà đội bạn đã đọc.
+        final lastMineIndex = _messages.indexWhere((x) => x.sender.id == myId);
+        final seen =
+            mine &&
+            i == lastMineIndex &&
+            lastRead != null &&
+            !lastRead.isBefore(_messages[i].createdAt);
+        return ChatBubble(message: _messages[i], mine: mine, seen: seen);
+      },
     );
   }
 }
 
 /// Header màn 21: mũi tên quay lại, avatar đội bạn 38px, tên + phụ đề (khu vực · trình độ).
-/// Bản vẽ còn tên đội trưởng và nút gọi, nhưng API chưa trả tên/số điện thoại đội trưởng nên chưa hiển thị.
+/// Phụ đề thêm tên đội trưởng; nút gọi chỉ hiện khi backend trả `captainPhone` (trận đã chốt).
 class _ChatHeader extends StatelessWidget {
   const _ChatHeader({required this.opponent});
   final TeamBriefDto? opponent;
@@ -217,8 +243,10 @@ class _ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = opponent;
+    final captain = t?.additionalProperties['captainName'] as String?;
+    final phone = t?.additionalProperties['captainPhone'] as String?;
     return Container(
-      padding: const EdgeInsets.fromLTRB(4, 6, 12, 10),
+      padding: const EdgeInsets.fromLTRB(4, 6, 4, 10),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border)),
@@ -247,7 +275,10 @@ class _ChatHeader extends StatelessWidget {
                 ),
                 if (t != null)
                   Text(
-                    '${t.area} · ${Labels.level(t.level)}',
+                    [
+                      '${t.area} · ${Labels.level(t.level)}',
+                      if (captain != null) 'ĐT $captain',
+                    ].join(' · '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -255,6 +286,13 @@ class _ChatHeader extends StatelessWidget {
               ],
             ),
           ),
+          if (phone != null && phone.isNotEmpty)
+            IconButton(
+              tooltip: 'Gọi đội trưởng',
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+              onPressed: () => launchUrl(Uri(scheme: 'tel', path: phone)),
+              icon: const Icon(Icons.call, color: AppColors.primary),
+            ),
         ],
       ),
     );
@@ -319,9 +357,10 @@ class _PinnedMatch extends StatelessWidget {
 
 /// Bong bóng chat: của tôi bên phải (xanh), của đội bạn bên trái (trắng).
 class ChatBubble extends StatelessWidget {
-  const ChatBubble({super.key, required this.message, required this.mine});
+  const ChatBubble({super.key, required this.message, required this.mine, this.seen = false});
   final MessageDto message;
   final bool mine;
+  final bool seen;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -364,7 +403,7 @@ class ChatBubble extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(4, 2, 4, 0),
               child: Text(
-                Fmt.time(message.createdAt),
+                seen ? '${Fmt.time(message.createdAt)} · Đã xem' : Fmt.time(message.createdAt),
                 style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
               ),
             ),
