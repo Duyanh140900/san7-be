@@ -3,6 +3,7 @@
 import '../../auth/models/position.dart';
 import '../../auth/models/team_level.dart';
 import 'post_deal.dart';
+import 'post_media_dto.dart';
 import 'post_status.dart';
 import 'post_type.dart';
 import 'team_brief_dto.dart';
@@ -24,6 +25,7 @@ class PostDto {
     required this.positions,
     this.playersNeeded,
     this.body,
+    required this.media,
     required this.status,
     required this.createdAt,
 
@@ -48,6 +50,9 @@ class PostDto {
     positions: (json["positions"] as List<Object?>).map((item) => Position.fromJson(item)).toList(),
     playersNeeded: json.containsKey("playersNeeded") ? json["playersNeeded"] as int : null,
     body: json.containsKey("body") ? json["body"] as String : null,
+    media: (json["media"] as List<Object?>)
+        .map((item) => PostMediaDto.fromJson(item as Map<String, Object?>))
+        .toList(),
     status: PostStatus.fromJson(json["status"]),
     createdAt: DateTime.parse(json["createdAt"] as String).toUtc(),
     requestCount: json["requestCount"] as int,
@@ -87,6 +92,8 @@ class PostDto {
 
   final String? body;
 
+  final List<PostMediaDto> media;
+
   final PostStatus status;
 
   final DateTime createdAt;
@@ -110,6 +117,7 @@ class PostDto {
     "positions",
     "playersNeeded",
     "body",
+    "media",
     "status",
     "createdAt",
     "requestCount",
@@ -135,6 +143,7 @@ class PostDto {
     "positions": this.positions.map((item) => item.toJson()).toList(),
     if (this.playersNeeded != null) "playersNeeded": this.playersNeeded,
     if (this.body != null) "body": this.body,
+    "media": this.media.map((item) => item.toJson()).toList(),
     "status": this.status.toJson(),
     "createdAt": this.createdAt.toUtc().toIso8601String(),
     "requestCount": this.requestCount,

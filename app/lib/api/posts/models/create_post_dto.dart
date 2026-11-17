@@ -33,6 +33,9 @@ class CreatePostDto {
 
     /// Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName
     this.bookingId,
+
+    /// Khóa ảnh đã tải lên bằng API media, theo thứ tự hiển thị
+    this.mediaKeys,
     this.additionalProperties = const {},
   });
 
@@ -53,6 +56,9 @@ class CreatePostDto {
     playersNeeded: json.containsKey("playersNeeded") ? json["playersNeeded"] as int : null,
     body: json.containsKey("body") ? json["body"] as String : null,
     bookingId: json.containsKey("bookingId") ? json["bookingId"] as String : null,
+    mediaKeys: json.containsKey("mediaKeys")
+        ? (json["mediaKeys"] as List<Object?>).map((item) => item as String).toList()
+        : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -93,6 +99,9 @@ class CreatePostDto {
   /// Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName
   final String? bookingId;
 
+  /// Khóa ảnh đã tải lên bằng API media, theo thứ tự hiển thị
+  final List<String>? mediaKeys;
+
   static const _knownKeys = <String>{
     "type",
     "startAt",
@@ -108,6 +117,7 @@ class CreatePostDto {
     "playersNeeded",
     "body",
     "bookingId",
+    "mediaKeys",
   };
 
   final Map<String, Object?> additionalProperties;
@@ -129,5 +139,6 @@ class CreatePostDto {
     if (this.playersNeeded != null) "playersNeeded": this.playersNeeded,
     if (this.body != null) "body": this.body,
     if (this.bookingId != null) "bookingId": this.bookingId,
+    if (this.mediaKeys != null) "mediaKeys": this.mediaKeys?.map((item) => item).toList(),
   };
 }

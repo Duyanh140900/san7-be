@@ -33,6 +33,9 @@ class UpdatePostScheduleDto {
 
     /// Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName
     this.bookingId,
+
+    /// Khóa ảnh đã tải lên bằng API media, theo thứ tự hiển thị
+    this.mediaKeys,
     required this.scheduledAt,
 
     /// Đăng lại mỗi tuần, đồng thời dời giờ đá thêm 7 ngày.
@@ -57,6 +60,9 @@ class UpdatePostScheduleDto {
     playersNeeded: json.containsKey("playersNeeded") ? json["playersNeeded"] as int : null,
     body: json.containsKey("body") ? json["body"] as String : null,
     bookingId: json.containsKey("bookingId") ? json["bookingId"] as String : null,
+    mediaKeys: json.containsKey("mediaKeys")
+        ? (json["mediaKeys"] as List<Object?>).map((item) => item as String).toList()
+        : null,
     scheduledAt: DateTime.parse(json["scheduledAt"] as String).toUtc(),
     repeatWeekly: json.containsKey("repeatWeekly") ? json["repeatWeekly"] as bool : false,
     additionalProperties: {
@@ -99,6 +105,9 @@ class UpdatePostScheduleDto {
   /// Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName
   final String? bookingId;
 
+  /// Khóa ảnh đã tải lên bằng API media, theo thứ tự hiển thị
+  final List<String>? mediaKeys;
+
   final DateTime scheduledAt;
 
   /// Đăng lại mỗi tuần, đồng thời dời giờ đá thêm 7 ngày.
@@ -119,6 +128,7 @@ class UpdatePostScheduleDto {
     "playersNeeded",
     "body",
     "bookingId",
+    "mediaKeys",
     "scheduledAt",
     "repeatWeekly",
   };
@@ -142,6 +152,7 @@ class UpdatePostScheduleDto {
     if (this.playersNeeded != null) "playersNeeded": this.playersNeeded,
     if (this.body != null) "body": this.body,
     if (this.bookingId != null) "bookingId": this.bookingId,
+    if (this.mediaKeys != null) "mediaKeys": this.mediaKeys?.map((item) => item).toList(),
     "scheduledAt": this.scheduledAt.toUtc().toIso8601String(),
     "repeatWeekly": this.repeatWeekly,
   };

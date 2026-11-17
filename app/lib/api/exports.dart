@@ -117,6 +117,7 @@ export 'posts/models/my_request_dto.dart';
 export 'posts/models/post_deal.dart';
 export 'posts/models/post_detail_dto.dart';
 export 'posts/models/post_dto.dart';
+export 'posts/models/post_media_dto.dart';
 export 'posts/models/post_status.dart';
 export 'posts/models/post_type.dart';
 export 'posts/models/request_detail_dto.dart';
