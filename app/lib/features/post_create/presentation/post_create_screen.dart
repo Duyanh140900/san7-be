@@ -26,6 +26,7 @@ import '../../posts/data/posts_repository.dart';
 import '../../posts/posts_providers.dart';
 import '../../posts/presentation/post_widgets.dart';
 import 'widgets/image_attach_strip.dart';
+import 'widgets/publish_schedule_picker.dart';
 
 /// Màn 2 · Đăng kèo: tìm đối, tuyển người, pass sân; kèm ảnh và hẹn lịch đăng.
 class PostCreateScreen extends ConsumerStatefulWidget {
@@ -580,51 +581,15 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
                     onChanged: (v) => setState(() => _images = v),
                   ),
                   const SizedBox(height: 22),
-                  const FormCaption('Thời điểm đăng'),
-                  Segmented(
-                    labels: const ['Đăng ngay', 'Hẹn lịch'],
-                    index: _scheduled ? 1 : 0,
-                    onChanged: (i) => setState(() => _scheduled = i == 1),
+                  PublishSchedulePicker(
+                    scheduled: _scheduled,
+                    publishUtc: _publishUtc,
+                    repeatWeekly: _repeatWeekly,
+                    onScheduledChanged: (v) => setState(() => _scheduled = v),
+                    onPickDate: _pickPublishDate,
+                    onPickTime: _pickPublishTime,
+                    onRepeatChanged: (v) => setState(() => _repeatWeekly = v),
                   ),
-                  if (_scheduled) ...[
-                    const SizedBox(height: 10),
-                    FormGroup(
-                      children: [
-                        _ValueRow(
-                          label: 'Ngày đăng',
-                          value: '${Fmt.weekday(_publishUtc)}, ${Fmt.dayMonth(_publishUtc)}',
-                          onTap: _pickPublishDate,
-                        ),
-                        _ValueRow(
-                          label: 'Giờ đăng',
-                          value: Fmt.time(_publishUtc),
-                          onTap: _pickPublishTime,
-                        ),
-                        Container(
-                          constraints: const BoxConstraints(minHeight: AppSizes.tapTarget),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            children: [
-                              const Expanded(
-                                child: Text('Lặp lại hàng tuần', style: TextStyle(fontSize: 16)),
-                              ),
-                              Switch(
-                                value: _repeatWeekly,
-                                onChanged: (v) => setState(() => _repeatWeekly = v),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(4, 6, 4, 0),
-                      child: Text(
-                        'Kèo sẽ tự lên Bảng tin đúng giờ đã hẹn. Lặp lại hàng tuần sẽ dời giờ đá thêm 7 ngày mỗi lần.',
-                        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                      ),
-                    ),
-                  ],
                   const SizedBox(height: 18),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
