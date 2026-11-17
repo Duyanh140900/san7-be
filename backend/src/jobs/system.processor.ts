@@ -7,7 +7,7 @@ import { expireRequest } from '../posts/requests.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Jobs, SYSTEM_QUEUE } from '../queue/queue.constants.js';
 import { PushService } from './push.service.js';
-import { publishPostSchedule } from '../schedules/schedules.service.js';
+import { postScheduleJobId, publishPostSchedule } from '../schedules/schedules.service.js';
 
 export { SYSTEM_QUEUE };
 
@@ -68,7 +68,7 @@ export class SystemProcessor extends WorkerHost {
         const result = await publishPostSchedule(this.prisma, scheduleId);
         if (result.nextAt) {
           await this.queue.add(Jobs.postSchedulePublish, { scheduleId }, {
-            jobId: `post-schedule:${scheduleId}`,
+            jobId: postScheduleJobId(scheduleId, result.nextAt),
             delay: Math.max(0, result.nextAt.getTime() - Date.now()),
             attempts: 3, removeOnComplete: true, removeOnFail: 100,
           });

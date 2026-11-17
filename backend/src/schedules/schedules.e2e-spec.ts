@@ -19,7 +19,7 @@ class TestTeamGuard implements CanActivate {
 
 describe('PostSchedulesController (e2e)', () => {
   let app: INestApplication;
-  const schedules = { create: vi.fn(), update: vi.fn(), cancel: vi.fn() };
+  const schedules = { create: vi.fn(), list: vi.fn(), update: vi.fn(), cancel: vi.fn() };
   beforeAll(async () => {
     const module = await Test.createTestingModule({ controllers: [PostSchedulesController], providers: [{ provide: PostSchedulesService, useValue: schedules }] })
       .overrideGuard(TeamMemberGuard).useValue(new TestTeamGuard()).compile();
@@ -32,6 +32,11 @@ describe('PostSchedulesController (e2e)', () => {
     schedules.create.mockResolvedValue({ id: scheduleId });
     await request(app.getHttpServer()).post(`/v1/teams/${teamId}/post-schedules`).send(payload).expect(201).expect({ id: scheduleId });
     expect(schedules.create).toHaveBeenCalledWith(expect.objectContaining({ teamId }), expect.objectContaining({ repeatWeekly: true, scheduledAt: new Date(payload.scheduledAt) }));
+  });
+  it('GET trả danh sách lịch đăng của đội', async () => {
+    schedules.list.mockResolvedValue([{ id: scheduleId }]);
+    await request(app.getHttpServer()).get(`/v1/teams/${teamId}/post-schedules`).expect(200).expect([{ id: scheduleId }]);
+    expect(schedules.list).toHaveBeenCalledWith(expect.objectContaining({ teamId }));
   });
   it('DELETE hủy lịch theo UUID', async () => {
     await request(app.getHttpServer()).delete(`/v1/teams/${teamId}/post-schedules/${scheduleId}`).expect(204);

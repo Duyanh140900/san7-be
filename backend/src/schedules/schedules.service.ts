@@ -88,6 +88,10 @@ function toDto(row: PostSchedule): PostScheduleDto {
   };
 }
 
+export function postScheduleJobId(id: string, scheduledAt: Date): string {
+  return `post-schedule-${id}-${scheduledAt.getTime()}`;
+}
+
 @Injectable()
 export class PostSchedulesService {
   constructor(
@@ -107,6 +111,14 @@ export class PostSchedulesService {
     return toDto(row);
   }
 
+  async list(me: TeamMembership): Promise<PostScheduleDto[]> {
+    const rows = await this.prisma.postSchedule.findMany({
+      where: { teamId: me.teamId },
+      orderBy: { scheduledAt: 'asc' },
+    });
+    return rows.map(toDto);
+  }
+
   async update(me: TeamMembership, id: string, dto: CreatePostScheduleDto): Promise<PostScheduleDto> {
     const existing = await this.mine(me, id);
     this.assertFuture(dto.scheduledAt);
@@ -116,15 +128,15 @@ export class PostSchedulesService {
       where: { id: existing.id },
       data: { payload: toStored(dto), scheduledAt: dto.scheduledAt, repeatWeekly: dto.repeatWeekly ?? false },
     });
-    await this.queue.remove(`post-schedule:${id}`).catch(() => undefined);
+    await this.queue.remove(postScheduleJobId(existing.id, existing.scheduledAt)).catch(() => undefined);
     await this.enqueue(id, row.scheduledAt);
     return toDto(row);
   }
 
   async cancel(me: TeamMembership, id: string): Promise<void> {
-    await this.mine(me, id);
+    const existing = await this.mine(me, id);
     await this.prisma.postSchedule.update({ where: { id }, data: { status: 'cancelled' } });
-    await this.queue.remove(`post-schedule:${id}`).catch(() => undefined);
+    await this.queue.remove(postScheduleJobId(existing.id, existing.scheduledAt)).catch(() => undefined);
   }
 
   private async mine(me: TeamMembership, id: string): Promise<PostSchedule> {
@@ -139,7 +151,7 @@ export class PostSchedulesService {
 
   private enqueue(id: string, at: Date) {
     return this.queue.add(Jobs.postSchedulePublish, { scheduleId: id }, {
-      jobId: `post-schedule:${id}`, delay: Math.max(0, at.getTime() - Date.now()),
+      jobId: postScheduleJobId(id, at), delay: Math.max(0, at.getTime() - Date.now()),
       attempts: 3, removeOnComplete: true, removeOnFail: 100,
     });
   }
@@ -148,9 +160,42 @@ export class PostSchedulesService {
 /** Worker-safe: khóa lịch, công bố đúng một lần; lịch tuần sẽ dời cả lịch lẫn giờ đá. */
 export async function publishPostSchedule(prisma: PrismaService, scheduleId: string, now = new Date()) {
   return prisma.$transaction(async (tx) => {
-    const schedule = await tx.postSchedule.findUnique({ where: { id: scheduleId } });
-    if (!schedule || schedule.status !== 'scheduled' || schedule.scheduledAt > now) return { published: false };
+    // Claim trước khi tạo Post. Hai worker có thể cùng nhận job nhưng chỉ một
+    // worker đổi được scheduled -> cancelled; transaction còn lại không tạo bài.
+    const claimed = await tx.postSchedule.updateMany({
+      where: { id: scheduleId, status: 'scheduled', scheduledAt: { lte: now } },
+      data: { status: 'cancelled' },
+    });
+    if (claimed.count !== 1) return { published: false, nextAt: null };
+    const schedule = await tx.postSchedule.findUniqueOrThrow({ where: { id: scheduleId } });
+    const author = await tx.teamMember.findFirst({
+      where: {
+        teamId: schedule.teamId,
+        userId: schedule.authorId,
+        status: 'active',
+        role: { in: ['captain', 'vice'] },
+      },
+      select: { userId: true },
+    });
+    if (!author) return { published: false, nextAt: null };
     const dto = fromStored(schedule.payload);
+    // Misfire policy: one-time schedule expires; weekly schedule skips every
+    // missed occurrence and continues from the first future kick-off.
+    if (dto.startAt <= now) {
+      if (!schedule.repeatWeekly) return { published: false, nextAt: null };
+      const periods = Math.floor((now.getTime() - dto.startAt.getTime()) / WEEK_MS) + 1;
+      const nextDto = withTimes(
+        dto,
+        new Date(dto.startAt.getTime() + periods * WEEK_MS),
+        new Date(dto.endAt.getTime() + periods * WEEK_MS),
+      );
+      const nextAt = new Date(schedule.scheduledAt.getTime() + periods * WEEK_MS);
+      await tx.postSchedule.update({
+        where: { id: schedule.id },
+        data: { status: 'scheduled', payload: toStored(nextDto), scheduledAt: nextAt },
+      });
+      return { published: false, nextAt };
+    }
     const data = normalizePost(dto, now);
     const team = await tx.team.findUniqueOrThrow({ where: { id: schedule.teamId }, select: { area: true } });
     const post = await tx.post.create({ data: { ...data, teamId: schedule.teamId, authorId: schedule.authorId, area: dto.area || team.area, media: dto.mediaKeys ?? [] } });
@@ -164,7 +209,7 @@ export async function publishPostSchedule(prisma: PrismaService, scheduleId: str
       new Date(dto.endAt.getTime() + WEEK_MS),
     );
     const nextAt = new Date(schedule.scheduledAt.getTime() + WEEK_MS);
-    await tx.postSchedule.update({ where: { id: schedule.id }, data: { payload: toStored(nextDto), scheduledAt: nextAt } });
+    await tx.postSchedule.update({ where: { id: schedule.id }, data: { status: 'scheduled', payload: toStored(nextDto), scheduledAt: nextAt } });
     return { published: true, nextAt };
   });
 }
