@@ -59,8 +59,11 @@ export class PostsController {
 
   @Get('feed')
   @ApiOkResponse({ type: FeedPageDto })
-  feed(@Query() q: FeedQuery): Promise<FeedPageDto> {
-    return this.posts.feed(q);
+  feed(
+    @CurrentUser() user: AuthUser,
+    @Query() q: FeedQuery,
+  ): Promise<FeedPageDto> {
+    return this.posts.feed(user.userId, q);
   }
 
   @Get('posts/:postId')

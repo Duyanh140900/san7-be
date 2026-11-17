@@ -218,7 +218,7 @@ export class PostsService {
   }
 
   /** Bảng tin: kèo đang mở, chưa tới giờ đá, mới nhất trước. */
-  async feed(q: FeedQuery): Promise<FeedPageDto> {
+  async feed(userId: string, q: FeedQuery): Promise<FeedPageDto> {
     const now = new Date();
     const limit = q.limit ?? 20;
     const cursor = decodeFeedCursor(q.cursor);
@@ -249,7 +249,13 @@ export class PostsService {
         ...(q.area ? { area: q.area } : {}),
         AND: [postSearch, afterCursor],
       },
-      include: postInclude(now),
+      include: {
+        ...postInclude(now),
+        applications: {
+          where: { userId },
+          select: { status: true },
+        },
+      },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
     });
@@ -302,7 +308,10 @@ export class PostsService {
     });
     const feedRows: { item: FeedItemDto; at: Date; id: string }[] = [
       ...rows.map((post) => ({
-        item: this.toPostDto(post),
+        item: {
+          ...this.toPostDto(post),
+          myApplicationStatus: post.applications[0]?.status,
+        },
         at: post.createdAt,
         id: post.id,
       })),

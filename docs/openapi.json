@@ -5732,6 +5732,15 @@
           "closed"
         ]
       },
+      "ApplicationStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "accepted",
+          "rejected"
+        ],
+        "description": "Trạng thái ứng tuyển của tôi cho kèo tuyển người"
+      },
       "PostDto": {
         "type": "object",
         "properties": {
@@ -5818,6 +5827,14 @@
           "requestCount": {
             "type": "integer",
             "description": "Số yêu cầu nhận kèo đang chờ"
+          },
+          "myApplicationStatus": {
+            "description": "Trạng thái ứng tuyển của tôi cho kèo tuyển người",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              }
+            ]
           }
         },
         "required": [
@@ -5877,14 +5894,6 @@
           "teamName",
           "status",
           "expiresAt"
-        ]
-      },
-      "ApplicationStatus": {
-        "type": "string",
-        "enum": [
-          "pending",
-          "accepted",
-          "rejected"
         ]
       },
       "PostLineupPlayerDto": {

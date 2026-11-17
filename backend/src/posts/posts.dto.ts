@@ -316,6 +316,12 @@ export class PostDto {
     description: 'Số yêu cầu nhận kèo đang chờ',
   })
   requestCount: number;
+  @ApiPropertyOptional({
+    enum: ApplicationStatus,
+    enumName: 'ApplicationStatus',
+    description: 'Trạng thái ứng tuyển của tôi cho kèo tuyển người',
+  })
+  myApplicationStatus?: ApplicationStatus;
 }
 
 export class FeedPageDto {

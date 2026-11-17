@@ -36,7 +36,14 @@ const POSITIONS = Object.values(Position);
 const START_HOURS = [18, 19, 20, 21];
 
 type DemoUser = { id: string; name: string; position: Position | null };
-type DemoTeam = { id: string; name: string; memberIds: string[]; captainId: string };
+type DemoPitch = { id: string; name: string; district: string; address: string };
+type DemoTeam = {
+  id: string;
+  name: string;
+  memberIds: string[];
+  captainId: string;
+  homePitchId: string;
+};
 
 function atVietnamHour(dayOffset: number, hour: number): Date {
   const now = new Date();
@@ -80,21 +87,30 @@ async function createUsers(prisma: PrismaClient): Promise<DemoUser[]> {
 async function createTeams(
   prisma: PrismaClient,
   users: DemoUser[],
-  pitchIds: string[],
+  pitches: DemoPitch[],
 ): Promise<DemoTeam[]> {
   const teams: DemoTeam[] = [];
   for (let index = 0; index < TEAM_NAMES.length; index += 1) {
     const members = users.slice(index * 5, index * 5 + 5);
     const captain = members[0];
+    const area = index % 2 ? 'Hà Nội' : 'TP. Hồ Chí Minh';
+    const inArea = pitches.filter((pitch) =>
+      area === 'Hà Nội'
+        ? `${pitch.district} ${pitch.address}`.includes('Hà Nội')
+        : /Hồ Chí Minh|Ho Chi Minh|Bình Tân|Bình Thạnh|Tân Phú/.test(
+            `${pitch.district} ${pitch.address}`,
+          ),
+    );
+    const homePitchId = (inArea.length > 0 ? inArea : pitches)[index % (inArea.length || pitches.length)].id;
     const team = await prisma.team.create({
       data: {
         name: `${DEMO_TEAM_PREFIX} ${TEAM_NAMES[index]}`,
         crestColor: randomTeamColor(),
-        area: index % 2 ? 'Hà Nội' : 'TP. Hồ Chí Minh',
+        area,
         level: LEVELS[index % LEVELS.length],
         inviteCode: nextInviteCode(index),
         monthlyDue: BigInt(100_000),
-        homePitchId: pitchIds[index % pitchIds.length],
+        homePitchId,
         createdById: captain.id,
         members: {
           create: members.map((member, memberIndex) => ({
@@ -105,20 +121,26 @@ async function createTeams(
           })),
         },
       },
-      select: { id: true, name: true },
+      select: { id: true, name: true, homePitchId: true },
     });
-    teams.push({ id: team.id, name: team.name, memberIds: members.map((member) => member.id), captainId: captain.id });
+    teams.push({
+      id: team.id,
+      name: team.name,
+      memberIds: members.map((member) => member.id),
+      captainId: captain.id,
+      homePitchId: team.homePitchId!,
+    });
   }
   return teams;
 }
 
-async function createPosts(prisma: PrismaClient, teams: DemoTeam[], pitchIds: string[]): Promise<void> {
+async function createPosts(prisma: PrismaClient, teams: DemoTeam[]): Promise<void> {
   for (let index = 0; index < 40; index += 1) {
     const team = teams[index % teams.length];
     const type = faker.helpers.arrayElement(Object.values(PostType));
     const startAt = atVietnamHour(1 + (index % 14), START_HOURS[index % START_HOURS.length]);
     const isCancelled = index % 11 === 0;
-    const pitchId = pitchIds[index % pitchIds.length];
+    const pitchId = team.homePitchId;
     const price = demoPitchPrice();
     await prisma.post.create({
       data: {
@@ -153,7 +175,7 @@ async function createFinishedMatches(prisma: PrismaClient, teams: DemoTeam[], pi
   for (let index = 0; index < 15; index += 1) {
     const home = teams[index % teams.length];
     const away = teams[(index + 5) % teams.length];
-    const startAt = atVietnamHour(-1 - index, START_HOURS[index % START_HOURS.length]);
+    const startAt = atVietnamHour(-2 - (index % 2), START_HOURS[index % START_HOURS.length]);
     const homeGoals = home.memberIds.map(() => faker.number.int({ min: 0, max: 2 }));
     const awayGoals = away.memberIds.map(() => faker.number.int({ min: 0, max: 2 }));
     const homeScore = homeGoals.reduce((total, value) => total + value, 0);
@@ -173,7 +195,10 @@ async function createFinishedMatches(prisma: PrismaClient, teams: DemoTeam[], pi
         awayScore,
         reportedByTeamId: home.id,
         reportedAt: new Date(startAt.getTime() + 100 * 60_000),
-        confirmedAt: new Date(startAt.getTime() + 120 * 60_000),
+        confirmedAt:
+          index < 2
+            ? new Date(Date.now() + index * 1_000)
+            : new Date(startAt.getTime() + 120 * 60_000),
       },
     });
 
@@ -217,15 +242,15 @@ async function main() {
   try {
     const pitches = await prisma.pitch.findMany({
       where: { source: 'osm' },
-      select: { id: true, name: true },
+      select: { id: true, name: true, district: true, address: true },
       orderBy: { osmId: 'asc' },
     });
     if (!pitches.length) throw new Error('Chưa có sân OSM. Hãy chạy npm run import:osm trước.');
 
     await deleteDemoData(prisma);
     const users = await createUsers(prisma);
-    const teams = await createTeams(prisma, users, pitches.map((pitch) => pitch.id));
-    await createPosts(prisma, teams, pitches.map((pitch) => pitch.id));
+    const teams = await createTeams(prisma, users, pitches);
+    await createPosts(prisma, teams);
     await createFinishedMatches(prisma, teams, pitches.map((pitch) => pitch.name));
 
     console.log(`Đã seed demo: ${users.length} người, ${teams.length} đội, 40 kèo, 15 trận hoàn tất.`);
