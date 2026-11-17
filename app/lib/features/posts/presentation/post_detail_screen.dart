@@ -91,6 +91,10 @@ class _Body extends ConsumerWidget {
                   style: const TextStyle(fontSize: 16, height: 1.45),
                 ),
               ],
+              if (post.media.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                PostMediaStrip(media: post.media),
+              ],
               const SizedBox(height: 12),
               InfoGrid(info),
               if (post.pitchName != null) ...[

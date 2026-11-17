@@ -201,6 +201,10 @@ class PostCard extends ConsumerWidget {
                 style: const TextStyle(fontSize: 16, height: 1.45),
               ),
             ],
+            if (post.media.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              PostMediaStrip(media: post.media),
+            ],
             const SizedBox(height: 12),
             InfoGrid(postInfo(post)),
             const SizedBox(height: 12),
@@ -452,4 +456,47 @@ Future<int?> showRatioDialog(
   );
   ctrl.dispose();
   return v;
+}
+
+/// Ảnh đính kèm của kèo: một ảnh hiện to, nhiều ảnh cuộn ngang. Có trạng thái tải và lỗi.
+class PostMediaStrip extends StatelessWidget {
+  const PostMediaStrip({super.key, required this.media});
+  final List<PostMediaDto> media;
+
+  @override
+  Widget build(BuildContext context) {
+    final single = media.length == 1;
+    return SizedBox(
+      height: single ? 200 : 120,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: media.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, i) => ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.group),
+          child: AspectRatio(
+            aspectRatio: single ? 16 / 10 : 1,
+            child: Image.network(
+              media[i].url,
+              fit: BoxFit.cover,
+              semanticLabel: 'Ảnh kèo ${i + 1}',
+              loadingBuilder: (_, child, progress) => progress == null
+                  ? child
+                  : const ColoredBox(color: AppColors.surface),
+              errorBuilder: (_, _, _) => const ColoredBox(
+                color: AppColors.surface,
+                child: Center(
+                  child: AppIcon(
+                    AppIcons.image,
+                    size: 28,
+                    color: AppColors.disabled,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

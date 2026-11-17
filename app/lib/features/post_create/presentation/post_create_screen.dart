@@ -2,9 +2,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+
 import '../../../core/widgets/app_toast.dart';
 
 import '../../../api/exports.dart';
+import '../../../core/api/api_error.dart';
 import '../../../core/format.dart';
 import '../../../core/labels.dart';
 import '../../../core/router/auth_redirect.dart';
@@ -17,9 +19,11 @@ import '../../../core/widgets/money_input.dart';
 import '../../../core/widgets/pills.dart';
 import '../../../core/widgets/pitch_art.dart';
 import '../../pitches/pitches_providers.dart';
+import '../../media/data/media_repository.dart';
 import '../../posts/data/posts_repository.dart';
 import '../../posts/posts_providers.dart';
 import '../../posts/presentation/post_widgets.dart';
+import 'widgets/image_attach_strip.dart';
 
 /// Màn 2 · Đăng kèo: tìm đối, tuyển người, pass sân. Hẹn lịch và ảnh/video có ở M5.
 class PostCreateScreen extends ConsumerStatefulWidget {
@@ -57,6 +61,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
   final _players = TextEditingController();
   final _body = TextEditingController();
   bool _saving = false;
+  List<PickedImage> _images = const [];
 
   /// Sân đã đặt được chọn để đăng kèo (chỉ với kèo tìm đối).
   BookingDto? _booking;
@@ -184,6 +189,18 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     }
     final level = _level ?? (team.level as TeamLevelKnown).value;
     final isFind = _type == PostTypeValue.findOpponent;
+    setState(() => _saving = true);
+    List<String> mediaKeys = const [];
+    if (_images.isNotEmpty) {
+      final media = ref.read(mediaRepositoryProvider);
+      try {
+        mediaKeys = [for (final img in _images) await media.upload(img)];
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _saving = false);
+        return showToast(context, ApiError.from(e).message, type: ToastType.error);
+      }
+    }
     final body = CreatePostDto(
       type: PostTypeKnown(_type),
       startAt: start,
@@ -200,8 +217,9 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
           : null,
       playersNeeded: _type == PostTypeValue.recruit ? players : null,
       body: _body.text.trim().isEmpty ? null : _body.text.trim(),
+      mediaKeys: mediaKeys.isEmpty ? null : mediaKeys,
     );
-    setState(() => _saving = true);
+    if (!mounted) return;
     PostDto? created;
     final ok = await runAction(
       context,
@@ -479,6 +497,13 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
                         hintText: 'Ví dụ: Đội đá vui, giữ chân là chính. Có áo đồng phục xanh.',
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 22),
+                  const FormCaption('Ảnh (tối đa 4)'),
+                  ImageAttachStrip(
+                    images: _images,
+                    enabled: !_saving,
+                    onChanged: (v) => setState(() => _images = v),
                   ),
                   const SizedBox(height: 18),
                   Row(
