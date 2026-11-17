@@ -35,7 +35,7 @@ class EventSummaryDto {
     endAt: DateTime.parse(json["endAt"] as String).toUtc(),
     location: json.containsKey("location") ? json["location"] as String : null,
     note: json.containsKey("note") ? json["note"] as String : null,
-    minPlayers: json.containsKey("minPlayers") ? json["minPlayers"] as int : null,
+    minPlayers: json.containsKey("minPlayers") ? _readJsonInteger(json["minPlayers"]) : null,
     bookingId: json.containsKey("bookingId") ? json["bookingId"] as String : null,
     matchId: json.containsKey("matchId") ? json["matchId"] as String : null,
     counts: AttendanceCountsDto.fromJson(json["counts"] as Map<String, Object?>),
@@ -106,4 +106,14 @@ class EventSummaryDto {
     "counts": this.counts.toJson(),
     if (this.myStatus != null) "myStatus": this.myStatus?.toJson(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

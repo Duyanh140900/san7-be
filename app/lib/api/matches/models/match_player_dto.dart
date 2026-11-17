@@ -19,8 +19,8 @@ class MatchPlayerDto {
     name: json["name"] as String,
     avatarUrl: json.containsKey("avatarUrl") ? json["avatarUrl"] as String : null,
     position: json.containsKey("position") ? Position.fromJson(json["position"]) : null,
-    goals: json["goals"] as int,
-    assists: json["assists"] as int,
+    goals: _readJsonInteger(json["goals"]),
+    assists: _readJsonInteger(json["assists"]),
     mvp: json["mvp"] as bool,
     additionalProperties: {
       for (final entry in json.entries)
@@ -65,4 +65,14 @@ class MatchPlayerDto {
     "assists": this.assists,
     "mvp": this.mvp,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

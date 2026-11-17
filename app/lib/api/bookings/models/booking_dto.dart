@@ -44,11 +44,11 @@ class BookingDto {
     status: BookingStatus.fromJson(json["status"]),
     teamId: json["teamId"] as String,
     pitch: BookingPitchDto.fromJson(json["pitch"] as Map<String, Object?>),
-    courtNo: json["courtNo"] as int,
+    courtNo: _readJsonInteger(json["courtNo"]),
     startAt: DateTime.parse(json["startAt"] as String).toUtc(),
     endAt: DateTime.parse(json["endAt"] as String).toUtc(),
-    price: json["price"] as int,
-    deposit: json["deposit"] as int,
+    price: _readJsonInteger(json["price"]),
+    deposit: _readJsonInteger(json["deposit"]),
     note: json.containsKey("note") ? json["note"] as String : null,
     heldUntil: json.containsKey("heldUntil")
         ? DateTime.parse(json["heldUntil"] as String).toUtc()
@@ -143,4 +143,14 @@ class BookingDto {
     "canChange": this.canChange,
     "createdAt": this.createdAt.toUtc().toIso8601String(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

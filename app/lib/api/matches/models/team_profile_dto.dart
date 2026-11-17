@@ -32,13 +32,15 @@ class TeamProfileDto {
 
   factory TeamProfileDto.fromJson(Map<String, Object?> json) => TeamProfileDto(
     team: TeamBriefDto.fromJson(json["team"] as Map<String, Object?>),
-    memberCount: json["memberCount"] as int,
-    sinceYear: json["sinceYear"] as int,
+    memberCount: _readJsonInteger(json["memberCount"]),
+    sinceYear: _readJsonInteger(json["sinceYear"]),
     record: TeamRecordDto.fromJson(json["record"] as Map<String, Object?>),
-    reviewCount: json["reviewCount"] as int,
+    reviewCount: _readJsonInteger(json["reviewCount"]),
     reputation: json.containsKey("reputation") ? json["reputation"] as num : null,
     fairplay: json.containsKey("fairplay") ? json["fairplay"] as num : null,
-    onTimePercent: json.containsKey("onTimePercent") ? json["onTimePercent"] as int : null,
+    onTimePercent: json.containsKey("onTimePercent")
+        ? _readJsonInteger(json["onTimePercent"])
+        : null,
     tags: (json["tags"] as List<Object?>)
         .map((item) => TagCountDto.fromJson(item as Map<String, Object?>))
         .toList(),
@@ -111,4 +113,14 @@ class TeamProfileDto {
     "reviews": this.reviews.map((item) => item.toJson()).toList(),
     "recentMatches": this.recentMatches.map((item) => item.toJson()).toList(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

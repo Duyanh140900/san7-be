@@ -12,9 +12,9 @@ class SendRequestDto {
   });
 
   factory SendRequestDto.fromJson(Map<String, Object?> json) => SendRequestDto(
-    peopleCount: json["peopleCount"] as int,
-    ratioWin: json.containsKey("ratioWin") ? json["ratioWin"] as int : null,
-    ratioLose: json.containsKey("ratioLose") ? json["ratioLose"] as int : null,
+    peopleCount: _readJsonInteger(json["peopleCount"]),
+    ratioWin: json.containsKey("ratioWin") ? _readJsonInteger(json["ratioWin"]) : null,
+    ratioLose: json.containsKey("ratioLose") ? _readJsonInteger(json["ratioLose"]) : null,
     message: json.containsKey("message") ? json["message"] as String : null,
     additionalProperties: {
       for (final entry in json.entries)
@@ -43,4 +43,14 @@ class SendRequestDto {
     if (this.ratioLose != null) "ratioLose": this.ratioLose,
     if (this.message != null) "message": this.message,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

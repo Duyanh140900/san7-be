@@ -27,7 +27,7 @@ class UploadUrlDto {
     ),
     key: json["key"] as String,
     publicUrl: json["publicUrl"] as String,
-    expiresIn: json["expiresIn"] as int,
+    expiresIn: _readJsonInteger(json["expiresIn"]),
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -71,4 +71,14 @@ class UploadUrlDto {
     "publicUrl": this.publicUrl,
     "expiresIn": this.expiresIn,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

@@ -5,7 +5,7 @@ class TagCountDto {
 
   factory TagCountDto.fromJson(Map<String, Object?> json) => TagCountDto(
     tag: json["tag"] as String,
-    count: json["count"] as int,
+    count: _readJsonInteger(json["count"]),
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -26,4 +26,14 @@ class TagCountDto {
     "tag": this.tag,
     "count": this.count,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

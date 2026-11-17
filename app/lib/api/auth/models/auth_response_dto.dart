@@ -15,7 +15,7 @@ class AuthResponseDto {
 
   factory AuthResponseDto.fromJson(Map<String, Object?> json) => AuthResponseDto(
     accessToken: json["accessToken"] as String,
-    accessTokenExpiresIn: json["accessTokenExpiresIn"] as int,
+    accessTokenExpiresIn: _readJsonInteger(json["accessTokenExpiresIn"]),
     refreshToken: json["refreshToken"] as String,
     user: MeDto.fromJson(json["user"] as Map<String, Object?>),
     additionalProperties: {
@@ -45,4 +45,14 @@ class AuthResponseDto {
     "refreshToken": this.refreshToken,
     "user": this.user.toJson(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

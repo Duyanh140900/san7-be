@@ -17,7 +17,7 @@ class UpdateMeDto {
   factory UpdateMeDto.fromJson(Map<String, Object?> json) => UpdateMeDto(
     name: json.containsKey("name") ? json["name"] as String : null,
     position: json.containsKey("position") ? Position.fromJson(json["position"]) : null,
-    shirtNumber: json.containsKey("shirtNumber") ? json["shirtNumber"] as int : null,
+    shirtNumber: json.containsKey("shirtNumber") ? _readJsonInteger(json["shirtNumber"]) : null,
     area: json.containsKey("area") ? json["area"] as String : null,
     avatarKey: json.containsKey("avatarKey") ? json["avatarKey"] as String : null,
     additionalProperties: {
@@ -50,4 +50,14 @@ class UpdateMeDto {
     if (this.area != null) "area": this.area,
     if (this.avatarKey != null) "avatarKey": this.avatarKey,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

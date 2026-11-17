@@ -75,16 +75,16 @@ class MatchDetailDto {
     opponentLastReadAt: json.containsKey("opponentLastReadAt")
         ? DateTime.parse(json["opponentLastReadAt"] as String).toUtc()
         : null,
-    homeScore: json.containsKey("homeScore") ? json["homeScore"] as int : null,
-    awayScore: json.containsKey("awayScore") ? json["awayScore"] as int : null,
+    homeScore: json.containsKey("homeScore") ? _readJsonInteger(json["homeScore"]) : null,
+    awayScore: json.containsKey("awayScore") ? _readJsonInteger(json["awayScore"]) : null,
     resultState: MatchDetailDtoResultState.fromJson(json["resultState"]),
     ended: json["ended"] as bool,
     canReport: json["canReport"] as bool,
     canEdit: json["canEdit"] as bool,
-    pitchPrice: json.containsKey("pitchPrice") ? json["pitchPrice"] as int : null,
-    ratioWin: json.containsKey("ratioWin") ? json["ratioWin"] as int : null,
-    ratioLose: json.containsKey("ratioLose") ? json["ratioLose"] as int : null,
-    myFee: json.containsKey("myFee") ? json["myFee"] as int : null,
+    pitchPrice: json.containsKey("pitchPrice") ? _readJsonInteger(json["pitchPrice"]) : null,
+    ratioWin: json.containsKey("ratioWin") ? _readJsonInteger(json["ratioWin"]) : null,
+    ratioLose: json.containsKey("ratioLose") ? _readJsonInteger(json["ratioLose"]) : null,
+    myFee: json.containsKey("myFee") ? _readJsonInteger(json["myFee"]) : null,
     roster: (json["roster"] as List<Object?>)
         .map((item) => MatchPlayerDto.fromJson(item as Map<String, Object?>))
         .toList(),
@@ -215,4 +215,14 @@ class MatchDetailDto {
     if (this.myReview != null) "myReview": this.myReview?.toJson(),
     if (this.eventId != null) "eventId": this.eventId,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

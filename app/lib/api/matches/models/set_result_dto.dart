@@ -8,8 +8,8 @@ class SetResultDto {
   });
 
   factory SetResultDto.fromJson(Map<String, Object?> json) => SetResultDto(
-    homeScore: json["homeScore"] as int,
-    awayScore: json["awayScore"] as int,
+    homeScore: _readJsonInteger(json["homeScore"]),
+    awayScore: _readJsonInteger(json["awayScore"]),
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -30,4 +30,14 @@ class SetResultDto {
     "homeScore": this.homeScore,
     "awayScore": this.awayScore,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

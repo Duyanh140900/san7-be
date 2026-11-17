@@ -17,12 +17,12 @@ class TeamRecordDto {
   });
 
   factory TeamRecordDto.fromJson(Map<String, Object?> json) => TeamRecordDto(
-    played: json["played"] as int,
-    wins: json["wins"] as int,
-    draws: json["draws"] as int,
-    losses: json["losses"] as int,
-    goalsFor: json["goalsFor"] as int,
-    goalsAgainst: json["goalsAgainst"] as int,
+    played: _readJsonInteger(json["played"]),
+    wins: _readJsonInteger(json["wins"]),
+    draws: _readJsonInteger(json["draws"]),
+    losses: _readJsonInteger(json["losses"]),
+    goalsFor: _readJsonInteger(json["goalsFor"]),
+    goalsAgainst: _readJsonInteger(json["goalsAgainst"]),
     form: (json["form"] as List<Object?>)
         .map((item) => TeamRecordDtoFormItem.fromJson(item))
         .toList(),
@@ -70,4 +70,14 @@ class TeamRecordDto {
     "goalsAgainst": this.goalsAgainst,
     "form": this.form.map((item) => item.toJson()).toList(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

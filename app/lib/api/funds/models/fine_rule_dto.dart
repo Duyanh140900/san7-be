@@ -11,7 +11,7 @@ class FineRuleDto {
   factory FineRuleDto.fromJson(Map<String, Object?> json) => FineRuleDto(
     id: json["id"] as String,
     name: json["name"] as String,
-    amount: json["amount"] as int,
+    amount: _readJsonInteger(json["amount"]),
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -35,4 +35,14 @@ class FineRuleDto {
     "name": this.name,
     "amount": this.amount,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

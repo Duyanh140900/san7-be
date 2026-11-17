@@ -19,8 +19,8 @@ class FinesDto {
 
   factory FinesDto.fromJson(Map<String, Object?> json) => FinesDto(
     period: json["period"] as String,
-    total: json["total"] as int,
-    unpaid: json["unpaid"] as int,
+    total: _readJsonInteger(json["total"]),
+    unpaid: _readJsonInteger(json["unpaid"]),
     items: (json["items"] as List<Object?>)
         .map((item) => FundTxDto.fromJson(item as Map<String, Object?>))
         .toList(),
@@ -53,4 +53,14 @@ class FinesDto {
     "unpaid": this.unpaid,
     "items": this.items.map((item) => item.toJson()).toList(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

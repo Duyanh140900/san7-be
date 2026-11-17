@@ -21,7 +21,7 @@ class UpdateEventDto {
     endAt: json.containsKey("endAt") ? DateTime.parse(json["endAt"] as String).toUtc() : null,
     location: json.containsKey("location") ? json["location"] as String : null,
     note: json.containsKey("note") ? json["note"] as String : null,
-    minPlayers: json.containsKey("minPlayers") ? json["minPlayers"] as int : null,
+    minPlayers: json.containsKey("minPlayers") ? _readJsonInteger(json["minPlayers"]) : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -65,4 +65,14 @@ class UpdateEventDto {
     if (this.note != null) "note": this.note,
     if (this.minPlayers != null) "minPlayers": this.minPlayers,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

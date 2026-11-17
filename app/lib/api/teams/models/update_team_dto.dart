@@ -17,7 +17,7 @@ class UpdateTeamDto {
     area: json.containsKey("area") ? json["area"] as String : null,
     level: json.containsKey("level") ? TeamLevel.fromJson(json["level"]) : null,
     crestColor: json.containsKey("crestColor") ? json["crestColor"] as String : null,
-    monthlyDue: json.containsKey("monthlyDue") ? json["monthlyDue"] as int : null,
+    monthlyDue: json.containsKey("monthlyDue") ? _readJsonInteger(json["monthlyDue"]) : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -47,4 +47,14 @@ class UpdateTeamDto {
     if (this.crestColor != null) "crestColor": this.crestColor,
     if (this.monthlyDue != null) "monthlyDue": this.monthlyDue,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

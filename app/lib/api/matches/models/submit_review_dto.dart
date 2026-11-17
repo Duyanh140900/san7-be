@@ -15,8 +15,8 @@ class SubmitReviewDto {
   });
 
   factory SubmitReviewDto.fromJson(Map<String, Object?> json) => SubmitReviewDto(
-    reputation: json["reputation"] as int,
-    fairplay: json["fairplay"] as int,
+    reputation: _readJsonInteger(json["reputation"]),
+    fairplay: _readJsonInteger(json["fairplay"]),
     tags: (json["tags"] as List<Object?>)
         .map((item) => SubmitReviewDtoTagsItem.fromJson(item))
         .toList(),
@@ -49,4 +49,14 @@ class SubmitReviewDto {
     "tags": this.tags.map((item) => item.toJson()).toList(),
     if (this.comment != null) "comment": this.comment,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

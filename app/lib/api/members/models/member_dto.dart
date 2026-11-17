@@ -25,7 +25,7 @@ class MemberDto {
     name: json["name"] as String,
     avatarUrl: json.containsKey("avatarUrl") ? json["avatarUrl"] as String : null,
     position: json.containsKey("position") ? Position.fromJson(json["position"]) : null,
-    shirtNumber: json.containsKey("shirtNumber") ? json["shirtNumber"] as int : null,
+    shirtNumber: json.containsKey("shirtNumber") ? _readJsonInteger(json["shirtNumber"]) : null,
     role: TeamRole.fromJson(json["role"]),
     status: MemberStatus.fromJson(json["status"]),
     joinedAt: json.containsKey("joinedAt")
@@ -84,4 +84,14 @@ class MemberDto {
     if (this.joinedAt != null) "joinedAt": this.joinedAt?.toUtc().toIso8601String(),
     "requestedAt": this.requestedAt.toUtc().toIso8601String(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

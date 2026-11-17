@@ -21,7 +21,7 @@ class CreateUploadDto {
   factory CreateUploadDto.fromJson(Map<String, Object?> json) => CreateUploadDto(
     purpose: MediaPurpose.fromJson(json["purpose"]),
     contentType: CreateUploadDtoContentType.fromJson(json["contentType"]),
-    size: json["size"] as int,
+    size: _readJsonInteger(json["size"]),
     teamId: json.containsKey("teamId") ? json["teamId"] as String : null,
     additionalProperties: {
       for (final entry in json.entries)
@@ -52,4 +52,14 @@ class CreateUploadDto {
     "size": this.size,
     if (this.teamId != null) "teamId": this.teamId,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

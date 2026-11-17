@@ -40,19 +40,19 @@ class PitchDto {
     address: json["address"] as String,
     lat: json["lat"] as num,
     lng: json["lng"] as num,
-    distanceM: json.containsKey("distanceM") ? json["distanceM"] as int : null,
+    distanceM: json.containsKey("distanceM") ? _readJsonInteger(json["distanceM"]) : null,
     amenities: (json["amenities"] as List<Object?>)
         .map((item) => PitchDtoAmenitiesItem.fromJson(item))
         .toList(),
-    courtsCount: json["courtsCount"] as int,
-    slotMinutes: json["slotMinutes"] as int,
+    courtsCount: _readJsonInteger(json["courtsCount"]),
+    slotMinutes: _readJsonInteger(json["slotMinutes"]),
     phone: json.containsKey("phone") ? json["phone"] as String : null,
     date: json["date"] as String,
     slots: (json["slots"] as List<Object?>)
         .map((item) => PitchSlotDto.fromJson(item as Map<String, Object?>))
         .toList(),
-    freeSlots: json["freeSlots"] as int,
-    minPrice: json.containsKey("minPrice") ? json["minPrice"] as int : null,
+    freeSlots: _readJsonInteger(json["freeSlots"]),
+    minPrice: json.containsKey("minPrice") ? _readJsonInteger(json["minPrice"]) : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -133,4 +133,14 @@ class PitchDto {
     "freeSlots": this.freeSlots,
     if (this.minPrice != null) "minPrice": this.minPrice,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

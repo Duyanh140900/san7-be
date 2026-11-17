@@ -5,16 +5,19 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
 import 'models/accept_result_dto.dart' as models show AcceptResultDto;
+import 'models/create_post_application_dto.dart' as models show CreatePostApplicationDto;
 import 'models/create_post_dto.dart' as models show CreatePostDto;
 import 'models/feed_page_dto.dart' as models show FeedPageDto;
+import 'models/feed_page_dto_items_item.dart' as models show PostDto;
 import 'models/match_request_dto.dart' as models show MatchRequestDto;
 import 'models/my_request_dto.dart' as models show MyRequestDto;
+import 'models/post_application_dto.dart' as models show PostApplicationDto;
 import 'models/post_detail_dto.dart' as models show PostDetailDto;
-import 'models/post_dto.dart' as models show PostDto;
 import 'models/post_status.dart' as models show PostStatus;
 import 'models/post_type.dart' as models show PostType;
 import 'models/request_detail_dto.dart' as models show RequestDetailDto;
 import 'models/send_request_dto.dart' as models show SendRequestDto;
+import 'models/update_post_application_dto.dart' as models show UpdatePostApplicationDto;
 
 class PostsClient {
   PostsClient(this._transport);
@@ -34,7 +37,12 @@ class PostsClient {
     Options? options,
     models.PostType? type,
     String? area,
+
+    /// Cursor phân trang của bảng tin
     String? cursor,
+
+    /// Tìm theo tên đội, khu vực hoặc tên sân
+    String? q,
     int? limit,
   }) async {
     final _options = (options ?? Options()).copyWith(
@@ -51,6 +59,7 @@ class PostsClient {
         if (type != null) "type": type.toJson(),
         if (area != null) "area": area,
         if (cursor != null) "cursor": cursor,
+        if (q != null) "q": q,
         if (limit != null) "limit": limit,
       },
       cancelToken: cancelToken,
@@ -87,6 +96,122 @@ class PostsClient {
       cancelToken: cancelToken,
     );
     return models.PostDetailDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<List<models.PostApplicationDto>> postsListApplications({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String postId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(postId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/posts/" + Uri.encodeComponent(postId) + "/applications",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return (response.data as List<Object?>)
+        .map((item) => models.PostApplicationDto.fromJson(item as Map<String, Object?>))
+        .toList();
+  }
+
+  Future<models.PostApplicationDto> postsApply({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String postId,
+    required models.CreatePostApplicationDto body,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(postId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 201),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/posts/" + Uri.encodeComponent(postId) + "/applications",
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.PostApplicationDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.PostApplicationDto> postsUpdateApplication({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String postId,
+    required String applicationId,
+    required models.UpdatePostApplicationDto body,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(postId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(applicationId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "PATCH",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/posts/" +
+          Uri.encodeComponent(postId) +
+          "/applications/" +
+          Uri.encodeComponent(applicationId),
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.PostApplicationDto.fromJson(response.data as Map<String, Object?>);
   }
 
   Future<models.FeedPageDto> postsMyPosts({

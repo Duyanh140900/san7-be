@@ -14,8 +14,8 @@ class ReviewItemDto {
 
   factory ReviewItemDto.fromJson(Map<String, Object?> json) => ReviewItemDto(
     fromTeam: TeamBriefDto.fromJson(json["fromTeam"] as Map<String, Object?>),
-    reputation: json["reputation"] as int,
-    fairplay: json["fairplay"] as int,
+    reputation: _readJsonInteger(json["reputation"]),
+    fairplay: _readJsonInteger(json["fairplay"]),
     comment: json.containsKey("comment") ? json["comment"] as String : null,
     createdAt: DateTime.parse(json["createdAt"] as String).toUtc(),
     additionalProperties: {
@@ -47,4 +47,14 @@ class ReviewItemDto {
     if (this.comment != null) "comment": this.comment,
     "createdAt": this.createdAt.toUtc().toIso8601String(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

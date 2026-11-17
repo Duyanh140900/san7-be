@@ -19,7 +19,7 @@ class TeamInvitePreviewDto {
     crestColor: json["crestColor"] as String,
     area: json["area"] as String,
     level: TeamLevel.fromJson(json["level"]),
-    memberCount: json["memberCount"] as int,
+    memberCount: _readJsonInteger(json["memberCount"]),
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -59,4 +59,14 @@ class TeamInvitePreviewDto {
     "level": this.level.toJson(),
     "memberCount": this.memberCount,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

@@ -40,14 +40,16 @@ class RequestTeamDto {
     crestColor: json["crestColor"] as String,
     area: json["area"] as String,
     level: TeamLevel.fromJson(json["level"]),
-    memberCount: json["memberCount"] as int,
-    matchesPlayed: json["matchesPlayed"] as int,
-    headToHead: json["headToHead"] as int,
-    h2hOwnerWins: json["h2hOwnerWins"] as int,
-    h2hOwnerLosses: json["h2hOwnerLosses"] as int,
-    reviewCount: json["reviewCount"] as int,
+    memberCount: _readJsonInteger(json["memberCount"]),
+    matchesPlayed: _readJsonInteger(json["matchesPlayed"]),
+    headToHead: _readJsonInteger(json["headToHead"]),
+    h2hOwnerWins: _readJsonInteger(json["h2hOwnerWins"]),
+    h2hOwnerLosses: _readJsonInteger(json["h2hOwnerLosses"]),
+    reviewCount: _readJsonInteger(json["reviewCount"]),
     reputation: json.containsKey("reputation") ? json["reputation"] as num : null,
-    onTimePercent: json.containsKey("onTimePercent") ? json["onTimePercent"] as int : null,
+    onTimePercent: json.containsKey("onTimePercent")
+        ? _readJsonInteger(json["onTimePercent"])
+        : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -122,4 +124,14 @@ class RequestTeamDto {
     if (this.reputation != null) "reputation": this.reputation,
     if (this.onTimePercent != null) "onTimePercent": this.onTimePercent,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

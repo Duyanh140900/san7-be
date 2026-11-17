@@ -47,13 +47,15 @@ class CreatePostDto {
     area: json.containsKey("area") ? json["area"] as String : null,
     level: TeamLevel.fromJson(json["level"]),
     deal: json.containsKey("deal") ? PostDeal.fromJson(json["deal"]) : null,
-    ratioWin: json.containsKey("ratioWin") ? json["ratioWin"] as int : null,
-    ratioLose: json.containsKey("ratioLose") ? json["ratioLose"] as int : null,
-    pitchPrice: json.containsKey("pitchPrice") ? json["pitchPrice"] as int : null,
+    ratioWin: json.containsKey("ratioWin") ? _readJsonInteger(json["ratioWin"]) : null,
+    ratioLose: json.containsKey("ratioLose") ? _readJsonInteger(json["ratioLose"]) : null,
+    pitchPrice: json.containsKey("pitchPrice") ? _readJsonInteger(json["pitchPrice"]) : null,
     positions: json.containsKey("positions")
         ? (json["positions"] as List<Object?>).map((item) => Position.fromJson(item)).toList()
         : null,
-    playersNeeded: json.containsKey("playersNeeded") ? json["playersNeeded"] as int : null,
+    playersNeeded: json.containsKey("playersNeeded")
+        ? _readJsonInteger(json["playersNeeded"])
+        : null,
     body: json.containsKey("body") ? json["body"] as String : null,
     bookingId: json.containsKey("bookingId") ? json["bookingId"] as String : null,
     mediaKeys: json.containsKey("mediaKeys")
@@ -141,4 +143,14 @@ class CreatePostDto {
     if (this.bookingId != null) "bookingId": this.bookingId,
     if (this.mediaKeys != null) "mediaKeys": this.mediaKeys?.map((item) => item).toList(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

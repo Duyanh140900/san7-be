@@ -25,10 +25,10 @@ class FundSummaryDto {
   });
 
   factory FundSummaryDto.fromJson(Map<String, Object?> json) => FundSummaryDto(
-    balance: json["balance"] as int,
-    monthIncome: json["monthIncome"] as int,
-    monthExpense: json["monthExpense"] as int,
-    unpaidFines: json["unpaidFines"] as int,
+    balance: _readJsonInteger(json["balance"]),
+    monthIncome: _readJsonInteger(json["monthIncome"]),
+    monthExpense: _readJsonInteger(json["monthExpense"]),
+    unpaidFines: _readJsonInteger(json["unpaidFines"]),
     dues: json.containsKey("dues")
         ? DuesProgressDto.fromJson(json["dues"] as Map<String, Object?>)
         : null,
@@ -79,4 +79,14 @@ class FundSummaryDto {
     if (this.dues != null) "dues": this.dues?.toJson(),
     "recent": this.recent.map((item) => item.toJson()).toList(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

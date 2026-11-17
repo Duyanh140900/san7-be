@@ -14,9 +14,9 @@ class DuesProgressDto {
 
   factory DuesProgressDto.fromJson(Map<String, Object?> json) => DuesProgressDto(
     period: json["period"] as String,
-    amount: json["amount"] as int,
-    paidCount: json["paidCount"] as int,
-    totalCount: json["totalCount"] as int,
+    amount: _readJsonInteger(json["amount"]),
+    paidCount: _readJsonInteger(json["paidCount"]),
+    totalCount: _readJsonInteger(json["totalCount"]),
     unpaid: (json["unpaid"] as List<Object?>)
         .map((item) => PersonRefDto.fromJson(item as Map<String, Object?>))
         .toList(),
@@ -49,4 +49,14 @@ class DuesProgressDto {
     "totalCount": this.totalCount,
     "unpaid": this.unpaid.map((item) => item.toJson()).toList(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

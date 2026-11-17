@@ -17,7 +17,7 @@ class NotificationPageDto {
         .map((item) => NotificationDto.fromJson(item as Map<String, Object?>))
         .toList(),
     nextCursor: json.containsKey("nextCursor") ? json["nextCursor"] as String : null,
-    unreadCount: json["unreadCount"] as int,
+    unreadCount: _readJsonInteger(json["unreadCount"]),
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -42,4 +42,14 @@ class NotificationPageDto {
     if (this.nextCursor != null) "nextCursor": this.nextCursor,
     "unreadCount": this.unreadCount,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

@@ -11,7 +11,7 @@ class ReactionCountDto {
 
   factory ReactionCountDto.fromJson(Map<String, Object?> json) => ReactionCountDto(
     kind: ReactionKind.fromJson(json["kind"]),
-    count: json["count"] as int,
+    count: _readJsonInteger(json["count"]),
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -32,4 +32,14 @@ class ReactionCountDto {
     "kind": this.kind.toJson(),
     "count": this.count,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

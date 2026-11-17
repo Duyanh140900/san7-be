@@ -30,9 +30,9 @@ class TeamDetailDto {
     area: json["area"] as String,
     level: TeamLevel.fromJson(json["level"]),
     createdAt: DateTime.parse(json["createdAt"] as String).toUtc(),
-    memberCount: json["memberCount"] as int,
+    memberCount: _readJsonInteger(json["memberCount"]),
     myRole: TeamRole.fromJson(json["myRole"]),
-    monthlyDue: json["monthlyDue"] as int,
+    monthlyDue: _readJsonInteger(json["monthlyDue"]),
     inviteCode: json.containsKey("inviteCode") ? json["inviteCode"] as String : null,
     inviteExpiresAt: json.containsKey("inviteExpiresAt")
         ? DateTime.parse(json["inviteExpiresAt"] as String).toUtc()
@@ -99,4 +99,14 @@ class TeamDetailDto {
     if (this.inviteExpiresAt != null)
       "inviteExpiresAt": this.inviteExpiresAt?.toUtc().toIso8601String(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

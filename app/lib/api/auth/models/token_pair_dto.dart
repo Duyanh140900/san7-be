@@ -12,7 +12,7 @@ class TokenPairDto {
 
   factory TokenPairDto.fromJson(Map<String, Object?> json) => TokenPairDto(
     accessToken: json["accessToken"] as String,
-    accessTokenExpiresIn: json["accessTokenExpiresIn"] as int,
+    accessTokenExpiresIn: _readJsonInteger(json["accessTokenExpiresIn"]),
     refreshToken: json["refreshToken"] as String,
     additionalProperties: {
       for (final entry in json.entries)
@@ -38,4 +38,14 @@ class TokenPairDto {
     "accessTokenExpiresIn": this.accessTokenExpiresIn,
     "refreshToken": this.refreshToken,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

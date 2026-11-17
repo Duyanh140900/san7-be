@@ -18,8 +18,8 @@ class RecentMatchDto {
     matchId: json["matchId"] as String,
     opponent: TeamBriefDto.fromJson(json["opponent"] as Map<String, Object?>),
     startAt: DateTime.parse(json["startAt"] as String).toUtc(),
-    goalsFor: json["goalsFor"] as int,
-    goalsAgainst: json["goalsAgainst"] as int,
+    goalsFor: _readJsonInteger(json["goalsFor"]),
+    goalsAgainst: _readJsonInteger(json["goalsAgainst"]),
     outcome: RecentMatchDtoOutcome.fromJson(json["outcome"]),
     additionalProperties: {
       for (final entry in json.entries)
@@ -60,4 +60,14 @@ class RecentMatchDto {
     "goalsAgainst": this.goalsAgainst,
     "outcome": this.outcome.toJson(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

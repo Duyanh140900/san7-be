@@ -22,9 +22,9 @@ class PitchSlotDto {
   factory PitchSlotDto.fromJson(Map<String, Object?> json) => PitchSlotDto(
     startAt: DateTime.parse(json["startAt"] as String).toUtc(),
     endAt: DateTime.parse(json["endAt"] as String).toUtc(),
-    price: json["price"] as int,
-    free: json["free"] as int,
-    total: json["total"] as int,
+    price: _readJsonInteger(json["price"]),
+    free: _readJsonInteger(json["free"]),
+    total: _readJsonInteger(json["total"]),
     available: json["available"] as bool,
     additionalProperties: {
       for (final entry in json.entries)
@@ -62,4 +62,14 @@ class PitchSlotDto {
     "total": this.total,
     "available": this.available,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

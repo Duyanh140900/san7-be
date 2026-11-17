@@ -10,8 +10,8 @@ class PlayerStatInput {
 
   factory PlayerStatInput.fromJson(Map<String, Object?> json) => PlayerStatInput(
     userId: json["userId"] as String,
-    goals: json["goals"] as int,
-    assists: json["assists"] as int,
+    goals: _readJsonInteger(json["goals"]),
+    assists: _readJsonInteger(json["assists"]),
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -35,4 +35,14 @@ class PlayerStatInput {
     "goals": this.goals,
     "assists": this.assists,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

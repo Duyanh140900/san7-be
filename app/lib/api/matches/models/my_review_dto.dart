@@ -10,8 +10,8 @@ class MyReviewDto {
   });
 
   factory MyReviewDto.fromJson(Map<String, Object?> json) => MyReviewDto(
-    reputation: json["reputation"] as int,
-    fairplay: json["fairplay"] as int,
+    reputation: _readJsonInteger(json["reputation"]),
+    fairplay: _readJsonInteger(json["fairplay"]),
     tags: (json["tags"] as List<Object?>).map((item) => item as String).toList(),
     comment: json.containsKey("comment") ? json["comment"] as String : null,
     additionalProperties: {
@@ -40,4 +40,14 @@ class MyReviewDto {
     "tags": this.tags.map((item) => item).toList(),
     if (this.comment != null) "comment": this.comment,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

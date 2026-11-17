@@ -24,7 +24,7 @@ class FundTxDto {
   factory FundTxDto.fromJson(Map<String, Object?> json) => FundTxDto(
     id: json["id"] as String,
     type: FundType.fromJson(json["type"]),
-    amount: json["amount"] as int,
+    amount: _readJsonInteger(json["amount"]),
     category: json["category"] as String,
     member: json.containsKey("member")
         ? PersonRefDto.fromJson(json["member"] as Map<String, Object?>)
@@ -101,4 +101,14 @@ class FundTxDto {
     "createdBy": this.createdBy.toJson(),
     "createdAt": this.createdAt.toUtc().toIso8601String(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

@@ -12,10 +12,10 @@ class AttendanceCountsDto {
   });
 
   factory AttendanceCountsDto.fromJson(Map<String, Object?> json) => AttendanceCountsDto(
-    go: json["go"] as int,
-    maybe: json["maybe"] as int,
-    no: json["no"] as int,
-    pending: json["pending"] as int,
+    go: _readJsonInteger(json["go"]),
+    maybe: _readJsonInteger(json["maybe"]),
+    no: _readJsonInteger(json["no"]),
+    pending: _readJsonInteger(json["pending"]),
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -43,4 +43,14 @@ class AttendanceCountsDto {
     "no": this.no,
     "pending": this.pending,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

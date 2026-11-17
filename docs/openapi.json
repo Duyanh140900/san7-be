@@ -5877,6 +5877,29 @@
           "rejected"
         ]
       },
+      "PostLineupPlayerDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "position": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              }
+            ]
+          }
+        },
+        "required": [
+          "userId",
+          "name"
+        ]
+      },
       "PostDetailDto": {
         "type": "object",
         "properties": {
@@ -5908,12 +5931,27 @@
             "items": {
               "$ref": "#/components/schemas/TeamBriefDto"
             }
+          },
+          "venueLat": {
+            "type": "number",
+            "format": "double"
+          },
+          "venueLng": {
+            "type": "number",
+            "format": "double"
+          },
+          "lineup": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PostLineupPlayerDto"
+            }
           }
         },
         "required": [
           "post",
           "canManage",
-          "requestTeams"
+          "requestTeams",
+          "lineup"
         ]
       },
       "CreatePostApplicationDto": {

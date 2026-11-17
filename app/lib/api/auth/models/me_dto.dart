@@ -27,7 +27,7 @@ class MeDto {
     name: json["name"] as String,
     avatarUrl: json.containsKey("avatarUrl") ? json["avatarUrl"] as String : null,
     position: json.containsKey("position") ? Position.fromJson(json["position"]) : null,
-    shirtNumber: json.containsKey("shirtNumber") ? json["shirtNumber"] as int : null,
+    shirtNumber: json.containsKey("shirtNumber") ? _readJsonInteger(json["shirtNumber"]) : null,
     area: json.containsKey("area") ? json["area"] as String : null,
     profileCompleted: json["profileCompleted"] as bool,
     teams: (json["teams"] as List<Object?>)
@@ -90,4 +90,14 @@ class MeDto {
     "teams": this.teams.map((item) => item.toJson()).toList(),
     "stats": this.stats.toJson(),
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

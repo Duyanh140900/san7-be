@@ -17,6 +17,9 @@ class MatchRequestDto {
     this.ratioLose,
     this.message,
     required this.team,
+
+    /// Khoảng cách từ vị trí sân nhà/khu vực đã có toạ độ của đội nhận kèo tới sân của kèo (km)
+    this.distanceKm,
     this.additionalProperties = const {},
   });
 
@@ -26,11 +29,12 @@ class MatchRequestDto {
     status: RequestStatus.fromJson(json["status"]),
     expiresAt: DateTime.parse(json["expiresAt"] as String).toUtc(),
     createdAt: DateTime.parse(json["createdAt"] as String).toUtc(),
-    peopleCount: json["peopleCount"] as int,
-    ratioWin: json.containsKey("ratioWin") ? json["ratioWin"] as int : null,
-    ratioLose: json.containsKey("ratioLose") ? json["ratioLose"] as int : null,
+    peopleCount: _readJsonInteger(json["peopleCount"]),
+    ratioWin: json.containsKey("ratioWin") ? _readJsonInteger(json["ratioWin"]) : null,
+    ratioLose: json.containsKey("ratioLose") ? _readJsonInteger(json["ratioLose"]) : null,
     message: json.containsKey("message") ? json["message"] as String : null,
     team: RequestTeamDto.fromJson(json["team"] as Map<String, Object?>),
+    distanceKm: json.containsKey("distanceKm") ? json["distanceKm"] as num : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -58,6 +62,9 @@ class MatchRequestDto {
 
   final RequestTeamDto team;
 
+  /// Khoảng cách từ vị trí sân nhà/khu vực đã có toạ độ của đội nhận kèo tới sân của kèo (km)
+  final num? distanceKm;
+
   static const _knownKeys = <String>{
     "id",
     "postId",
@@ -69,6 +76,7 @@ class MatchRequestDto {
     "ratioLose",
     "message",
     "team",
+    "distanceKm",
   };
 
   final Map<String, Object?> additionalProperties;
@@ -86,5 +94,16 @@ class MatchRequestDto {
     if (this.ratioLose != null) "ratioLose": this.ratioLose,
     if (this.message != null) "message": this.message,
     "team": this.team.toJson(),
+    if (this.distanceKm != null) "distanceKm": this.distanceKm,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }
