@@ -166,6 +166,23 @@
         "tags": [
           "users"
         ]
+      },
+      "delete": {
+        "operationId": "Users_removeAccount",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
       }
     },
     "/v1/me/notification-settings": {
@@ -729,6 +746,41 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MessagePageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/v1/matches/{matchId}/chat/read": {
+      "post": {
+        "operationId": "ChatRead_read",
+        "parameters": [
+          {
+            "name": "matchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatReadDto"
                 }
               }
             }
@@ -4197,6 +4249,18 @@
           "items"
         ]
       },
+      "ChatReadDto": {
+        "type": "object",
+        "properties": {
+          "lastReadAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "lastReadAt"
+        ]
+      },
       "CreateTeamDto": {
         "type": "object",
         "properties": {
@@ -4981,6 +5045,9 @@
           "note": {
             "type": "string"
           },
+          "receiptUrl": {
+            "type": "string"
+          },
           "paid": {
             "type": "boolean"
           },
@@ -5132,6 +5199,10 @@
           "note": {
             "type": "string",
             "maxLength": 200
+          },
+          "receiptKey": {
+            "type": "string",
+            "description": "Khoá ảnh biên lai đã finalize cho đúng đội"
           },
           "paid": {
             "type": "boolean",
@@ -5919,6 +5990,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "pausedUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
           "post": {
             "$ref": "#/components/schemas/CreatePostDto"
           }
@@ -6042,109 +6117,23 @@
       "UpdatePostScheduleDto": {
         "type": "object",
         "properties": {
-          "type": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/PostType"
-              }
-            ]
-          },
-          "startAt": {
+          "time": {
             "type": "string",
-            "format": "date-time"
+            "example": "19:30",
+            "description": "Giờ đăng mới theo giờ Việt Nam"
           },
-          "endAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "pitchName": {
-            "type": "string",
-            "maxLength": 120,
-            "example": "Sân bóng Phúc La"
-          },
-          "area": {
-            "type": "string",
-            "maxLength": 50,
-            "description": "Vắng = khu vực của đội"
-          },
-          "level": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/TeamLevel"
-              }
-            ]
-          },
-          "deal": {
-            "description": "Bắt buộc với kèo tìm đối",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/PostDeal"
-              }
-            ]
-          },
-          "ratioWin": {
-            "type": "integer",
+          "weekday": {
+            "type": "number",
             "minimum": 0,
-            "maximum": 100,
-            "description": "Phần trăm đội thắng trả (chỉ khi chia tiền sân)"
+            "maximum": 6,
+            "description": "0 là Chủ nhật, 1 là Thứ hai"
           },
-          "ratioLose": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 100
-          },
-          "pitchPrice": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 1000000000,
-            "description": "Tiền sân (VND); với pass sân là giá nhượng"
-          },
-          "positions": {
-            "type": "array",
-            "description": "Tuyển người: các vị trí cần",
-            "items": {
-              "$ref": "#/components/schemas/Position"
-            }
-          },
-          "playersNeeded": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 20
-          },
-          "body": {
+          "pausedUntil": {
             "type": "string",
-            "maxLength": 1000
-          },
-          "bookingId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "Đăng kèo cho sân đã đặt: giờ và sân lấy theo lượt đặt, bỏ qua startAt/endAt/pitchName"
-          },
-          "mediaKeys": {
-            "maxItems": 4,
-            "description": "Khóa ảnh đã tải lên bằng API media, theo thứ tự hiển thị",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "scheduledAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "repeatWeekly": {
-            "type": "boolean",
-            "default": false,
-            "description": "Đăng lại mỗi tuần, đồng thời dời giờ đá thêm 7 ngày."
+            "format": "date-time",
+            "description": "Tạm dừng đến thời điểm này; null để tiếp tục"
           }
-        },
-        "required": [
-          "type",
-          "startAt",
-          "endAt",
-          "level",
-          "scheduledAt"
-        ]
+        }
       },
       "PitchSlotDto": {
         "type": "object",
@@ -6551,6 +6540,13 @@
             "type": "string",
             "format": "uuid",
             "description": "Đội tôi đang xem trận này"
+          },
+          "opponentCaptainName": {
+            "type": "string"
+          },
+          "opponentCaptainPhone": {
+            "type": "string",
+            "description": "Chỉ trả sau khi trận đã chốt"
           },
           "homeScore": {
             "type": "integer"
