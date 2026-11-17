@@ -3,6 +3,7 @@ FROM node:24-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
+COPY scripts ./scripts
 COPY prisma.config.ts ./
 RUN npm ci
 COPY tsconfig*.json nest-cli.json ./
@@ -17,6 +18,8 @@ ENV NODE_ENV=production
 COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/dist/scripts ./dist/scripts
+COPY --from=build /app/dist/prisma ./dist/prisma
 COPY --from=build /app/prisma.config.ts ./
 COPY --from=build /app/dist ./dist
 USER node

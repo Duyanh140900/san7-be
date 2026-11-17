@@ -105,6 +105,11 @@ enum BookingStatus {
   cancelled
 }
 
+enum PitchSource {
+  manual
+  osm
+}
+
 enum ReactionTarget {
   post
   comment
@@ -565,6 +570,8 @@ model Notification {
 model Pitch {
   id          String                               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   slug        String                               @unique
+  osmId       String?                              @unique @map("osm_id")
+  source      PitchSource                          @default(manual)
   name        String
   district    String
   address     String
@@ -575,8 +582,10 @@ model Pitch {
   slotMinutes Int                                  @default(90) @map("slot_minutes") @db.SmallInt
   /// khung giờ trong ngày (giờ VN): [{ "start": "19:00", "price": 600000 }]
   slots       Json
+  priceEstimated Boolean                           @default(false) @map("price_estimated")
   amenities   String[]
   phone       String?
+  openingHours String?                             @map("opening_hours")
   createdAt   DateTime                             @default(now()) @map("created_at") @db.Timestamptz(6)
 
   bookings Booking[]
