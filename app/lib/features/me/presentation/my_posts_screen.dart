@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/format.dart';
+import '../../../core/labels.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
@@ -137,6 +138,15 @@ class _PostList extends StatelessWidget {
   );
 }
 
+/// Dòng phụ của thẻ: "T7 22/11 · 19:00 · Phúc La · TB · 40–60" (sân, trình độ, tỷ lệ nếu có).
+String myPostSubtitle(PostDto p) => [
+  Fmt.slot(p.startAt),
+  ?p.pitchName,
+  p.area,
+  Labels.level(p.level),
+  ?Labels.ratio(p.ratioWin, p.ratioLose, p.deal),
+].join(' · ');
+
 class _MyPostCard extends StatelessWidget {
   const _MyPostCard({required this.post});
   final PostDto post;
@@ -150,28 +160,41 @@ class _MyPostCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               PostTypeBadge(post.type),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  Fmt.slot(post.startAt),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                  overflow: TextOverflow.ellipsis,
+              if (post.requestCount > 0)
+                Tag('${post.requestCount} đội muốn nhận', bg: AppColors.primary, fg: AppColors.surface)
+              else
+                const Text(
+                  'Chưa có ai',
+                  style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                 ),
-              ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
-            [?post.pitchName, post.area].join(' · '),
+            myPostSubtitle(post),
             style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
           if (post.requestCount > 0) ...[
-            const SizedBox(height: 12),
-            SoftButton(
-              label: '${post.requestCount} đội muốn nhận · So sánh',
-              onPressed: () => context.push(Routes.postCompare(post.team.id, post.id)),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: () => context.push(Routes.postCompare(post.team.id, post.id)),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: AppSizes.tapTarget),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'So sánh & chọn đội',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ],
