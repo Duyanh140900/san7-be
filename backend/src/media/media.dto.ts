@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsString, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsString, Min } from 'class-validator';
 import { Trim } from '../common/trim.js';
 
 export const IMAGE_TYPES = {
@@ -15,7 +15,7 @@ export const UPLOAD_URL_TTL_SECONDS = 300;
 export enum MediaPurpose {
   post = 'post',
   avatar = 'avatar',
-  team = 'team',
+  receipt = 'receipt',
 }
 
 export class CreateUploadDto {
@@ -40,7 +40,6 @@ export class CreateUploadDto {
   })
   @IsInt()
   @Min(1)
-  @Max(MAX_IMAGE_BYTES)
   size: number;
 }
 

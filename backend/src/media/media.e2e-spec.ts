@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
+import { HttpStatus } from '@nestjs/common';
+import { AppError } from '../common/errors.js';
 import { setupApp } from '../setup-app.js';
 import { MediaController } from './media.controller.js';
 import { MediaService } from './media.service.js';
@@ -49,11 +51,10 @@ describe('MediaController (e2e)', () => {
     });
   });
 
-  it('validate: purpose lạ, size 0, size quá 10MB, thiếu trường → 400', async () => {
+  it('validate: purpose lạ, size 0, thiếu trường → 400', async () => {
     const bad = [
       { purpose: 'x', contentType: 'image/png', size: 10 },
       { purpose: 'post', contentType: 'image/png', size: 0 },
-      { purpose: 'post', contentType: 'image/png', size: 10 * 1024 * 1024 + 1 },
       { purpose: 'post', size: 10 },
     ];
     for (const body of bad) {
@@ -63,5 +64,25 @@ describe('MediaController (e2e)', () => {
         .expect(400);
     }
     expect(media.createImageUpload).not.toHaveBeenCalled();
+  });
+
+  it('size quá 10MB được service trả 413 media_too_large', async () => {
+    media.createImageUpload.mockRejectedValue(new AppError(HttpStatus.PAYLOAD_TOO_LARGE, 'media_too_large', 'Ảnh tối đa 10MB'));
+    await request(app.getHttpServer())
+      .post('/v1/media/uploads')
+      .send({ purpose: 'post', contentType: 'image/png', size: 10 * 1024 * 1024 + 1 })
+      .expect(413)
+      .expect((response) => {
+        expect(response.body).toMatchObject({ code: 'media_too_large' });
+      });
+    expect(media.createImageUpload).toHaveBeenCalled();
+  });
+
+  it('purpose receipt được nhận', async () => {
+    media.createImageUpload.mockResolvedValue({ key: 'receipt-key' });
+    await request(app.getHttpServer())
+      .post('/v1/media/uploads')
+      .send({ purpose: 'receipt', contentType: 'image/jpeg', size: 1000 })
+      .expect(201);
   });
 });

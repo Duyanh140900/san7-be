@@ -2392,6 +2392,43 @@
       }
     },
     "/v1/teams/{teamId}/post-schedules": {
+      "get": {
+        "operationId": "PostSchedules_list",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PostScheduleDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "post-schedules"
+        ]
+      },
       "post": {
         "operationId": "PostSchedules_create",
         "parameters": [
@@ -3953,7 +3990,7 @@
         "enum": [
           "post",
           "avatar",
-          "team"
+          "receipt"
         ]
       },
       "CreateUploadDto": {
@@ -5723,6 +5760,48 @@
           }
         }
       },
+      "PostScheduleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduledAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "repeatWeekly": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "cancelled"
+            ]
+          },
+          "publishedPostId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "post": {
+            "$ref": "#/components/schemas/CreatePostDto"
+          }
+        },
+        "required": [
+          "id",
+          "teamId",
+          "scheduledAt",
+          "repeatWeekly",
+          "status",
+          "post"
+        ]
+      },
       "CreatePostScheduleDto": {
         "type": "object",
         "properties": {
@@ -5828,48 +5907,6 @@
           "endAt",
           "level",
           "scheduledAt"
-        ]
-      },
-      "PostScheduleDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "teamId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "scheduledAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "repeatWeekly": {
-            "type": "boolean"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "scheduled",
-              "cancelled"
-            ]
-          },
-          "publishedPostId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "post": {
-            "$ref": "#/components/schemas/CreatePostDto"
-          }
-        },
-        "required": [
-          "id",
-          "teamId",
-          "scheduledAt",
-          "repeatWeekly",
-          "status",
-          "post"
         ]
       },
       "UpdatePostScheduleDto": {
