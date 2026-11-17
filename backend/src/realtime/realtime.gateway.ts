@@ -15,6 +15,7 @@ import { RealtimeService } from './realtime.service.js';
 
 interface SocketData {
   userId?: string;
+  expiryTimer?: ReturnType<typeof setTimeout>;
 }
 
 /**
@@ -40,12 +41,19 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection {
     const token = (client.handshake.auth as { token?: unknown }).token;
     try {
       if (typeof token !== 'string') throw new Error('missing token');
-      const payload = await this.jwt.verifyAsync<{ sub: string; typ?: string }>(
+      const payload = await this.jwt.verifyAsync<{ sub: string; typ?: string; exp?: number }>(
         token,
       );
-      if (payload.typ !== 'access') throw new Error('wrong token type');
+      if (payload.typ !== 'access' || typeof payload.exp !== 'number') {
+        throw new Error('wrong token type');
+      }
       (client.data as SocketData).userId = payload.sub;
       await client.join(`user:${payload.sub}`);
+      const delay = Math.max(0, payload.exp * 1000 - Date.now());
+      (client.data as SocketData).expiryTimer = setTimeout(() => {
+        client.emit('auth:error', { code: 'token_expired' });
+        client.disconnect(true);
+      }, delay);
     } catch {
       client.emit('auth:error', { code: 'token_expired' });
       client.disconnect(true);
@@ -125,6 +133,8 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection {
   }
 
   handleDisconnect(client: Socket) {
+    const timer = (client.data as SocketData).expiryTimer;
+    if (timer) clearTimeout(timer);
     this.logger.debug?.(`socket ${client.id} ngắt kết nối`);
   }
 }

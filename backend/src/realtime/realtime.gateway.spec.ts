@@ -36,7 +36,7 @@ function socket(token?: unknown) {
 describe('RealtimeGateway', () => {
   it('kết nối bằng access token hợp lệ → vào room user:{id}', async () => {
     const { gateway } = setup(null);
-    const s = socket(await jwt.signAsync({ sub: 'u1', typ: 'access' }));
+    const s = socket(await jwt.signAsync({ sub: 'u1', typ: 'access' }, { expiresIn: '1h' }));
     await gateway.handleConnection(s as unknown as Socket);
     expect(s.data.userId).toBe('u1');
     expect(s.join).toHaveBeenCalledWith('user:u1');
@@ -53,6 +53,19 @@ describe('RealtimeGateway', () => {
       });
       expect(s.disconnect).toHaveBeenCalledWith(true);
     }
+  });
+
+  it('ngắt socket đúng lúc access token hết hạn', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-17T00:00:00.000Z'));
+    const { gateway } = setup(null);
+    const s = socket(await jwt.signAsync({ sub: 'u1', typ: 'access' }, { expiresIn: '1s' }));
+    await gateway.handleConnection(s as unknown as Socket);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(s.emit).toHaveBeenCalledWith('auth:error', { code: 'token_expired' });
+    expect(s.disconnect).toHaveBeenCalledWith(true);
+    gateway.handleDisconnect(s as unknown as Socket);
+    vi.useRealTimers();
   });
 
   it('team:join chỉ cho thành viên active', async () => {

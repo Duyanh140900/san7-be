@@ -37,7 +37,11 @@ export class RealtimeService {
 
   /** Đưa mọi socket của user ra khỏi room đội (bị mời ra / rời đội). */
   evictFromTeam(userId: string, teamId: string) {
-    this.server?.in(`user:${userId}`).socketsLeave(`team:${teamId}`);
+    const sockets = this.server?.in(`user:${userId}`);
+    sockets?.socketsLeave(`team:${teamId}`);
+    // Một socket có thể đã vào room match của đội. Ngắt kết nối để client phải
+    // xác thực và join lại với membership hiện tại, thay vì tiếp tục nhận chat.
+    sockets?.disconnectSockets(true);
   }
 
   toUser(userId: string, event: string, payload: object) {
