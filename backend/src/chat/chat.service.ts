@@ -7,6 +7,7 @@ import type {
   CursorPageQuery,
   MessageDto,
   MessagePageDto,
+  ChatReadDto,
   SendMessageDto,
 } from './chat.dto.js';
 
@@ -95,6 +96,17 @@ export class ChatService {
       items: page.map((row) => this.toDto(row)),
       nextCursor: rows.length > limit ? page.at(-1)?.id : undefined,
     };
+  }
+
+  async read(userId: string, matchId: string): Promise<ChatReadDto> {
+    const { teamId } = await this.assertParticipant(userId, matchId);
+    const lastReadAt = new Date();
+    await this.prisma.matchChatRead.upsert({
+      where: { matchId_teamId: { matchId, teamId } },
+      create: { matchId, teamId, userId, lastReadAt },
+      update: { userId, lastReadAt },
+    });
+    return { lastReadAt };
   }
 
   private toDto(row: {

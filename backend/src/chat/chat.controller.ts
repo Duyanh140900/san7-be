@@ -19,6 +19,7 @@ import {
   CursorPageQuery,
   MessageDto,
   MessagePageDto,
+  ChatReadDto,
   SendMessageDto,
 } from './chat.dto.js';
 import { ChatService } from './chat.service.js';
@@ -49,5 +50,22 @@ export class ChatController {
     @Query() q: CursorPageQuery,
   ): Promise<MessagePageDto> {
     return this.chat.list(user.userId, matchId, q);
+  }
+
+}
+
+@ApiTags('chat')
+@ApiBearerAuth()
+@Controller('matches/:matchId/chat')
+export class ChatReadController {
+  constructor(private readonly chat: ChatService) {}
+
+  @Post('read')
+  @ApiOkResponse({ type: ChatReadDto })
+  read(
+    @CurrentUser() user: AuthUser,
+    @Param('matchId', ParseUUIDPipe) matchId: string,
+  ): Promise<ChatReadDto> {
+    return this.chat.read(user.userId, matchId);
   }
 }

@@ -396,7 +396,8 @@ export class MatchesService {
     m: MatchRow,
   ): Promise<MatchDetailDto> {
     const now = new Date();
-    const [members, stats, review, fee, event] = await Promise.all([
+    const opponentId = m.homeTeamId === me.teamId ? m.awayTeamId : m.homeTeamId;
+    const [members, stats, review, fee, event, captain] = await Promise.all([
       db.teamMember.findMany({
         where: { teamId: me.teamId, status: 'active' },
         include: { user: true },
@@ -414,6 +415,10 @@ export class MatchesService {
       db.event.findFirst({
         where: { matchId: m.id, teamId: me.teamId },
         select: { id: true },
+      }),
+      db.teamMember.findFirst({
+        where: { teamId: opponentId, role: 'captain', status: 'active' },
+        select: { user: { select: { name: true, phone: true } } },
       }),
     ]);
     const byUser = new Map(stats.map((s) => [s.userId, s]));
@@ -443,6 +448,8 @@ export class MatchesService {
       homeTeam: toBrief(m.homeTeam),
       awayTeam: toBrief(m.awayTeam),
       myTeamId: me.teamId,
+      opponentCaptainName: captain?.user.name ?? null,
+      opponentCaptainPhone: m.confirmedAt ? (captain?.user.phone ?? null) : null,
       homeScore: m.homeScore,
       awayScore: m.awayScore,
       resultState: resultStateOf(m, me.teamId),

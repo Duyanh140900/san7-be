@@ -37,3 +37,7 @@ export class MessagePageDto {
   @ApiProperty({ type: [MessageDto] }) items: MessageDto[];
   @ApiPropertyOptional({ type: String }) nextCursor?: string;
 }
+
+export class ChatReadDto {
+  @ApiProperty({ type: String, format: 'date-time' }) lastReadAt: Date;
+}

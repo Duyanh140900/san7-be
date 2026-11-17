@@ -150,6 +150,8 @@ export class MatchDetailDto {
   @ApiProperty({ type: TeamBriefDto }) awayTeam: TeamBriefDto;
   @ApiProperty({ format: 'uuid', description: 'Đội tôi đang xem trận này' })
   myTeamId: string;
+  @ApiPropertyOptional({ type: String }) opponentCaptainName?: string | null;
+  @ApiPropertyOptional({ type: String, description: 'Chỉ trả sau khi trận đã chốt' }) opponentCaptainPhone?: string | null;
   @ApiPropertyOptional({ type: 'integer' }) homeScore?: number | null;
   @ApiPropertyOptional({ type: 'integer' }) awayScore?: number | null;
   @ApiProperty({

@@ -149,6 +149,7 @@ model User {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   googleSub   String    @unique @map("google_sub")
   email       String
+  phone       String?
   name        String
   avatarUrl   String?   @map("avatar_url")
   position    Position?
@@ -566,6 +567,7 @@ model Match {
   stats    MatchPlayerStat[]
   reviews  TeamReview[]
   messages MatchMessage[]
+  chatReads MatchChatRead[]
 
   @@index([homeTeamId, startAt])
   @@index([awayTeamId, startAt])
@@ -587,6 +589,21 @@ model MatchMessage {
 
   @@index([matchId, createdAt, id])
   @@map("match_messages")
+}
+
+/// Mốc gần nhất một đội đã mở cuộc trò chuyện của trận.
+model MatchChatRead {
+  matchId    String   @map("match_id") @db.Uuid
+  teamId     String   @map("team_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  lastReadAt DateTime @map("last_read_at") @db.Timestamptz(6)
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([matchId, teamId])
+  @@index([userId])
+  @@map("match_chat_reads")
 }
 
 /// Thông báo trong app. Đẩy qua FCM do worker gửi sau khi commit.
