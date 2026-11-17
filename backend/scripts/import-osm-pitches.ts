@@ -13,8 +13,8 @@ import { PrismaClient } from '../src/generated/prisma/client.js';
 
 config({ path: '../.env', quiet: true });
 
-// LZ4 là mirror chính thức của Overpass API, bớt tải cho endpoint mặc định.
-const OVERPASS_URL = 'https://lz4.overpass-api.de/api/interpreter';
+const DEFAULT_OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+const FALLBACK_OVERPASS_URLS = ['https://maps.mail.ru/osm/tools/overpass/api/interpreter'];
 const CACHE_DIRECTORY = join(process.cwd(), 'prisma', 'seed-data', 'osm');
 const ESTIMATED_SLOTS = [
   { start: '18:00', price: 350_000 },
@@ -88,23 +88,33 @@ async function fetchCity(city: CityQuery): Promise<OverpassResponse> {
     return JSON.parse(await readFile(cachePath, 'utf8')) as OverpassResponse;
   }
 
-  const response = await fetch(OVERPASS_URL, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      'user-agent': 'Mozilla/5.0 (compatible; San7OpenDataImporter/1.0)',
-    },
-    body: new URLSearchParams({ data: buildQuery(city.bbox) }),
-    signal: AbortSignal.timeout(120_000),
-  });
-  if (!response.ok) {
-    throw new Error(`Overpass trả HTTP ${response.status} cho ${city.displayName}`);
-  }
+  const endpoints = [process.env.OVERPASS_URL ?? DEFAULT_OVERPASS_URL, ...FALLBACK_OVERPASS_URLS];
+  let lastError: Error | undefined;
+  for (const endpoint of new Set(endpoints)) {
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
+          'user-agent': 'Mozilla/5.0 (compatible; San7OpenDataImporter/1.0)',
+        },
+        body: new URLSearchParams({ data: buildQuery(city.bbox) }),
+        signal: AbortSignal.timeout(120_000),
+      });
+      if (!response.ok) {
+        lastError = new Error(`${endpoint} trả HTTP ${response.status}`);
+        continue;
+      }
 
-  const payload = (await response.json()) as OverpassResponse;
-  await mkdir(dirname(cachePath), { recursive: true });
-  await writeFile(cachePath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
-  return payload;
+      const payload = (await response.json()) as OverpassResponse;
+      await mkdir(dirname(cachePath), { recursive: true });
+      await writeFile(cachePath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+      return payload;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+    }
+  }
+  throw new Error(`Không tải được OSM cho ${city.displayName}: ${lastError?.message ?? 'unknown error'}`);
 }
 
 function coordinateOf(element: OsmElement): { lat: number; lng: number } | null {

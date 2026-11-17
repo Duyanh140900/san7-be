@@ -26,6 +26,8 @@ Importer chỉ lấy `leisure=pitch` + `sport=soccer` hoặc `leisure=sports_cen
 không nhân đôi. Vì OSM thường không công bố bảng giá, các khung giá tạo sẵn là
 ước lượng để test và được đánh dấu `price_estimated=true`.
 
+Có thể chọn mirror khi endpoint chuẩn quá tải: `OVERPASS_URL='https://maps.mail.ru/osm/tools/overpass/api/interpreter' npm run import:osm`.
+
 NestJS 12 (ESM) + Prisma 7 (PostgreSQL/PostGIS). Xem hướng dẫn chạy ở `../CLAUDE.md` và kế hoạch ở `../docs/PLAN.md`.
 
 ```bash
