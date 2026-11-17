@@ -16,7 +16,15 @@ import '../../notifications/data/notifications_repository.dart';
 import '../../posts/posts_providers.dart';
 import '../../posts/presentation/post_widgets.dart';
 
-const _weekdaysLong = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ nhật'];
+const _weekdaysLong = [
+  'Thứ Hai',
+  'Thứ Ba',
+  'Thứ Tư',
+  'Thứ Năm',
+  'Thứ Sáu',
+  'Thứ Bảy',
+  'Chủ nhật',
+];
 
 /// Màn 1 · Bảng tin: kèo đang mở theo loại và khu vực.
 class FeedScreen extends ConsumerStatefulWidget {
@@ -28,18 +36,23 @@ class FeedScreen extends ConsumerStatefulWidget {
 
 class _FeedScreenState extends ConsumerState<FeedScreen> {
   final _scroll = ScrollController();
+  final _query = TextEditingController();
+  bool _searching = false;
 
   @override
   void initState() {
     super.initState();
     _scroll.addListener(() {
-      if (_scroll.position.extentAfter < 600) ref.read(feedProvider.notifier).loadMore();
+      if (_scroll.position.extentAfter < 600) {
+        ref.read(feedProvider.notifier).loadMore();
+      }
     });
   }
 
   @override
   void dispose() {
     _scroll.dispose();
+    _query.dispose();
     super.dispose();
   }
 
@@ -67,7 +80,9 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
       ),
     );
     if (picked != null) {
-      ref.read(feedFilterProvider.notifier).setArea(picked.isEmpty ? null : picked);
+      ref
+          .read(feedFilterProvider.notifier)
+          .setArea(picked.isEmpty ? null : picked);
     }
   }
 
@@ -80,7 +95,8 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     final auth = ref.watch(authControllerProvider);
     final myName = auth is AuthSignedIn ? auth.me.name : '';
     final now = Fmt.vn(DateTime.now());
-    final dateLine = '${_weekdaysLong[now.weekday - 1]}, ${now.day} tháng ${now.month}';
+    final dateLine =
+        '${_weekdaysLong[now.weekday - 1]}, ${now.day} tháng ${now.month}';
 
     bool canRequest(PostDto p) => managed.any((t) => t.teamId != p.team.id);
 
@@ -113,10 +129,24 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text('Bảng tin', style: Theme.of(context).textTheme.displaySmall),
+                      Text(
+                        'Bảng tin',
+                        style: Theme.of(context).textTheme.displaySmall,
+                      ),
                     ],
                   ),
                 ),
+                _IconCircle(
+                  label: _searching ? 'Đóng tìm kiếm' : 'Tìm kiếm',
+                  onTap: () => setState(() {
+                    _searching = !_searching;
+                    if (!_searching) _query.clear();
+                  }),
+                  child: _searching
+                      ? const Icon(Icons.close, size: 20)
+                      : const AppIcon(AppIcons.search),
+                ),
+                const SizedBox(width: 8),
                 _IconCircle(
                   label: 'Thông báo',
                   onTap: () => context.push(Routes.notifications),
@@ -130,11 +160,27 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => context.push(Routes.me),
-                    child: Avatar(name: myName.isEmpty ? '?' : myName, size: 40),
+                    child: Avatar(
+                      name: myName.isEmpty ? '?' : myName,
+                      size: 40,
+                    ),
                   ),
                 ),
               ],
             ),
+            if (_searching) ...[
+              const SizedBox(height: 14),
+              TextField(
+                controller: _query,
+                autofocus: true,
+                textInputAction: TextInputAction.search,
+                onChanged: (_) => setState(() {}),
+                decoration: const InputDecoration(
+                  hintText: 'Tìm đội, sân, khu vực, nội dung kèo',
+                  prefixIcon: Icon(Icons.search),
+                ),
+              ),
+            ],
             const SizedBox(height: 14),
             SizedBox(
               height: 36,
@@ -145,13 +191,15 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                   FilterPill(
                     label: 'Tất cả',
                     selected: filter.type == null,
-                    onTap: () => ref.read(feedFilterProvider.notifier).setType(null),
+                    onTap: () =>
+                        ref.read(feedFilterProvider.notifier).setType(null),
                   ),
                   for (final t in Labels.postTypes)
                     FilterPill(
                       label: t.$2,
                       selected: filter.type == t.$1,
-                      onTap: () => ref.read(feedFilterProvider.notifier).setType(t.$1),
+                      onTap: () =>
+                          ref.read(feedFilterProvider.notifier).setType(t.$1),
                     ),
                   FilterPill(
                     label: '${filter.area ?? 'Mọi khu vực'} ▾',
@@ -163,27 +211,42 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             ),
             const SizedBox(height: 14),
             if (managed.isNotEmpty) ...[
-              _Composer(teamName: managed.first.name, crest: managed.first.crestColor),
+              _Composer(
+                teamName: managed.first.name,
+                crest: managed.first.crestColor,
+              ),
               const SizedBox(height: 14),
             ],
             AsyncView(
               value: feed,
               onRetry: () => ref.invalidate(feedProvider),
-              data: (s) => s.items.isEmpty
-                  ? const _Empty()
-                  : Column(
-                      children: [
-                        for (final p in s.items) ...[
-                          PostCard(post: p, canRequest: canRequest(p)),
-                          const SizedBox(height: 14),
+              data: (s) {
+                final kw = _query.text.trim().toLowerCase();
+                final items = kw.isEmpty
+                    ? s.items
+                    : s.items
+                          .where(
+                            (p) => [p.team.name, p.pitchName, p.area, p.body]
+                                .whereType<String>()
+                                .any((t) => t.toLowerCase().contains(kw)),
+                          )
+                          .toList();
+                return items.isEmpty
+                    ? _Empty(searching: kw.isNotEmpty)
+                    : Column(
+                        children: [
+                          for (final p in items) ...[
+                            PostCard(post: p, canRequest: canRequest(p)),
+                            const SizedBox(height: 14),
+                          ],
+                          if (s.loadingMore)
+                            const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
                         ],
-                        if (s.loadingMore)
-                          const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                      ],
-                    ),
+                      );
+              },
             ),
           ],
         ),
@@ -213,7 +276,10 @@ class _IconCircle extends StatelessWidget {
       child: Container(
         width: 40,
         height: 40,
-        decoration: const BoxDecoration(color: AppColors.surface, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          shape: BoxShape.circle,
+        ),
         alignment: Alignment.center,
         child: Stack(
           clipBehavior: Clip.none,
@@ -267,7 +333,11 @@ class _Composer extends StatelessWidget {
             ),
             child: const Text(
               'Đăng kèo',
-              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -277,21 +347,27 @@ class _Composer extends StatelessWidget {
 }
 
 class _Empty extends StatelessWidget {
-  const _Empty();
+  const _Empty({this.searching = false});
+  final bool searching;
 
   @override
-  Widget build(BuildContext context) => const AppCard(
-    padding: EdgeInsets.all(24),
+  Widget build(BuildContext context) => AppCard(
+    padding: const EdgeInsets.all(24),
     child: Column(
       children: [
-        AppIcon(AppIcons.ball, size: 32, color: AppColors.textSecondary),
-        SizedBox(height: 10),
-        Text('Chưa có kèo nào', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-        SizedBox(height: 4),
+        const AppIcon(AppIcons.ball, size: 32, color: AppColors.textSecondary),
+        const SizedBox(height: 10),
         Text(
-          'Thử đổi khu vực hoặc đăng kèo đầu tiên cho đội bạn.',
+          searching ? 'Không tìm thấy kèo phù hợp' : 'Chưa có kèo nào',
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          searching
+              ? 'Thử từ khoá khác. Tìm kiếm áp dụng cho các kèo đã tải.'
+              : 'Thử đổi khu vực hoặc đăng kèo đầu tiên cho đội bạn.',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
+          style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
         ),
       ],
     ),

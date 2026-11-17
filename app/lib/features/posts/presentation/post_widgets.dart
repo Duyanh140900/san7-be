@@ -207,6 +207,32 @@ class PostCard extends ConsumerWidget {
             ],
             const SizedBox(height: 12),
             InfoGrid(postInfo(post)),
+            if (post.type == PostType.recruit && post.positions.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final p in post.positions)
+                    if (Labels.position(p) case final label?)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.greenSoft,
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
+                        ),
+                        child: Text(
+                          label,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.greenSoftText,
+                          ),
+                        ),
+                      ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             PostCommunityBar(
               postId: post.id,
@@ -243,6 +269,16 @@ class PostCard extends ConsumerWidget {
                     child: Text(
                       post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo',
                     ),
+                  )
+                else if (post.type == PostType.recruit && !canManageComments)
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 44),
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                    ),
+                    onPressed: open,
+                    child: const Text('Ứng tuyển'),
                   )
                 else
                   LinkButton('Xem chi tiết', onTap: open),
