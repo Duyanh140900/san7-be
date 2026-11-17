@@ -141,7 +141,7 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
           memberIds: [?_spender],
           eventId: _eventId,
           note: _noteOrNull,
-          additionalProperties: {'receiptKey': ?receiptKey},
+          receiptKey: receiptKey,
         );
       case FundTypeValue.fine:
         if (_fined.isEmpty) return showToast(context, 'Chọn người bị phạt', type: ToastType.warning);

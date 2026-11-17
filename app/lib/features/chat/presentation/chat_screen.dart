@@ -71,7 +71,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         );
         _add(msg);
         _markRead();
-        _refreshReadState();
       } catch (_) {}
     });
     _scroll.addListener(() {
@@ -94,15 +93,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     setState(() => _messages.insert(0, m));
   }
 
-  /// Báo đã xem rồi tải lại trận để lấy `lastReadAt` mới của đội bạn. Lỗi thì bỏ qua.
+  /// Báo đã xem tới tin mới nhất. Lỗi thì bỏ qua.
   Future<void> _markRead() async {
     try {
       await ref.read(chatRepositoryProvider).markRead(widget.matchId);
     } catch (_) {}
   }
-
-  void _refreshReadState() =>
-      ref.invalidate(matchDetailProvider((teamId: widget.teamId, matchId: widget.matchId)));
 
   Future<void> _load() async {
     setState(() {
@@ -156,7 +152,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final m = await ref.read(chatRepositoryProvider).send(widget.matchId, body);
       _add(m);
       _input.clear();
-      _refreshReadState();
     } catch (e) {
       if (mounted) showToast(context, ApiError.from(e).message, type: ToastType.error);
     } finally {
@@ -173,14 +168,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final m = match.value;
     final opponent = m == null ? null : (m.homeTeam.id == m.myTeamId ? m.awayTeam : m.homeTeam);
     final cancelled = m?.status == MatchStatus.cancelled;
-    final lastRead = DateTime.tryParse('${opponent?.additionalProperties['lastReadAt'] ?? ''}');
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            _ChatHeader(opponent: opponent),
+            _ChatHeader(
+              opponent: opponent,
+              captainName: m?.opponentCaptainName,
+              captainPhone: m?.opponentCaptainPhone,
+            ),
             if (m != null) _PinnedMatch(match: m),
-            Expanded(child: _body(myId, lastRead)),
+            Expanded(child: _body(myId)),
             if (cancelled)
               const _ReadOnlyNotice()
             else ...[
@@ -193,7 +191,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _body(String? myId, DateTime? lastRead) {
+  Widget _body(String? myId) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_failed) {
       return Center(
@@ -219,17 +217,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       reverse: true,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       itemCount: _messages.length,
-      itemBuilder: (_, i) {
-        final mine = _messages[i].sender.id == myId;
-        // Chỉ ghi "Đã xem" dưới tin cuối cùng của tôi mà đội bạn đã đọc.
-        final lastMineIndex = _messages.indexWhere((x) => x.sender.id == myId);
-        final seen =
-            mine &&
-            i == lastMineIndex &&
-            lastRead != null &&
-            !lastRead.isBefore(_messages[i].createdAt);
-        return ChatBubble(message: _messages[i], mine: mine, seen: seen);
-      },
+      itemBuilder: (_, i) =>
+          ChatBubble(message: _messages[i], mine: _messages[i].sender.id == myId),
     );
   }
 }
@@ -237,14 +226,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 /// Header màn 21: mũi tên quay lại, avatar đội bạn 38px, tên + phụ đề (khu vực · trình độ).
 /// Phụ đề thêm tên đội trưởng; nút gọi chỉ hiện khi backend trả `captainPhone` (trận đã chốt).
 class _ChatHeader extends StatelessWidget {
-  const _ChatHeader({required this.opponent});
+  const _ChatHeader({required this.opponent, this.captainName, this.captainPhone});
   final TeamBriefDto? opponent;
+  final String? captainName;
+  final String? captainPhone;
 
   @override
   Widget build(BuildContext context) {
     final t = opponent;
-    final captain = t?.additionalProperties['captainName'] as String?;
-    final phone = t?.additionalProperties['captainPhone'] as String?;
+    final captain = captainName;
+    final phone = captainPhone;
     return Container(
       padding: const EdgeInsets.fromLTRB(4, 6, 4, 10),
       decoration: const BoxDecoration(

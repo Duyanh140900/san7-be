@@ -29,7 +29,7 @@ class FundTxRow extends ConsumerWidget {
     final type = fundType(tx.type);
     final member = tx.member?.name;
     final date = Fmt.dayMonth(tx.createdAt);
-    final receiptUrl = tx.additionalProperties['receiptUrl'] as String?;
+    final receiptUrl = tx.receiptUrl;
 
     final (icon, bg, fg) = switch (type) {
       FundTypeValue.income => (AppIcons.arrowUp, const Color(0xFFE9F6EC), const Color(0xFF1F7A35)),

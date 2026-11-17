@@ -14,6 +14,7 @@ class FundTxDto {
     this.event,
     this.period,
     this.note,
+    this.receiptUrl,
     required this.paid,
     required this.createdBy,
     required this.createdAt,
@@ -33,6 +34,7 @@ class FundTxDto {
         : null,
     period: json.containsKey("period") ? json["period"] as String : null,
     note: json.containsKey("note") ? json["note"] as String : null,
+    receiptUrl: json.containsKey("receiptUrl") ? json["receiptUrl"] as String : null,
     paid: json["paid"] as bool,
     createdBy: PersonRefDto.fromJson(json["createdBy"] as Map<String, Object?>),
     createdAt: DateTime.parse(json["createdAt"] as String).toUtc(),
@@ -58,6 +60,8 @@ class FundTxDto {
 
   final String? note;
 
+  final String? receiptUrl;
+
   final bool paid;
 
   final PersonRefDto createdBy;
@@ -73,6 +77,7 @@ class FundTxDto {
     "event",
     "period",
     "note",
+    "receiptUrl",
     "paid",
     "createdBy",
     "createdAt",
@@ -91,6 +96,7 @@ class FundTxDto {
     if (this.event != null) "event": this.event?.toJson(),
     if (this.period != null) "period": this.period,
     if (this.note != null) "note": this.note,
+    if (this.receiptUrl != null) "receiptUrl": this.receiptUrl,
     "paid": this.paid,
     "createdBy": this.createdBy.toJson(),
     "createdAt": this.createdAt.toUtc().toIso8601String(),

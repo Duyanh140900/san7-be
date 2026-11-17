@@ -18,6 +18,10 @@ class MatchDetailDto {
 
     /// Đội tôi đang xem trận này
     required this.myTeamId,
+    this.opponentCaptainName,
+
+    /// Chỉ trả sau khi trận đã chốt
+    this.opponentCaptainPhone,
     this.homeScore,
     this.awayScore,
 
@@ -59,6 +63,12 @@ class MatchDetailDto {
     homeTeam: TeamBriefDto.fromJson(json["homeTeam"] as Map<String, Object?>),
     awayTeam: TeamBriefDto.fromJson(json["awayTeam"] as Map<String, Object?>),
     myTeamId: json["myTeamId"] as String,
+    opponentCaptainName: json.containsKey("opponentCaptainName")
+        ? json["opponentCaptainName"] as String
+        : null,
+    opponentCaptainPhone: json.containsKey("opponentCaptainPhone")
+        ? json["opponentCaptainPhone"] as String
+        : null,
     homeScore: json.containsKey("homeScore") ? json["homeScore"] as int : null,
     awayScore: json.containsKey("awayScore") ? json["awayScore"] as int : null,
     resultState: MatchDetailDtoResultState.fromJson(json["resultState"]),
@@ -98,6 +108,11 @@ class MatchDetailDto {
 
   /// Đội tôi đang xem trận này
   final String myTeamId;
+
+  final String? opponentCaptainName;
+
+  /// Chỉ trả sau khi trận đã chốt
+  final String? opponentCaptainPhone;
 
   final int? homeScore;
 
@@ -142,6 +157,8 @@ class MatchDetailDto {
     "homeTeam",
     "awayTeam",
     "myTeamId",
+    "opponentCaptainName",
+    "opponentCaptainPhone",
     "homeScore",
     "awayScore",
     "resultState",
@@ -170,6 +187,8 @@ class MatchDetailDto {
     "homeTeam": this.homeTeam.toJson(),
     "awayTeam": this.awayTeam.toJson(),
     "myTeamId": this.myTeamId,
+    if (this.opponentCaptainName != null) "opponentCaptainName": this.opponentCaptainName,
+    if (this.opponentCaptainPhone != null) "opponentCaptainPhone": this.opponentCaptainPhone,
     if (this.homeScore != null) "homeScore": this.homeScore,
     if (this.awayScore != null) "awayScore": this.awayScore,
     "resultState": this.resultState.toJson(),

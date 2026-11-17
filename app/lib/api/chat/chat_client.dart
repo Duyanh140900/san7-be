@@ -4,6 +4,7 @@ import 'dart:convert' as convert;
 
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
+import 'models/chat_read_dto.dart' as models show ChatReadDto;
 import 'models/message_dto.dart' as models show MessageDto;
 import 'models/message_page_dto.dart' as models show MessagePageDto;
 import 'models/send_message_dto.dart' as models show SendMessageDto;
@@ -86,5 +87,36 @@ class ChatClient {
       cancelToken: cancelToken,
     );
     return models.MessageDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.ChatReadDto> chatReadRead({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String matchId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(matchId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/matches/" + Uri.encodeComponent(matchId) + "/chat/read",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.ChatReadDto.fromJson(response.data as Map<String, Object?>);
   }
 }

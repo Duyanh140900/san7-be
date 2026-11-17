@@ -20,6 +20,7 @@ export 'bookings/models/bookings_list_scope.dart';
 export 'bookings/models/create_booking_dto.dart';
 export 'bookings/models/reschedule_booking_dto.dart';
 export 'chat/chat_client.dart';
+export 'chat/models/chat_read_dto.dart';
 export 'chat/models/chat_sender_dto.dart';
 export 'chat/models/message_dto.dart';
 export 'chat/models/message_page_dto.dart';

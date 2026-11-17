@@ -12,8 +12,8 @@ class MeRepository {
   final Dio _dio;
 
   /// `PATCH /v1/teams/:teamId/post-schedules/:id`: sửa giờ (HH:mm giờ VN), thứ (0 = Chủ nhật)
-  /// hoặc tạm dừng. [pausedUntil] null kèm [resume] = tiếp tục. Gọi Dio trực tiếp cho tới khi
-  /// client sinh lại có endpoint này.
+  /// hoặc tạm dừng. [resume] gửi `pausedUntil: null` (DTO sinh sẵn không gửi được null nên
+  /// riêng trường hợp này gọi Dio).
   Future<PostScheduleDto> updateSchedule(
     String teamId,
     String scheduleId, {
@@ -22,18 +22,18 @@ class MeRepository {
     DateTime? pausedUntil,
     bool resume = false,
   }) => apiCall(() async {
-    final res = await _dio.patch<Map<String, dynamic>>(
-      '/v1/teams/$teamId/post-schedules/$scheduleId',
-      data: {
-        'time': ?time,
-        'weekday': ?weekday,
-        if (resume)
-          'pausedUntil': null
-        else
-          'pausedUntil': ?pausedUntil?.toUtc().toIso8601String(),
-      },
+    if (resume) {
+      final res = await _dio.patch<Map<String, dynamic>>(
+        '/v1/teams/$teamId/post-schedules/$scheduleId',
+        data: {'pausedUntil': null},
+      );
+      return PostScheduleDto.fromJson(res.data!);
+    }
+    return _api.postSchedules.postSchedulesUpdate(
+      teamId: teamId,
+      scheduleId: scheduleId,
+      body: UpdatePostScheduleDto(time: time, weekday: weekday, pausedUntil: pausedUntil),
     );
-    return PostScheduleDto.fromJson(res.data!);
   });
 
   Future<FeedPageDto> myPosts({PostStatus? status, String? cursor}) => apiCall(

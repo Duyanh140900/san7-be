@@ -11,6 +11,7 @@ class PostScheduleDto {
     required this.repeatWeekly,
     required this.status,
     this.publishedPostId,
+    this.pausedUntil,
     required this.post,
     this.additionalProperties = const {},
   });
@@ -22,6 +23,9 @@ class PostScheduleDto {
     repeatWeekly: json["repeatWeekly"] as bool,
     status: PostScheduleDtoStatus.fromJson(json["status"]),
     publishedPostId: json.containsKey("publishedPostId") ? json["publishedPostId"] as String : null,
+    pausedUntil: json.containsKey("pausedUntil")
+        ? DateTime.parse(json["pausedUntil"] as String).toUtc()
+        : null,
     post: CreatePostDto.fromJson(json["post"] as Map<String, Object?>),
     additionalProperties: {
       for (final entry in json.entries)
@@ -41,6 +45,8 @@ class PostScheduleDto {
 
   final String? publishedPostId;
 
+  final DateTime? pausedUntil;
+
   final CreatePostDto post;
 
   static const _knownKeys = <String>{
@@ -50,6 +56,7 @@ class PostScheduleDto {
     "repeatWeekly",
     "status",
     "publishedPostId",
+    "pausedUntil",
     "post",
   };
 
@@ -64,6 +71,7 @@ class PostScheduleDto {
     "repeatWeekly": this.repeatWeekly,
     "status": this.status.toJson(),
     if (this.publishedPostId != null) "publishedPostId": this.publishedPostId,
+    if (this.pausedUntil != null) "pausedUntil": this.pausedUntil?.toUtc().toIso8601String(),
     "post": this.post.toJson(),
   };
 }

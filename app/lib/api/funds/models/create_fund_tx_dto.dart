@@ -20,6 +20,9 @@ class CreateFundTxDto {
     this.period,
     this.note,
 
+    /// Khoá ảnh biên lai đã finalize cho đúng đội
+    this.receiptKey,
+
     /// Phạt: đã nộp chưa (mặc định chưa). Thu/chi luôn là đã nộp.
     this.paid,
     this.additionalProperties = const {},
@@ -35,6 +38,7 @@ class CreateFundTxDto {
     eventId: json.containsKey("eventId") ? json["eventId"] as String : null,
     period: json.containsKey("period") ? json["period"] as String : null,
     note: json.containsKey("note") ? json["note"] as String : null,
+    receiptKey: json.containsKey("receiptKey") ? json["receiptKey"] as String : null,
     paid: json.containsKey("paid") ? json["paid"] as bool : null,
     additionalProperties: {
       for (final entry in json.entries)
@@ -60,6 +64,9 @@ class CreateFundTxDto {
 
   final String? note;
 
+  /// Khoá ảnh biên lai đã finalize cho đúng đội
+  final String? receiptKey;
+
   /// Phạt: đã nộp chưa (mặc định chưa). Thu/chi luôn là đã nộp.
   final bool? paid;
 
@@ -71,6 +78,7 @@ class CreateFundTxDto {
     "eventId",
     "period",
     "note",
+    "receiptKey",
     "paid",
   };
 
@@ -86,6 +94,7 @@ class CreateFundTxDto {
     if (this.eventId != null) "eventId": this.eventId,
     if (this.period != null) "period": this.period,
     if (this.note != null) "note": this.note,
+    if (this.receiptKey != null) "receiptKey": this.receiptKey,
     if (this.paid != null) "paid": this.paid,
   };
 }

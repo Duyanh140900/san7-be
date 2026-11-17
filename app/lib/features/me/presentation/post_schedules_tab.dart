@@ -215,9 +215,7 @@ class _ScheduleCardState extends State<ScheduleCard> {
   }
 
   DateTime? get _pausedUntil {
-    final v = DateTime.tryParse(
-      '${widget.schedule.additionalProperties['pausedUntil'] ?? ''}',
-    );
+    final v = widget.schedule.pausedUntil;
     return v != null && v.isAfter(DateTime.now()) ? v.toLocal() : null;
   }
 

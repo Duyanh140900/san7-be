@@ -42,6 +42,28 @@ class UsersClient {
     return models.MeDto.fromJson(response.data as Map<String, Object?>);
   }
 
+  Future<void> usersRemoveAccount({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+  }) async {
+    final _options = (options ?? Options()).copyWith(
+      method: "DELETE",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 204),
+    );
+    await _transport.request<dynamic>("/v1/me", options: _options, cancelToken: cancelToken);
+  }
+
   Future<models.MeDto> usersUpdateMe({
     Map<String, Object?> extra = const {
       "openapi.security": [
