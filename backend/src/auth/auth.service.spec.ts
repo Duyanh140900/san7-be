@@ -7,7 +7,10 @@ import type { TokenService } from './token.service.js';
 describe('AuthService.loginWithGoogle', () => {
   it('upsert user theo google sub, không ghi đè tên đã đổi, rồi cấp token', async () => {
     const prisma = {
-      user: { upsert: vi.fn().mockResolvedValue({ id: 'u1' }) },
+      user: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        upsert: vi.fn().mockResolvedValue({ id: 'u1' }),
+      },
     };
     const google = {
       verify: vi.fn().mockResolvedValue({
@@ -59,4 +62,57 @@ describe('AuthService.loginWithGoogle', () => {
     await expect(service.loginWithGoogle('x')).rejects.toThrow();
     expect(prisma.user.upsert).not.toHaveBeenCalled();
   });
+
+  const build = (currentAvatar: string | null) => {
+    const prisma = {
+      user: {
+        findUnique: vi.fn().mockResolvedValue({ avatarUrl: currentAvatar }),
+        upsert: vi.fn().mockResolvedValue({ id: 'u1' }),
+      },
+    };
+    const google = {
+      verify: vi.fn().mockResolvedValue({
+        sub: 'g-1',
+        email: 'a@gmail.com',
+        name: 'A',
+        picture: 'https://lh3.googleusercontent.com/new.png',
+      }),
+    };
+    const tokens = {
+      issue: vi.fn().mockResolvedValue({
+        accessToken: 'at',
+        accessTokenExpiresIn: 900,
+        refreshToken: 'rt',
+      }),
+    };
+    const users = { getMe: vi.fn().mockResolvedValue({ id: 'u1' }) };
+    const service = new AuthService(
+      prisma as unknown as PrismaService,
+      google as unknown as GoogleVerifier,
+      tokens as unknown as TokenService,
+      users as unknown as UsersService,
+    );
+    return { prisma, service };
+  };
+
+  it('avatar tự upload (media) → đăng nhập Google không ghi đè', async () => {
+    const { prisma, service } = build(
+      'http://localhost:3000/v1/media/public/abc',
+    );
+    await service.loginWithGoogle('t');
+    expect(prisma.user.upsert.mock.calls[0][0].update).not.toHaveProperty(
+      'avatarUrl',
+    );
+  });
+
+  it.each([null, 'https://lh3.googleusercontent.com/old.png'])(
+    'avatar %s → cập nhật theo ảnh Google',
+    async (current) => {
+      const { prisma, service } = build(current);
+      await service.loginWithGoogle('t');
+      expect(prisma.user.upsert.mock.calls[0][0].update.avatarUrl).toBe(
+        'https://lh3.googleusercontent.com/new.png',
+      );
+    },
+  );
 });
