@@ -24,6 +24,12 @@ enum _Sort {
   final String label;
 }
 
+/// Khoảng cách (km) từ sân/khu vực kèo tới đội xin nhận; null khi backend chưa tính được.
+double? _distanceKm(MatchRequestDto r) {
+  final v = r.team.additionalProperties['distanceKm'] ?? r.additionalProperties['distanceKm'];
+  return v is num ? v.toDouble() : null;
+}
+
 int _levelIndex(TeamLevel l) => switch (l) {
   TeamLevelKnown(:final value) => Labels.levels.indexWhere((e) => e.$1 == value),
   _ => 3,
@@ -56,8 +62,9 @@ class _CompareRequestsScreenState extends ConsumerState<CompareRequestsScreen> {
       case _Sort.reputation:
         out.sort((a, b) => (b.team.reputation ?? -1).compareTo(a.team.reputation ?? -1));
       case _Sort.nearest:
-        // API chưa trả khoảng cách: ưu tiên đội cùng khu vực với kèo.
-        int far(MatchRequestDto r) => r.team.area == post.area ? 0 : 1;
+        // Theo khoảng cách; thiếu khoảng cách thì ưu tiên đội cùng khu vực với kèo.
+        double far(MatchRequestDto r) =>
+            _distanceKm(r) ?? (r.team.area == post.area ? 1000 : 2000);
         out.sort((a, b) {
           final c = far(a).compareTo(far(b));
           return c != 0 ? c : a.createdAt.compareTo(b.createdAt);
@@ -176,6 +183,24 @@ class _Body extends StatelessWidget {
             ),
         ],
       ),
+      if (requests.any((r) => _distanceKm(r) != null))
+        (
+          'Khoảng cách',
+          () {
+            final ds = [for (final r in requests) _distanceKm(r)];
+            final best = ds.whereType<double>().fold<double?>(
+              null,
+              (m, d) => m == null || d < m ? d : m,
+            );
+            return [
+              for (final d in ds)
+                (
+                  d == null ? '—' : '${d.toStringAsFixed(1).replaceAll('.', ',')} km',
+                  d != null && d == best,
+                ),
+            ];
+          }(),
+        ),
       (
         'Khu vực',
         [for (final r in requests) (r.team.area, r.team.area == post.area)],

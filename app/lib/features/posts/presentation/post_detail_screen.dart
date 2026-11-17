@@ -102,7 +102,12 @@ class _Body extends ConsumerWidget {
               InfoGrid(info),
               if (post.pitchName != null) ...[
                 const SizedBox(height: 12),
-                _PitchRow(name: post.pitchName!, area: post.area),
+                _PitchRow(
+                  name: post.pitchName!,
+                  area: post.area,
+                  lat: _num(detail, 'venueLat'),
+                  lng: _num(detail, 'venueLng'),
+                ),
               ],
               if (detail.requestTeams.isNotEmpty) ...[
                 const SizedBox(height: 12),
@@ -275,9 +280,11 @@ class _Body extends ConsumerWidget {
 }
 
 class _PitchRow extends StatelessWidget {
-  const _PitchRow({required this.name, required this.area});
+  const _PitchRow({required this.name, required this.area, this.lat, this.lng});
   final String name;
   final String area;
+  final double? lat;
+  final double? lng;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -329,15 +336,21 @@ class _PitchRow extends StatelessWidget {
     ),
   );
 
-  /// Kèo chưa có toạ độ sân nên mở bản đồ tìm theo tên sân và khu vực.
+  /// Có toạ độ sân (`venueLat`/`venueLng`) thì chỉ đường theo toạ độ, không thì tìm theo tên sân.
   Future<void> _directions(BuildContext context) async {
     final uri = Uri.https('www.google.com', '/maps/search/', {
       'api': '1',
-      'query': '$name, $area',
+      'query': lat != null && lng != null ? '$lat,$lng' : '$name, $area',
     });
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && context.mounted) {
       showToast(context, 'Không mở được bản đồ', type: ToastType.error);
     }
   }
+}
+
+/// Trường số backend thêm vào kèo (`venueLat`, `venueLng`), null khi chưa có.
+double? _num(PostDetailDto detail, String key) {
+  final v = detail.post.additionalProperties[key] ?? detail.additionalProperties[key];
+  return v is num ? v.toDouble() : null;
 }
