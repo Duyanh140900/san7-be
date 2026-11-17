@@ -61,6 +61,7 @@ class MediaRepository {
   Future<String> upload(
     PickedImage image, {
     MediaPurpose purpose = MediaPurpose.post,
+    String? teamId,
   }) async {
     final target = await apiCall(
       () => _api.media.mediaCreateUpload(
@@ -68,6 +69,7 @@ class MediaRepository {
           purpose: purpose,
           contentType: image.contentType,
           size: image.bytes.length,
+          teamId: teamId,
         ),
       ),
     );
@@ -84,6 +86,9 @@ class MediaRepository {
       ),
     );
     if (res.statusCode == null) throw StateError('upload failed');
+    if (purpose == MediaPurpose.receipt) {
+      await apiCall(() => _api.media.mediaFinalize(body: FinalizeUploadDto(key: target.key)));
+    }
     return target.key;
   }
 }

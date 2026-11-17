@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -27,6 +29,7 @@ class FundTxRow extends ConsumerWidget {
     final type = fundType(tx.type);
     final member = tx.member?.name;
     final date = Fmt.dayMonth(tx.createdAt);
+    final receiptUrl = tx.additionalProperties['receiptUrl'] as String?;
 
     final (icon, bg, fg) = switch (type) {
       FundTypeValue.income => (AppIcons.arrowUp, const Color(0xFFE9F6EC), const Color(0xFF1F7A35)),
@@ -91,7 +94,15 @@ class FundTxRow extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            if (receiptUrl != null)
+              IconButton(
+                tooltip: 'Xem biên lai',
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                onPressed: () => showReceipt(context, ref, receiptUrl),
+                icon: AppIcon(AppIcons.image, color: AppColors.primary),
+              )
+            else
+              const SizedBox(width: 8),
             Text(
               amountText,
               style: TextStyle(
@@ -141,4 +152,34 @@ class FundTxRow extends ConsumerWidget {
     );
     if (ok) ref.invalidate(fundSummaryProvider(teamId));
   }
+}
+
+/// Xem ảnh biên lai toàn màn hình; ảnh cần Bearer nên tải qua Dio của app.
+Future<void> showReceipt(BuildContext context, WidgetRef ref, String url) {
+  final future = ref.read(fundsRepositoryProvider).receiptBytes(url);
+  return showDialog<void>(
+    context: context,
+    builder: (ctx) => Dialog(
+      backgroundColor: AppColors.surface,
+      insetPadding: const EdgeInsets.all(16),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 200),
+        child: FutureBuilder<Uint8List>(
+          future: future,
+          builder: (ctx, snap) {
+            if (snap.hasError) {
+              return const Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(child: Text('Không tải được biên lai')),
+              );
+            }
+            if (!snap.hasData) {
+              return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+            }
+            return InteractiveViewer(child: Image.memory(snap.data!));
+          },
+        ),
+      ),
+    ),
+  );
 }

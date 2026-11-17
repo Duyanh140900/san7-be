@@ -1,4 +1,6 @@
+
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -12,6 +14,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_widgets.dart';
 import '../../../core/widgets/money_input.dart';
 import '../../attendance/presentation/event_widgets.dart' show eventKindLabel;
+import '../../media/data/media_repository.dart';
 import '../../team/team_providers.dart';
 import '../data/funds_repository.dart';
 
@@ -52,6 +55,29 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
   String? _eventId;
   bool _finePaid = false;
   bool _saving = false;
+  Uint8List? _receiptBytes;
+  CreateUploadDtoContentType? _receiptType;
+
+  Future<void> _pickReceipt() async {
+    final file = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 88,
+      maxWidth: 1600,
+      maxHeight: 1600,
+    );
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    if (!mounted) return;
+    final type = MediaRepository.sniffContentType(bytes);
+    if (type == null || bytes.length > MediaRepository.maxBytes) {
+      showToast(context, 'Chỉ nhận ảnh JPEG, PNG, WebP tối đa 10MB', type: ToastType.warning);
+      return;
+    }
+    setState(() {
+      _receiptBytes = bytes;
+      _receiptType = type;
+    });
+  }
 
   @override
   void initState() {
@@ -77,6 +103,24 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
     final amount = _amountValue;
     if (amount <= 0) return showToast(context, 'Nhập số tiền', type: ToastType.warning);
     final CreateFundTxDto body;
+    String? receiptKey;
+    if (_type == FundTypeValue.expense && _receiptBytes != null) {
+      setState(() => _saving = true);
+      try {
+        receiptKey = await ref
+            .read(mediaRepositoryProvider)
+            .upload(
+              PickedImage(name: 'receipt', bytes: _receiptBytes!, contentType: _receiptType!),
+              purpose: MediaPurpose.receipt,
+              teamId: teamId,
+            );
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _saving = false);
+        return showToast(context, 'Không tải được ảnh biên lai, thử lại', type: ToastType.error);
+      }
+      if (!mounted) return;
+    }
     switch (_type) {
       case FundTypeValue.income:
         if (_isDues && _payers.isEmpty) return showToast(context, 'Chọn người đóng quỹ', type: ToastType.warning);
@@ -97,6 +141,7 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
           memberIds: [?_spender],
           eventId: _eventId,
           note: _noteOrNull,
+          additionalProperties: {'receiptKey': ?receiptKey},
         );
       case FundTypeValue.fine:
         if (_fined.isEmpty) return showToast(context, 'Chọn người bị phạt', type: ToastType.warning);
@@ -312,8 +357,37 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
             value: event != null ? '${event.title} · ${Fmt.dayMonth(event.startAt)}' : 'Không',
             onTap: () => _pickEvent(events),
           ),
+          FormTapRow(
+            label: 'Ảnh biên lai',
+            value: _receiptBytes == null ? 'Thêm ảnh' : 'Đổi ảnh',
+            onTap: _pickReceipt,
+          ),
         ],
       ),
+      if (_receiptBytes != null) ...[
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.group),
+                child: Image.memory(_receiptBytes!, width: 96, height: 96, fit: BoxFit.cover),
+              ),
+              Positioned(
+                right: -14,
+                top: -14,
+                child: IconButton(
+                  tooltip: 'Bỏ ảnh',
+                  onPressed: () => setState(() => _receiptBytes = null),
+                  icon: const Icon(Icons.cancel, color: AppColors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     ];
   }
 

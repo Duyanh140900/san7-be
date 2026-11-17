@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../api/san7_api.dart';
@@ -6,8 +9,15 @@ import '../../../core/api/api_client.dart';
 
 /// Quỹ đội: tổng quan, khoản thu/chi/phạt, luật phạt.
 class FundsRepository {
-  FundsRepository(this._api);
+  FundsRepository(this._api, this._dio);
   final San7Api _api;
+  final Dio _dio;
+
+  /// Tải ảnh biên lai (cần Bearer, Dio đã gắn sẵn).
+  Future<Uint8List> receiptBytes(String url) => apiCall(() async {
+    final res = await _dio.get<List<int>>(url, options: Options(responseType: ResponseType.bytes));
+    return Uint8List.fromList(res.data ?? const []);
+  });
 
   Future<FundSummaryDto> summary(String teamId) =>
       apiCall(() => _api.funds.fundsSummary(teamId: teamId));
@@ -39,5 +49,5 @@ class FundsRepository {
 }
 
 final fundsRepositoryProvider = Provider<FundsRepository>(
-  (ref) => FundsRepository(ref.watch(apiProvider)),
+  (ref) => FundsRepository(ref.watch(apiProvider), ref.watch(dioProvider)),
 );
