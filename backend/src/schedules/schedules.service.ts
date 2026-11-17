@@ -9,7 +9,7 @@ import { MediaService } from '../media/media.service.js';
 import { Jobs, SYSTEM_QUEUE } from '../queue/queue.constants.js';
 import { normalizePost } from '../posts/posts.service.js';
 import type { CreatePostDto } from '../posts/posts.dto.js';
-import type { CreatePostScheduleDto, PostScheduleDto } from './schedules.dto.js';
+import type { CreatePostScheduleDto, PostScheduleDto, UpdatePostScheduleDto } from './schedules.dto.js';
 
 type StoredPost = Omit<CreatePostDto, 'startAt' | 'endAt'> & { startAt: string; endAt: string };
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -83,7 +83,7 @@ function toDto(row: PostSchedule): PostScheduleDto {
   return {
     id: row.id, teamId: row.teamId, scheduledAt: row.scheduledAt,
     repeatWeekly: row.repeatWeekly, status: row.status,
-    publishedPostId: row.publishedPostId,
+    publishedPostId: row.publishedPostId, pausedUntil: row.pausedUntil,
     post: fromStored(row.payload),
   };
 }
@@ -119,14 +119,16 @@ export class PostSchedulesService {
     return rows.map(toDto);
   }
 
-  async update(me: TeamMembership, id: string, dto: CreatePostScheduleDto): Promise<PostScheduleDto> {
+  async update(me: TeamMembership, id: string, dto: UpdatePostScheduleDto): Promise<PostScheduleDto> {
     const existing = await this.mine(me, id);
-    this.assertFuture(dto.scheduledAt);
-    normalizePost(dto, new Date(dto.scheduledAt.getTime() - 1));
-    await this.media.assertUsablePostMedia(me.userId, dto.mediaKeys ?? []);
+    const scheduledAt = updateScheduledAt(existing.scheduledAt, dto.time, dto.weekday);
+    if (dto.time !== undefined || dto.weekday !== undefined) this.assertFuture(scheduledAt);
+    if (dto.pausedUntil && dto.pausedUntil <= new Date()) {
+      throw new AppError(HttpStatus.BAD_REQUEST, 'pause_in_past', 'Thời điểm tạm dừng phải ở tương lai');
+    }
     const row = await this.prisma.postSchedule.update({
       where: { id: existing.id },
-      data: { payload: toStored(dto), scheduledAt: dto.scheduledAt, repeatWeekly: dto.repeatWeekly ?? false },
+      data: { scheduledAt, pausedUntil: dto.pausedUntil },
     });
     await this.queue.remove(postScheduleJobId(existing.id, existing.scheduledAt)).catch(() => undefined);
     await this.enqueue(id, row.scheduledAt);
@@ -157,6 +159,20 @@ export class PostSchedulesService {
   }
 }
 
+function updateScheduledAt(current: Date, time?: string, weekday?: number): Date {
+  if (time === undefined && weekday === undefined) return current;
+  const result = new Date(current.getTime() + 7 * 3_600_000);
+  if (time !== undefined) {
+    const [hours, minutes] = time.split(':').map(Number);
+    result.setUTCHours(hours!, minutes!, 0, 0);
+  }
+  if (weekday !== undefined) {
+    const vnDay = result.getUTCDay();
+    result.setUTCDate(result.getUTCDate() + ((weekday - vnDay + 7) % 7));
+  }
+  return new Date(result.getTime() - 7 * 3_600_000);
+}
+
 /** Worker-safe: khóa lịch, công bố đúng một lần; lịch tuần sẽ dời cả lịch lẫn giờ đá. */
 export async function publishPostSchedule(prisma: PrismaService, scheduleId: string, now = new Date()) {
   return prisma.$transaction(async (tx) => {
@@ -168,6 +184,13 @@ export async function publishPostSchedule(prisma: PrismaService, scheduleId: str
     });
     if (claimed.count !== 1) return { published: false, nextAt: null };
     const schedule = await tx.postSchedule.findUniqueOrThrow({ where: { id: scheduleId } });
+    if (schedule.pausedUntil && schedule.pausedUntil > now) {
+      await tx.postSchedule.update({
+        where: { id: schedule.id },
+        data: { status: 'scheduled', scheduledAt: schedule.pausedUntil },
+      });
+      return { published: false, nextAt: schedule.pausedUntil };
+    }
     const author = await tx.teamMember.findFirst({
       where: {
         teamId: schedule.teamId,
