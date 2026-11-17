@@ -24,6 +24,7 @@ class RealtimeClient {
 
   io.Socket? _socket;
   String? _teamId;
+  final _matches = <String>{};
   final _events = StreamController<(String, Map<String, dynamic>)>.broadcast();
 
   Stream<(String, Map<String, dynamic>)> get events => _events.stream;
@@ -35,6 +36,8 @@ class RealtimeClient {
     'members.changed',
     // Gửi tới room user:{id}
     'notification.new',
+    // Gửi tới room match:{id} sau khi match:join
+    'chat.message',
   ];
 
   void connect() {
@@ -48,7 +51,12 @@ class RealtimeClient {
           .setAuthFn((cb) async => cb({'token': await storage.readAccess()}))
           .build(),
     );
-    socket.onConnect((_) => _joinTeam());
+    socket.onConnect((_) {
+      _joinTeam();
+      for (final id in _matches) {
+        socket.emit('match:join', {'matchId': id});
+      }
+    });
     socket.on('auth:error', (_) async {
       try {
         await refreshSession();
@@ -71,6 +79,17 @@ class RealtimeClient {
     _teamId = teamId;
     if (old != null) _socket?.emit('team:leave', {'teamId': old});
     _joinTeam();
+  }
+
+  /// Vào room chat của trận; tự vào lại sau khi kết nối lại.
+  void joinMatch(String matchId) {
+    _matches.add(matchId);
+    if (_socket?.connected == true) _socket!.emit('match:join', {'matchId': matchId});
+  }
+
+  void leaveMatch(String matchId) {
+    _matches.remove(matchId);
+    if (_socket?.connected == true) _socket!.emit('match:leave', {'matchId': matchId});
   }
 
   void _joinTeam() {

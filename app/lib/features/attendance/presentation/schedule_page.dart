@@ -185,6 +185,20 @@ class EventDetailScreen extends ConsumerWidget {
             if (detail.value?.matchId case final matchId?) ...[
               const SizedBox(height: 14),
               GestureDetector(
+                onTap: () => context.push(Routes.chat(teamId, matchId)),
+                behavior: HitTestBehavior.opaque,
+                child: const AppCard(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text('Nhắn tin với đội bạn', style: TextStyle(fontSize: 16))),
+                      Text('›', style: TextStyle(fontSize: 20, color: AppColors.disabled)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
                 onTap: () => context.push(Routes.matchResult(teamId, matchId)),
                 behavior: HitTestBehavior.opaque,
                 child: const AppCard(

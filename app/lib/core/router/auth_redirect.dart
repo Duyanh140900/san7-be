@@ -20,17 +20,17 @@ abstract final class Routes {
   static String post(String id) => '/posts/$id';
   static String postReactions(String id) => '/posts/$id/reactions';
   static String postRequest(String id) => '/posts/$id/request';
-  static String postCompare(String teamId, String postId) =>
-      '/teams/$teamId/posts/$postId/compare';
-  static String request(String teamId, String requestId) =>
-      '/teams/$teamId/requests/$requestId';
+  static String postCompare(String teamId, String postId) => '/teams/$teamId/posts/$postId/compare';
+  static String request(String teamId, String requestId) => '/teams/$teamId/requests/$requestId';
   static const notifications = '/notifications';
+  static const me = '/me';
+  static const myPosts = '/me/posts';
+  static String chat(String teamId, String matchId) => '/teams/$teamId/matches/$matchId/chat';
   static String pitch(String id) => '/pitch/$id';
   static String matchResult(String teamId, String matchId) =>
       '/teams/$teamId/matches/$matchId/result';
   static String teamProfile(String teamId) => '/team-profile/$teamId';
-  static String booking(String teamId, String bookingId) =>
-      '/teams/$teamId/bookings/$bookingId';
+  static String booking(String teamId, String bookingId) => '/teams/$teamId/bookings/$bookingId';
 }
 
 /// Quyết định điều hướng theo trạng thái đăng nhập (luồng màn 12).
@@ -55,9 +55,7 @@ String? authRedirect(AuthState auth, String location) {
       // Chưa có đội nhưng đã bấm "Để sau": vẫn được mở lại bước vào đội từ tab Đội
       if (at(Routes.onboardingTeam) && auth.me.teams.isEmpty) return null;
       final inOnboarding =
-          at(Routes.splash) ||
-          at(Routes.welcome) ||
-          location.startsWith('/onboarding');
+          at(Routes.splash) || at(Routes.welcome) || location.startsWith('/onboarding');
       return inOnboarding ? Routes.feed : null;
   }
 }

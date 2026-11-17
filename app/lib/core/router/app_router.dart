@@ -13,6 +13,9 @@ import '../../features/funds/presentation/funds_page.dart';
 import '../../features/honors/presentation/honors_screen.dart';
 import '../../features/matches/presentation/match_result_screen.dart';
 import '../../features/matches/presentation/team_profile_screen.dart';
+import '../../features/chat/presentation/chat_screen.dart';
+import '../../features/me/presentation/me_screen.dart';
+import '../../features/me/presentation/my_posts_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/pitches/presentation/booking_screen.dart';
 import '../../features/pitches/presentation/pitch_detail_screen.dart';
@@ -42,28 +45,21 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: Routes.splash, builder: (_, _) => const SplashScreen()),
       GoRoute(path: Routes.welcome, builder: (_, _) => const WelcomeStep()),
-      GoRoute(
-        path: Routes.onboardingProfile,
-        builder: (_, _) => const ProfileStep(),
-      ),
+      GoRoute(path: Routes.onboardingProfile, builder: (_, _) => const ProfileStep()),
       GoRoute(path: Routes.onboardingTeam, builder: (_, _) => const TeamStep()),
       GoRoute(
         path: Routes.postNew,
-        pageBuilder: (_, _) => const MaterialPage(
-          fullscreenDialog: true,
-          child: PostCreateScreen(),
-        ),
+        pageBuilder: (_, _) =>
+            const MaterialPage(fullscreenDialog: true, child: PostCreateScreen()),
       ),
       // Cáp kèo (M2)
       GoRoute(
         path: '/posts/:postId',
-        builder: (_, state) =>
-            PostDetailScreen(postId: state.pathParameters['postId']!),
+        builder: (_, state) => PostDetailScreen(postId: state.pathParameters['postId']!),
       ),
       GoRoute(
         path: '/posts/:postId/reactions',
-        builder: (_, state) =>
-            ReactionsScreen(postId: state.pathParameters['postId']!),
+        builder: (_, state) => ReactionsScreen(postId: state.pathParameters['postId']!),
       ),
       GoRoute(
         path: '/posts/:postId/request',
@@ -86,9 +82,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           requestId: state.pathParameters['requestId']!,
         ),
       ),
+      GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
+      GoRoute(path: Routes.me, builder: (_, _) => const MeScreen()),
+      GoRoute(path: Routes.myPosts, builder: (_, _) => const MyPostsScreen()),
       GoRoute(
-        path: Routes.notifications,
-        builder: (_, _) => const NotificationsScreen(),
+        path: '/teams/:teamId/matches/:matchId/chat',
+        builder: (_, state) => ChatScreen(
+          teamId: state.pathParameters['teamId']!,
+          matchId: state.pathParameters['matchId']!,
+        ),
       ),
       // Sau trận (M4)
       GoRoute(
@@ -100,17 +102,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/team-profile/:teamId',
-        builder: (_, state) =>
-            TeamProfileScreen(teamId: state.pathParameters['teamId']!),
+        builder: (_, state) => TeamProfileScreen(teamId: state.pathParameters['teamId']!),
       ),
       // Đặt sân (M3)
       GoRoute(
         path: '/pitch/:pitchId',
         builder: (_, state) => PitchDetailScreen(
           pitchId: state.pathParameters['pitchId']!,
-          args: state.extra is PitchDetailArgs
-              ? state.extra! as PitchDetailArgs
-              : null,
+          args: state.extra is PitchDetailArgs ? state.extra! as PitchDetailArgs : null,
         ),
       ),
       GoRoute(
@@ -132,71 +131,49 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ),
       ),
-      GoRoute(
-        path: Routes.teamFundsAll,
-        builder: (_, _) => const FundTransactionsScreen(),
-      ),
+      GoRoute(path: Routes.teamFundsAll, builder: (_, _) => const FundTransactionsScreen()),
       GoRoute(
         path: Routes.teamEventNew,
-        pageBuilder: (_, _) => const MaterialPage(
-          fullscreenDialog: true,
-          child: CreateEventScreen(),
-        ),
+        pageBuilder: (_, _) =>
+            const MaterialPage(fullscreenDialog: true, child: CreateEventScreen()),
       ),
       GoRoute(
         path: '/team/events/:eventId',
-        builder: (_, state) =>
-            EventDetailScreen(eventId: state.pathParameters['eventId']!),
+        builder: (_, state) => EventDetailScreen(eventId: state.pathParameters['eventId']!),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(shell: shell),
         branches: [
           StatefulShellBranch(
-            routes: [
-              GoRoute(path: Routes.feed, builder: (_, _) => const FeedScreen()),
-            ],
+            routes: [GoRoute(path: Routes.feed, builder: (_, _) => const FeedScreen())],
           ),
           StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.pitches,
-                builder: (_, _) => const PitchesScreen(),
-              ),
-            ],
+            routes: [GoRoute(path: Routes.pitches, builder: (_, _) => const PitchesScreen())],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: Routes.team,
-                pageBuilder: (_, _) =>
-                    const NoTransitionPage(child: TeamScreen()),
+                pageBuilder: (_, _) => const NoTransitionPage(child: TeamScreen()),
                 routes: [
                   GoRoute(
                     path: 'members',
-                    pageBuilder: (_, _) =>
-                        const NoTransitionPage(child: MembersPage()),
+                    pageBuilder: (_, _) => const NoTransitionPage(child: MembersPage()),
                   ),
                   GoRoute(
                     path: 'schedule',
-                    pageBuilder: (_, _) =>
-                        const NoTransitionPage(child: SchedulePage()),
+                    pageBuilder: (_, _) => const NoTransitionPage(child: SchedulePage()),
                   ),
                   GoRoute(
                     path: 'funds',
-                    pageBuilder: (_, _) =>
-                        const NoTransitionPage(child: FundsPage()),
+                    pageBuilder: (_, _) => const NoTransitionPage(child: FundsPage()),
                   ),
                 ],
               ),
             ],
           ),
           StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.honors,
-                builder: (_, _) => const HonorsScreen(),
-              ),
-            ],
+            routes: [GoRoute(path: Routes.honors, builder: (_, _) => const HonorsScreen())],
           ),
         ],
       ),

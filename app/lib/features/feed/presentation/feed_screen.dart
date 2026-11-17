@@ -124,7 +124,15 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                   child: const AppIcon(AppIcons.bell),
                 ),
                 const SizedBox(width: 8),
-                Avatar(name: myName.isEmpty ? '?' : myName, size: 40),
+                Semantics(
+                  button: true,
+                  label: 'Trang cá nhân',
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => context.push(Routes.me),
+                    child: Avatar(name: myName.isEmpty ? '?' : myName, size: 40),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 14),

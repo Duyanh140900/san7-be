@@ -10,6 +10,7 @@ MeDto me({bool profile = true, List<MyTeamDto> teams = const []}) => MeDto(
   position: profile ? Position.forward : null,
   profileCompleted: profile,
   teams: teams,
+  stats: PlayerStatsDto(goals: 0, assists: 0, mvps: 0, matches: 0),
 );
 
 const team = MyTeamDto(
