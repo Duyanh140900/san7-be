@@ -12,6 +12,7 @@ import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../posts_providers.dart';
+import 'application_widgets.dart';
 import 'community_widgets.dart';
 
 /// Màu nhãn theo loại kèo (như bản vẽ màn 1).
@@ -277,7 +278,7 @@ class PostCard extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                     ),
-                    onPressed: open,
+                    onPressed: () => applyToPost(context, ref, post),
                     child: const Text('Ứng tuyển'),
                   )
                 else

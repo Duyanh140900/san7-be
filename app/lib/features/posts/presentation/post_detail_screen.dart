@@ -15,6 +15,7 @@ import '../../../core/widgets/team_crest.dart';
 import '../../chat/presentation/chat_launcher.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
+import 'application_widgets.dart';
 import 'post_widgets.dart';
 import 'community_widgets.dart';
 
@@ -109,6 +110,10 @@ class _Body extends ConsumerWidget {
                   lng: _num(detail, 'venueLng'),
                 ),
               ],
+              if (_lineup(detail) case final lineup when lineup.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                LineupSection(lineup: lineup),
+              ],
               if (detail.requestTeams.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Row(
@@ -137,6 +142,10 @@ class _Body extends ConsumerWidget {
                 postId: post.id,
                 canManageComments: detail.canManage,
               ),
+              if (post.type == PostType.recruit && detail.canManage) ...[
+                const SizedBox(height: 16),
+                ApplicationsSection(postId: post.id),
+              ],
               const SizedBox(height: 16),
               ..._actions(context, ref, canRequest),
             ],
@@ -231,6 +240,23 @@ class _Body extends ConsumerWidget {
           child: Text(
             post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo',
           ),
+        ),
+      ];
+    }
+    if (post.type == PostType.recruit && post.status.isOpen) {
+      final applied = _str(detail, 'myApplicationStatus');
+      if (applied != null) {
+        return [
+          StatusBanner(
+            tone: applied == 'accepted' ? BannerTone.success : BannerTone.waiting,
+            child: Text(applicationStatusLabel(applied)),
+          ),
+        ];
+      }
+      return [
+        FilledButton(
+          onPressed: () => applyToPost(context, ref, post),
+          child: const Text('Ứng tuyển'),
         ),
       ];
     }
@@ -353,4 +379,19 @@ class _PitchRow extends StatelessWidget {
 double? _num(PostDetailDto detail, String key) {
   final v = detail.post.additionalProperties[key] ?? detail.additionalProperties[key];
   return v is num ? v.toDouble() : null;
+}
+
+String? _str(PostDetailDto detail, String key) {
+  final v = detail.post.additionalProperties[key] ?? detail.additionalProperties[key];
+  return v is String ? v : null;
+}
+
+/// `lineup: [{userId, name, position?}]` backend thêm vào chi tiết kèo.
+List<({String name, String? position})> _lineup(PostDetailDto detail) {
+  final v = detail.additionalProperties['lineup'] ?? detail.post.additionalProperties['lineup'];
+  if (v is! List) return const [];
+  return [
+    for (final e in v)
+      if (e is Map) (name: '${e['name'] ?? ''}', position: e['position'] as String?),
+  ];
 }

@@ -41,6 +41,30 @@ class PostsRepository {
     return FeedResult(entries, data['nextCursor'] as String?);
   });
 
+  /// `POST /v1/posts/:id/applications`: ứng tuyển kèo tuyển người (409 nếu đã ứng tuyển).
+  Future<void> apply(String postId, {String? position, String? note}) => apiCall(
+    () => _dio.post<void>(
+      '/v1/posts/$postId/applications',
+      data: {
+        'position': ?position,
+        'note': ?((note ?? '').trim().isEmpty ? null : note!.trim()),
+      },
+    ),
+  );
+
+  /// `GET /v1/posts/:id/applications` (đội trưởng/phó).
+  Future<List<PostApplication>> applications(String postId) => apiCall(() async {
+    final res = await _dio.get<dynamic>('/v1/posts/$postId/applications');
+    final data = res.data;
+    final list = data is List ? data : (data as Map)['items'] as List;
+    return [for (final e in list.cast<Map<String, dynamic>>()) PostApplication.fromJson(e)];
+  });
+
+  /// `PATCH /v1/posts/:id/applications/:appId` với `status` (`accepted`/`rejected`).
+  Future<void> reviewApplication(String postId, String appId, String status) => apiCall(
+    () => _dio.patch<void>('/v1/posts/$postId/applications/$appId', data: {'status': status}),
+  );
+
   Future<PostDetailDto> detail(String postId) =>
       apiCall(() => _api.posts.postsDetail(postId: postId));
 
@@ -201,4 +225,30 @@ class FeedResult {
   const FeedResult(this.items, this.nextCursor);
   final List<FeedEntry> items;
   final String? nextCursor;
+}
+
+/// Một lượt ứng tuyển vào kèo tuyển người.
+class PostApplication {
+  const PostApplication({
+    required this.id,
+    required this.name,
+    required this.status,
+    this.position,
+    this.note,
+  });
+  factory PostApplication.fromJson(Map<String, dynamic> j) {
+    final user = j['user'] is Map ? j['user'] as Map : const {};
+    return PostApplication(
+      id: '${j['id']}',
+      name: '${user['name'] ?? j['name'] ?? j['userName'] ?? 'Cầu thủ'}',
+      status: '${j['status'] ?? 'pending'}',
+      position: j['position'] as String?,
+      note: j['note'] as String?,
+    );
+  }
+  final String id;
+  final String name;
+  final String status;
+  final String? position;
+  final String? note;
 }
