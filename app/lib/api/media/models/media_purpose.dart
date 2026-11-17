@@ -3,7 +3,7 @@
 enum MediaPurposeValue {
   post("post"),
   avatar("avatar"),
-  team("team");
+  receipt("receipt");
 
   const MediaPurposeValue(this.value);
   final String value;
@@ -13,7 +13,7 @@ sealed class MediaPurpose {
   const MediaPurpose();
   static const post = MediaPurposeKnown(MediaPurposeValue.post);
   static const avatar = MediaPurposeKnown(MediaPurposeValue.avatar);
-  static const team = MediaPurposeKnown(MediaPurposeValue.team);
+  static const receipt = MediaPurposeKnown(MediaPurposeValue.receipt);
   factory MediaPurpose.fromJson(Object? json) {
     if (!(json is String)) {
       throw ArgumentError.value(json, "MediaPurpose");
