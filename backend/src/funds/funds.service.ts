@@ -58,6 +58,7 @@ type TxRow = {
   note: string | null;
   paid: boolean;
   createdAt: Date;
+  receiptKey: string | null;
   member: { id: string; name: string; avatarUrl: string | null } | null;
   event: { id: string; title: string; startAt: Date } | null;
   createdBy: { id: string; name: string; avatarUrl: string | null };
@@ -79,6 +80,9 @@ function toTxDto(t: TxRow): FundTxDto {
     event: t.event,
     period: t.period,
     note: t.note,
+    receiptUrl: t.receiptKey
+      ? `/v1/media/receipts/${t.receiptKey.slice('public/'.length, -'.webp'.length)}`
+      : null,
     paid: t.paid,
     createdBy: {
       userId: t.createdBy.id,
@@ -255,6 +259,21 @@ export class FundsService {
         });
         if (!ok) throw this.bad('event_not_in_team', 'Lịch không thuộc đội');
       }
+      if (dto.receiptKey) {
+        const receipt = await tx.mediaUpload.findFirst({
+          where: {
+            publicKey: dto.receiptKey,
+            ownerId: me.userId,
+            teamId: me.teamId,
+            purpose: 'receipt',
+            status: 'ready',
+          },
+          select: { id: true },
+        });
+        if (!receipt) {
+          throw this.bad('receipt_not_in_team', 'Biên lai chưa hoàn tất hoặc không thuộc đội');
+        }
+      }
       if (dto.period) {
         // Khoá theo (đội, kỳ) trong transaction: hai người ghi quỹ tháng cùng lúc không bị trùng
         // (hàm trả về void, Prisma không đọc được → chọn hằng số)
@@ -295,6 +314,7 @@ export class FundsService {
             period: dto.period ?? null,
             batchId,
             note: dto.note ?? null,
+            receiptKey: dto.receiptKey ?? null,
             paid,
             paidAt: paid ? new Date() : null,
             createdById: me.userId,

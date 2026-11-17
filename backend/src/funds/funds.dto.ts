@@ -73,6 +73,12 @@ export class CreateFundTxDto {
   @MaxLength(200)
   note?: string;
 
+  @ApiPropertyOptional({ description: 'Khoá ảnh biên lai đã finalize cho đúng đội' })
+  @IsOptional()
+  @IsString()
+  @Matches(/^public\/[0-9a-f-]{36}\.webp$/i)
+  receiptKey?: string;
+
   @ApiPropertyOptional({
     description: 'Phạt: đã nộp chưa (mặc định chưa). Thu/chi luôn là đã nộp.',
   })
@@ -138,6 +144,7 @@ export class FundTxDto {
   @ApiPropertyOptional({ type: EventRefDto }) event?: EventRefDto | null;
   @ApiPropertyOptional({ type: String }) period?: string | null;
   @ApiPropertyOptional({ type: String }) note?: string | null;
+  @ApiPropertyOptional({ type: String }) receiptUrl?: string | null;
   @ApiProperty() paid: boolean;
   @ApiProperty({ type: PersonRefDto }) createdBy: PersonRefDto;
   @ApiProperty({ type: String, format: 'date-time' }) createdAt: Date;

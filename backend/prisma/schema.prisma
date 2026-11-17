@@ -288,6 +288,8 @@ model Event {
   endAt       DateTime  @map("end_at") @db.Timestamptz(6)
   location    String?
   note        String?
+  /// Khoá object ảnh biên lai đã finalize; chỉ có cho giao dịch quỹ của đúng đội.
+  receiptKey  String?   @map("receipt_key")
   /// số người tối thiểu cần đi
   minPlayers  Int?      @map("min_players") @db.SmallInt
   /// trận sinh ra khi chốt kèo (mỗi đội một event cùng matchId)
@@ -308,6 +310,7 @@ model Event {
   @@index([teamId, startAt])
   @@index([matchId])
   @@index([createdById])
+  @@index([receiptKey])
   @@map("events")
 }
 
