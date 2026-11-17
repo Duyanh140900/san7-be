@@ -15,6 +15,8 @@ class PostDetailDto {
 
     /// Yêu cầu gần nhất của một đội tôi quản lý cho kèo này
     this.myRequest,
+
+    /// Trạng thái ứng tuyển của tôi cho kèo tuyển người
     this.myApplicationStatus,
 
     /// Các đội đang chờ (tối đa 5, để hiện avatar)
@@ -56,6 +58,7 @@ class PostDetailDto {
   /// Yêu cầu gần nhất của một đội tôi quản lý cho kèo này
   final MyRequestDto? myRequest;
 
+  /// Trạng thái ứng tuyển của tôi cho kèo tuyển người
   final ApplicationStatus? myApplicationStatus;
 
   /// Các đội đang chờ (tối đa 5, để hiện avatar)

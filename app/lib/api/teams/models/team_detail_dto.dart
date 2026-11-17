@@ -2,6 +2,7 @@
 
 import '../../auth/models/team_level.dart';
 import '../../auth/models/team_role.dart';
+import 'team_detail_dto_home_pitch_id.dart';
 
 class TeamDetailDto {
   const TeamDetailDto({
@@ -16,6 +17,9 @@ class TeamDetailDto {
 
     /// Quỹ tháng mỗi người (VND), 0 = không thu
     required this.monthlyDue,
+
+    /// Sân nhà của đội
+    this.homePitchId,
 
     /// Chỉ đội trưởng/đội phó thấy
     this.inviteCode,
@@ -33,6 +37,9 @@ class TeamDetailDto {
     memberCount: _readJsonInteger(json["memberCount"]),
     myRole: TeamRole.fromJson(json["myRole"]),
     monthlyDue: _readJsonInteger(json["monthlyDue"]),
+    homePitchId: json.containsKey("homePitchId")
+        ? TeamDetailDtoHomePitchId.fromJson(json["homePitchId"] as Map<String, Object?>)
+        : null,
     inviteCode: json.containsKey("inviteCode") ? json["inviteCode"] as String : null,
     inviteExpiresAt: json.containsKey("inviteExpiresAt")
         ? DateTime.parse(json["inviteExpiresAt"] as String).toUtc()
@@ -62,6 +69,9 @@ class TeamDetailDto {
   /// Quỹ tháng mỗi người (VND), 0 = không thu
   final int monthlyDue;
 
+  /// Sân nhà của đội
+  final TeamDetailDtoHomePitchId? homePitchId;
+
   /// Chỉ đội trưởng/đội phó thấy
   final String? inviteCode;
 
@@ -77,6 +87,7 @@ class TeamDetailDto {
     "memberCount",
     "myRole",
     "monthlyDue",
+    "homePitchId",
     "inviteCode",
     "inviteExpiresAt",
   };
@@ -95,6 +106,7 @@ class TeamDetailDto {
     "memberCount": this.memberCount,
     "myRole": this.myRole.toJson(),
     "monthlyDue": this.monthlyDue,
+    if (this.homePitchId != null) "homePitchId": this.homePitchId?.toJson(),
     if (this.inviteCode != null) "inviteCode": this.inviteCode,
     if (this.inviteExpiresAt != null)
       "inviteExpiresAt": this.inviteExpiresAt?.toUtc().toIso8601String(),

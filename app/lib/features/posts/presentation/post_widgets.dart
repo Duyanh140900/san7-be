@@ -278,8 +278,16 @@ class PostCard extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                     ),
-                    onPressed: () => applyToPost(context, ref, post),
-                    child: const Text('Ứng tuyển'),
+                    onPressed: post.myApplicationStatus != null
+                        ? null
+                        : () async {
+                            if (await applyToPost(context, ref, post)) ref.invalidate(feedProvider);
+                          },
+                    child: Text(
+                      post.myApplicationStatus == null
+                          ? 'Ứng tuyển'
+                          : applicationStatusLabel(post.myApplicationStatus!),
+                    ),
                   )
                 else
                   LinkButton('Xem chi tiết', onTap: open),

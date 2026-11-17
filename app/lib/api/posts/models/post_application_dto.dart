@@ -7,6 +7,8 @@ import 'post_application_user_dto.dart';
 class PostApplicationDto {
   const PostApplicationDto({
     required this.id,
+
+    /// Trạng thái ứng tuyển của tôi cho kèo tuyển người
     required this.status,
     required this.user,
     this.position,
@@ -30,6 +32,7 @@ class PostApplicationDto {
 
   final String id;
 
+  /// Trạng thái ứng tuyển của tôi cho kèo tuyển người
   final ApplicationStatus status;
 
   final PostApplicationUserDto user;
