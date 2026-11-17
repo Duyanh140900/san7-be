@@ -1,0 +1,6078 @@
+{
+  "version": 0.6,
+  "generator": "geofabrik vietnam-latest.osm.pbf via pyosmium",
+  "osm3s": {
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 10059435795,
+      "tags": {
+        "access": "yes",
+        "hoops": "2",
+        "leisure": "pitch",
+        "name": "Sân Bóng đá & Bóng rổ Empire City",
+        "name:en": "Empire City Soccer & Basketball Court",
+        "sport": "basketball;soccer",
+        "surface": "concrete"
+      },
+      "lat": 10.7681019,
+      "lon": 106.7120952
+    },
+    {
+      "type": "node",
+      "id": 12107200007,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân Bóng Thanh Niên 2",
+        "sport": "soccer"
+      },
+      "lat": 10.8539822,
+      "lon": 106.6736209
+    },
+    {
+      "type": "node",
+      "id": 13495193807,
+      "tags": {
+        "access": "yes",
+        "leisure": "pitch",
+        "lit": "yes",
+        "name": "Sân Bóng Đá Kim Long An Thạnh",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "lat": 10.6527259,
+      "lon": 106.4723587
+    },
+    {
+      "type": "node",
+      "id": 13503266356,
+      "tags": {
+        "access": "yes",
+        "leisure": "pitch",
+        "name": "Sân bóng",
+        "sport": "soccer;football",
+        "surface": "grass"
+      },
+      "lat": 10.7726081,
+      "lon": 106.6593159
+    },
+    {
+      "type": "node",
+      "id": 14190040145,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "name": "Sân bóng King's Sport",
+        "sport": "soccer"
+      },
+      "lat": 10.86645,
+      "lon": 106.6843876
+    },
+    {
+      "type": "node",
+      "id": 14256832895,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng đá mini Cầu Xéo",
+        "sport": "soccer"
+      },
+      "lat": 10.7983405,
+      "lon": 106.6248827
+    },
+    {
+      "type": "way",
+      "id": 126759148,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80416028,
+        "lon": 106.66735928
+      }
+    },
+    {
+      "type": "way",
+      "id": 146386038,
+      "tags": {
+        "leisure": "pitch",
+        "source": "bing aerial",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79140176,
+        "lon": 106.94886507999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 165567733,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân vận động Hoa Lư",
+        "name:ja": "ホアルー競技場",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.78793334,
+        "lon": 106.70150526
+      }
+    },
+    {
+      "type": "way",
+      "id": 174632948,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.820509920000001,
+        "lon": 106.72585464
+      }
+    },
+    {
+      "type": "way",
+      "id": 182599855,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.72330188,
+        "lon": 106.62125713999998
+      }
+    },
+    {
+      "type": "way",
+      "id": 186276884,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân vận động Tao Đàn",
+        "name:en": "Tao Dan Stadium",
+        "name:id": "Gelanggang Tao Dan",
+        "name:zh": "骚坛运动场",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.77523076,
+        "lon": 106.69465416
+      }
+    },
+    {
+      "type": "way",
+      "id": 193824721,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78496736,
+        "lon": 106.7019617
+      }
+    },
+    {
+      "type": "way",
+      "id": 197983678,
+      "tags": {
+        "alt_name": "Sân 367",
+        "leisure": "pitch",
+        "name": "Sân bóng Hoàng Hoa Thám",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8051381,
+        "lon": 106.64851596000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 221052091,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.72239528,
+        "lon": 106.70894236
+      }
+    },
+    {
+      "type": "way",
+      "id": 238166771,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.806299540000001,
+        "lon": 106.65220357999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 240892298,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.71589072,
+        "lon": 106.64296920000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 240892303,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.715514279999999,
+        "lon": 106.64245748
+      }
+    },
+    {
+      "type": "way",
+      "id": 242304823,
+      "tags": {
+        "leisure": "sports_centre",
+        "name": "Sân Bóng Đá Chảo Lửa",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.805928414285715,
+        "lon": 106.6583686
+      }
+    },
+    {
+      "type": "way",
+      "id": 242304961,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80625452,
+        "lon": 106.65259619999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 242368568,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85118452,
+        "lon": 106.76808628
+      }
+    },
+    {
+      "type": "way",
+      "id": 245575757,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.720760375000001,
+        "lon": 106.7086686125
+      }
+    },
+    {
+      "type": "way",
+      "id": 258862580,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "paved"
+      },
+      "center": {
+        "lat": 10.718242966666667,
+        "lon": 106.88726733333334
+      }
+    },
+    {
+      "type": "way",
+      "id": 262962816,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.810308483333335,
+        "lon": 106.67627168333333
+      }
+    },
+    {
+      "type": "way",
+      "id": 262962817,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80983368,
+        "lon": 106.67690146
+      }
+    },
+    {
+      "type": "way",
+      "id": 262962818,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8099849,
+        "lon": 106.67704097999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 262962819,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.810516920000001,
+        "lon": 106.67567518000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 263171587,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân banh Cây Đa",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86307434,
+        "lon": 106.61882410000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 263444649,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.775556416666667,
+        "lon": 106.66940388333335
+      }
+    },
+    {
+      "type": "way",
+      "id": 263444650,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.775706875000001,
+        "lon": 106.66995258749999
+      }
+    },
+    {
+      "type": "way",
+      "id": 263506654,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.743068619999999,
+        "lon": 106.70225765999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 289441752,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85333036,
+        "lon": 106.75306118
+      }
+    },
+    {
+      "type": "way",
+      "id": 290134758,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.719059080000001,
+        "lon": 106.68605986
+      }
+    },
+    {
+      "type": "way",
+      "id": 290197604,
+      "tags": {
+        "addr:street": "Đường số 1A",
+        "leisure": "pitch",
+        "name": "Thuần Việt",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73522148,
+        "lon": 106.69364546
+      }
+    },
+    {
+      "type": "way",
+      "id": 290218569,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân vận động",
+        "name:en": "Sports Stadium",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.732465466666667,
+        "lon": 106.69775136666668
+      }
+    },
+    {
+      "type": "way",
+      "id": 290230765,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.87217146,
+        "lon": 106.79448748
+      }
+    },
+    {
+      "type": "way",
+      "id": 290397627,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.87576108,
+        "lon": 106.80560316
+      }
+    },
+    {
+      "type": "way",
+      "id": 290484110,
+      "tags": {
+        "building": "yes",
+        "leisure": "sports_centre",
+        "name": "Nhà TDTT ĐH Bách Khoa",
+        "sport": "basketball;volleyball;soccer"
+      },
+      "center": {
+        "lat": 10.882009307017544,
+        "lon": 106.80610553859648
+      }
+    },
+    {
+      "type": "way",
+      "id": 290725736,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.889948472727271,
+        "lon": 106.80164915454544
+      }
+    },
+    {
+      "type": "way",
+      "id": 290725750,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.89122098,
+        "lon": 106.79886802000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 290725751,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.89139762,
+        "lon": 106.79885096000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 290725752,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8915776,
+        "lon": 106.7988336
+      }
+    },
+    {
+      "type": "way",
+      "id": 290725754,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.891351499999999,
+        "lon": 106.79918394
+      }
+    },
+    {
+      "type": "way",
+      "id": 290789288,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8929154,
+        "lon": 106.81121986000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 291269259,
+      "tags": {
+        "leisure": "pitch",
+        "name": "SVĐ Dĩ An",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.911265421739131,
+        "lon": 106.76677043478261
+      }
+    },
+    {
+      "type": "way",
+      "id": 291493806,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8868513,
+        "lon": 106.78277367999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 291853358,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân banh Phường Bình Đường",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86760974,
+        "lon": 106.74874824000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 291961208,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86661952,
+        "lon": 106.77736236000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 292851485,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.852417280000001,
+        "lon": 106.76065684
+      }
+    },
+    {
+      "type": "way",
+      "id": 299949609,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8393705,
+        "lon": 106.64666835999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 306014907,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.828059020000001,
+        "lon": 106.76460472
+      }
+    },
+    {
+      "type": "way",
+      "id": 306183111,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8422843,
+        "lon": 106.78393725999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 306183112,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng đá Tiến Phát",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.83496844,
+        "lon": 106.77334268
+      }
+    },
+    {
+      "type": "way",
+      "id": 306183113,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84185308,
+        "lon": 106.78415174
+      }
+    },
+    {
+      "type": "way",
+      "id": 306183114,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.842282780000001,
+        "lon": 106.78423972
+      }
+    },
+    {
+      "type": "way",
+      "id": 306238732,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84696894,
+        "lon": 106.79269722
+      }
+    },
+    {
+      "type": "way",
+      "id": 306392928,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.83435246,
+        "lon": 106.77087811999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 306868287,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.83724504,
+        "lon": 106.71793232
+      }
+    },
+    {
+      "type": "way",
+      "id": 315506734,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.846673319999999,
+        "lon": 106.74826868
+      }
+    },
+    {
+      "type": "way",
+      "id": 315635784,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86469168,
+        "lon": 106.71751452000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 315635785,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86491212,
+        "lon": 106.7178073
+      }
+    },
+    {
+      "type": "way",
+      "id": 315635786,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86772198,
+        "lon": 106.73811964
+      }
+    },
+    {
+      "type": "way",
+      "id": 315635787,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.864602533333333,
+        "lon": 106.71728628333334
+      }
+    },
+    {
+      "type": "way",
+      "id": 315635788,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.865128,
+        "lon": 106.71798871666665
+      }
+    },
+    {
+      "type": "way",
+      "id": 315635789,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.867812066666668,
+        "lon": 106.73802301666666
+      }
+    },
+    {
+      "type": "way",
+      "id": 315658174,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91236912,
+        "lon": 106.71034294
+      }
+    },
+    {
+      "type": "way",
+      "id": 315658175,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91272058,
+        "lon": 106.71051915999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 315718670,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.87500678,
+        "lon": 106.68298446000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 315886643,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86338716,
+        "lon": 106.63260858000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 317064946,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73146814,
+        "lon": 106.67305174
+      }
+    },
+    {
+      "type": "way",
+      "id": 317064947,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7326112,
+        "lon": 106.67300592000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 317064948,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73138008,
+        "lon": 106.67286085999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 317064949,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.732658279999999,
+        "lon": 106.67848214
+      }
+    },
+    {
+      "type": "way",
+      "id": 317486481,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân Vận Động",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.85646464,
+        "lon": 106.75894994000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 331167416,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76988538,
+        "lon": 106.65385326
+      }
+    },
+    {
+      "type": "way",
+      "id": 331167419,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76953104,
+        "lon": 106.65371286
+      }
+    },
+    {
+      "type": "way",
+      "id": 331167430,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.769676614285714,
+        "lon": 106.6537823
+      }
+    },
+    {
+      "type": "way",
+      "id": 358132326,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân cỏ nhân tạo Thiên Trường",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80932798,
+        "lon": 106.71719124
+      }
+    },
+    {
+      "type": "way",
+      "id": 358993812,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85338852,
+        "lon": 106.63020388
+      }
+    },
+    {
+      "type": "way",
+      "id": 359260947,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân 320",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8187532,
+        "lon": 106.6389516
+      }
+    },
+    {
+      "type": "way",
+      "id": 366278607,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.72435398,
+        "lon": 106.703064
+      }
+    },
+    {
+      "type": "way",
+      "id": 366278608,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.72396234,
+        "lon": 106.70515126000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 366278609,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7244529,
+        "lon": 106.70523508000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 366278610,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.724494116666667,
+        "lon": 106.70472315
+      }
+    },
+    {
+      "type": "way",
+      "id": 366278613,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.72446092,
+        "lon": 106.70334184000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 368243692,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.650008099999999,
+        "lon": 106.73990142
+      }
+    },
+    {
+      "type": "way",
+      "id": 377269789,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73515136,
+        "lon": 106.69612288
+      }
+    },
+    {
+      "type": "way",
+      "id": 420032365,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.738841820000001,
+        "lon": 106.66819425999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 420032366,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7386773,
+        "lon": 106.66780682000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 420032367,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7388913,
+        "lon": 106.66750178
+      }
+    },
+    {
+      "type": "way",
+      "id": 421977477,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.69238812,
+        "lon": 106.65840591999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 421977479,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.691659560000002,
+        "lon": 106.65675117999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 421977480,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân Vận Động Thanh Long",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.6904553,
+        "lon": 106.65738080000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 421977481,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.69038424,
+        "lon": 106.65846045999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 421977485,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.69206588,
+        "lon": 106.65772234
+      }
+    },
+    {
+      "type": "way",
+      "id": 435246974,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.852796219999998,
+        "lon": 106.79900452
+      }
+    },
+    {
+      "type": "way",
+      "id": 483363928,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.772594799999998,
+        "lon": 106.65922994
+      }
+    },
+    {
+      "type": "way",
+      "id": 484855304,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "name": "Sân bóng nhân tạo",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.876582566666665,
+        "lon": 106.80554718333333
+      }
+    },
+    {
+      "type": "way",
+      "id": 488609480,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân banh",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.87972862,
+        "lon": 106.80909716000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 493155244,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.747302600000001,
+        "lon": 106.59916922
+      }
+    },
+    {
+      "type": "way",
+      "id": 493174195,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.8124866,
+        "lon": 106.67047110000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 494796955,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.807458220000001,
+        "lon": 106.60624714000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 507538771,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84564056,
+        "lon": 106.79777240000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 516639170,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86327168888889,
+        "lon": 106.61571321111111
+      }
+    },
+    {
+      "type": "way",
+      "id": 529194483,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.790893559999999,
+        "lon": 106.949866
+      }
+    },
+    {
+      "type": "way",
+      "id": 529194484,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79070478,
+        "lon": 106.94953301999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 533313876,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.82741818,
+        "lon": 106.79912340000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 559319482,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.83376308,
+        "lon": 106.67656924
+      }
+    },
+    {
+      "type": "way",
+      "id": 597499978,
+      "tags": {
+        "addr:city": "Ho Chi Minh City",
+        "addr:district": "Bình Thạnh",
+        "addr:housenumber": "29",
+        "addr:street": "Đường số 8",
+        "addr:subdistrict": "26",
+        "leisure": "pitch",
+        "lit": "yes",
+        "name": "Sân banh số 8",
+        "phone": "+84 28 6673 5953",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.8129957,
+        "lon": 106.70633304
+      }
+    },
+    {
+      "type": "way",
+      "id": 608002876,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.902052081818182,
+        "lon": 106.77874707272727
+      }
+    },
+    {
+      "type": "way",
+      "id": 609967457,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.67906402,
+        "lon": 106.93399972
+      }
+    },
+    {
+      "type": "way",
+      "id": 609967459,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.67946776,
+        "lon": 106.9337401
+      }
+    },
+    {
+      "type": "way",
+      "id": 613756785,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80179132,
+        "lon": 106.66730778000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 665450064,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.760774900000001,
+        "lon": 106.66322822
+      }
+    },
+    {
+      "type": "way",
+      "id": 675570982,
+      "tags": {
+        "leisure": "pitch",
+        "name": "sân bóng đá",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.88418142,
+        "lon": 106.77593512000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 675572484,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.88239988,
+        "lon": 106.77540916000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 676059150,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.74607846,
+        "lon": 106.61628718
+      }
+    },
+    {
+      "type": "way",
+      "id": 682689470,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.75380522,
+        "lon": 106.68995546000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 695034808,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân Bóng UIT",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8691049625,
+        "lon": 106.803433575
+      }
+    },
+    {
+      "type": "way",
+      "id": 695900412,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.770631514285714,
+        "lon": 106.72233935714284
+      }
+    },
+    {
+      "type": "way",
+      "id": 712570100,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.826951542857143,
+        "lon": 106.63038474285715
+      }
+    },
+    {
+      "type": "way",
+      "id": 716762886,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân Bóng Đá Mini Nguyễn Hữu Đan",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.74465874,
+        "lon": 106.61063469999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 724481051,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng mini",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.882394916666668,
+        "lon": 106.81026568333334
+      }
+    },
+    {
+      "type": "way",
+      "id": 724481052,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng mini",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.88214624,
+        "lon": 106.8108146
+      }
+    },
+    {
+      "type": "way",
+      "id": 726878558,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85663868,
+        "lon": 106.79350164
+      }
+    },
+    {
+      "type": "way",
+      "id": 727358727,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84205662,
+        "lon": 106.79661232000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 727362151,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86918412,
+        "lon": 106.79013618000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 728097518,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.844522340000001,
+        "lon": 106.80743224
+      }
+    },
+    {
+      "type": "way",
+      "id": 732489101,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.792619640000002,
+        "lon": 106.73728071999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 736995042,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.711005259999999,
+        "lon": 106.5739245
+      }
+    },
+    {
+      "type": "way",
+      "id": 738278495,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.874279833333333,
+        "lon": 106.80106701666666
+      }
+    },
+    {
+      "type": "way",
+      "id": 738996703,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.83570064,
+        "lon": 106.80507878
+      }
+    },
+    {
+      "type": "way",
+      "id": 762467247,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.74245284,
+        "lon": 106.87071155999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 788107340,
+      "tags": {
+        "access": "private",
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.736647783333334,
+        "lon": 106.69275756666667
+      }
+    },
+    {
+      "type": "way",
+      "id": 806336378,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.744829433333335,
+        "lon": 106.65372860000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 806860800,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76683678,
+        "lon": 106.69702165999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 838395353,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.74829922,
+        "lon": 106.71438608000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 868191705,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79354562,
+        "lon": 106.65503908000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 906434321,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.820246260000001,
+        "lon": 106.70134402
+      }
+    },
+    {
+      "type": "way",
+      "id": 906434322,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.82044006,
+        "lon": 106.70130018
+      }
+    },
+    {
+      "type": "way",
+      "id": 975648452,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.9490585,
+        "lon": 106.82492864000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 975648453,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.948567360000002,
+        "lon": 106.82536682
+      }
+    },
+    {
+      "type": "way",
+      "id": 976996640,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "name": "Sân bóng đá Bình Đa",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.93806466,
+        "lon": 106.86087566
+      }
+    },
+    {
+      "type": "way",
+      "id": 977769764,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.93666962,
+        "lon": 106.83669402000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 981469288,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.94964432,
+        "lon": 106.82519142000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 982007352,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.937090860000001,
+        "lon": 106.85702418000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 982007353,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.937171600000001,
+        "lon": 106.8571944
+      }
+    },
+    {
+      "type": "way",
+      "id": 982007354,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.9372483,
+        "lon": 106.85735606
+      }
+    },
+    {
+      "type": "way",
+      "id": 982148988,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.935513480000001,
+        "lon": 106.8635695
+      }
+    },
+    {
+      "type": "way",
+      "id": 982151521,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.93672702,
+        "lon": 106.85843032
+      }
+    },
+    {
+      "type": "way",
+      "id": 982151522,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.936672439999999,
+        "lon": 106.8582596
+      }
+    },
+    {
+      "type": "way",
+      "id": 982151523,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.936615,
+        "lon": 106.85807982000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 982159582,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.93201606,
+        "lon": 106.85343782
+      }
+    },
+    {
+      "type": "way",
+      "id": 982159583,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.931814900000001,
+        "lon": 106.85345318
+      }
+    },
+    {
+      "type": "way",
+      "id": 982795418,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.93239238,
+        "lon": 106.86529752000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 982795419,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.93227424,
+        "lon": 106.86547155999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 983637707,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90775974,
+        "lon": 106.85866452
+      }
+    },
+    {
+      "type": "way",
+      "id": 994875824,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73509952,
+        "lon": 106.6964624
+      }
+    },
+    {
+      "type": "way",
+      "id": 994875825,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.735579,
+        "lon": 106.69654404
+      }
+    },
+    {
+      "type": "way",
+      "id": 994875826,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73487276,
+        "lon": 106.69569652
+      }
+    },
+    {
+      "type": "way",
+      "id": 994875827,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.734816,
+        "lon": 106.69606243999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 994875828,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.734755719999999,
+        "lon": 106.69642192
+      }
+    },
+    {
+      "type": "way",
+      "id": 994875829,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73562246,
+        "lon": 106.69620904000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005114292,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90677442,
+        "lon": 106.86550686000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005114293,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90668112,
+        "lon": 106.86567356
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005114294,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90659148,
+        "lon": 106.86583302
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005119439,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91119486,
+        "lon": 106.8690977
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005119440,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91130546,
+        "lon": 106.86923722000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005119441,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91141722,
+        "lon": 106.86937742
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005119442,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91154532857143,
+        "lon": 106.86955999999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005307350,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91218154,
+        "lon": 106.88086347999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005307351,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91218918,
+        "lon": 106.88106258
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005307352,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.912197019999999,
+        "lon": 106.8812667
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005307353,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91220504,
+        "lon": 106.88147455999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1005307354,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91221262,
+        "lon": 106.8816722
+      }
+    },
+    {
+      "type": "way",
+      "id": 1011575111,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.852495260000001,
+        "lon": 106.92307335999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1014035887,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8700877,
+        "lon": 106.76102639999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1014035888,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.869793079999999,
+        "lon": 106.76102370000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1014035889,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86441256,
+        "lon": 106.76243508
+      }
+    },
+    {
+      "type": "way",
+      "id": 1015368274,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.906754320000001,
+        "lon": 106.89239284
+      }
+    },
+    {
+      "type": "way",
+      "id": 1015368275,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90674068,
+        "lon": 106.89265794
+      }
+    },
+    {
+      "type": "way",
+      "id": 1015370364,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.92936642,
+        "lon": 106.87586756
+      }
+    },
+    {
+      "type": "way",
+      "id": 1016525872,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85016408,
+        "lon": 106.93810051999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1016639164,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8515101,
+        "lon": 106.93833246
+      }
+    },
+    {
+      "type": "way",
+      "id": 1016639165,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85150694,
+        "lon": 106.93861004
+      }
+    },
+    {
+      "type": "way",
+      "id": 1016779355,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.9350425625,
+        "lon": 106.871048025
+      }
+    },
+    {
+      "type": "way",
+      "id": 1017293222,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.898205440000002,
+        "lon": 106.90032104
+      }
+    },
+    {
+      "type": "way",
+      "id": 1017766617,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.867979199999999,
+        "lon": 106.61493795999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1018763409,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.87811294,
+        "lon": 106.77364232
+      }
+    },
+    {
+      "type": "way",
+      "id": 1022840984,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.856004809090908,
+        "lon": 106.77312452727273
+      }
+    },
+    {
+      "type": "way",
+      "id": 1022939892,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.841385260000001,
+        "lon": 106.81066157999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1023160156,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84675852,
+        "lon": 106.7829749
+      }
+    },
+    {
+      "type": "way",
+      "id": 1023160157,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.846850233333333,
+        "lon": 106.78318795
+      }
+    },
+    {
+      "type": "way",
+      "id": 1023160158,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84723004,
+        "lon": 106.78331394
+      }
+    },
+    {
+      "type": "way",
+      "id": 1023160159,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84704266,
+        "lon": 106.78339606
+      }
+    },
+    {
+      "type": "way",
+      "id": 1023160160,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84686186,
+        "lon": 106.78347893999998
+      }
+    },
+    {
+      "type": "way",
+      "id": 1026567614,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90829136,
+        "lon": 106.85961144000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1036206949,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng đá Phan Chu Trinh",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.81514856,
+        "lon": 106.70131862000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1036206950,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.816335559999999,
+        "lon": 106.70280636
+      }
+    },
+    {
+      "type": "way",
+      "id": 1036206953,
+      "tags": {
+        "addr:city": "Phường 12",
+        "addr:district": "Bình Thạnh",
+        "addr:province": "Hồ Chí Minh",
+        "addr:street": "Chu Văn An",
+        "addr:subdistrict": "Phường 12",
+        "leisure": "pitch",
+        "name": "Sân bóng đá HCA",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.81228536,
+        "lon": 106.70316924
+      }
+    },
+    {
+      "type": "way",
+      "id": 1042528996,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.823030919999999,
+        "lon": 106.69524882
+      }
+    },
+    {
+      "type": "way",
+      "id": 1043655734,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.724161720000001,
+        "lon": 106.72266429999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1051200101,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.94693466,
+        "lon": 106.81963662000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1053933945,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.94562186,
+        "lon": 106.81647218
+      }
+    },
+    {
+      "type": "way",
+      "id": 1059566393,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.7596912,
+        "lon": 106.68155604
+      }
+    },
+    {
+      "type": "way",
+      "id": 1060270467,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.949155814285714,
+        "lon": 106.68193684285714
+      }
+    },
+    {
+      "type": "way",
+      "id": 1060270468,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.94914362,
+        "lon": 106.68211798
+      }
+    },
+    {
+      "type": "way",
+      "id": 1084609758,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.872591199999999,
+        "lon": 106.80320918
+      }
+    },
+    {
+      "type": "way",
+      "id": 1084970846,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86917622,
+        "lon": 106.79050098
+      }
+    },
+    {
+      "type": "way",
+      "id": 1084970847,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8688924,
+        "lon": 106.79004316000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1084970848,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.868884640000001,
+        "lon": 106.79023342
+      }
+    },
+    {
+      "type": "way",
+      "id": 1084970849,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.868876740000001,
+        "lon": 106.79059552000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1084970850,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86887688,
+        "lon": 106.7904124
+      }
+    },
+    {
+      "type": "way",
+      "id": 1085632335,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.77458532,
+        "lon": 106.66079887999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1085962649,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8091922,
+        "lon": 106.63000774
+      }
+    },
+    {
+      "type": "way",
+      "id": 1086980074,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.77891244,
+        "lon": 106.68799343999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1087651863,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.762357179999999,
+        "lon": 106.65102218
+      }
+    },
+    {
+      "type": "way",
+      "id": 1094720952,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90508876,
+        "lon": 106.91700452
+      }
+    },
+    {
+      "type": "way",
+      "id": 1098140523,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79424558,
+        "lon": 106.76256492
+      }
+    },
+    {
+      "type": "way",
+      "id": 1098140531,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79426328,
+        "lon": 106.76288266000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 1098416303,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.70773568,
+        "lon": 106.64343708000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1098416304,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.714727700000001,
+        "lon": 106.64695251999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1098537788,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.74689662,
+        "lon": 106.79491198000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1113129736,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.798464966666666,
+        "lon": 106.63705006666667
+      }
+    },
+    {
+      "type": "way",
+      "id": 1113165722,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73517288,
+        "lon": 106.82787874
+      }
+    },
+    {
+      "type": "way",
+      "id": 1113170961,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.74360312,
+        "lon": 106.83742784
+      }
+    },
+    {
+      "type": "way",
+      "id": 1113642965,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85618652,
+        "lon": 106.76131851999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1113642966,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85634832,
+        "lon": 106.76138902
+      }
+    },
+    {
+      "type": "way",
+      "id": 1113642967,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85651168,
+        "lon": 106.76146016
+      }
+    },
+    {
+      "type": "way",
+      "id": 1113774381,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84653424,
+        "lon": 106.86591123999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1113774383,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.846722647058824,
+        "lon": 106.86627354117647
+      }
+    },
+    {
+      "type": "way",
+      "id": 1115315776,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80756618,
+        "lon": 106.60416226
+      }
+    },
+    {
+      "type": "way",
+      "id": 1117026265,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.752555699999998,
+        "lon": 106.79586666
+      }
+    },
+    {
+      "type": "way",
+      "id": 1125019895,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.765510879999999,
+        "lon": 106.74832341999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1137000733,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90974138,
+        "lon": 106.78016158
+      }
+    },
+    {
+      "type": "way",
+      "id": 1137249687,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.886605159999998,
+        "lon": 106.74586164
+      }
+    },
+    {
+      "type": "way",
+      "id": 1137249688,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.886702439999999,
+        "lon": 106.74571605999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1137249798,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.89265398,
+        "lon": 106.74104666000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1137449763,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.88548962,
+        "lon": 106.7431593
+      }
+    },
+    {
+      "type": "way",
+      "id": 1137449764,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8861493,
+        "lon": 106.74329594000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1137449769,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.88646296,
+        "lon": 106.74250562
+      }
+    },
+    {
+      "type": "way",
+      "id": 1137449770,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.88606104,
+        "lon": 106.74242406
+      }
+    },
+    {
+      "type": "way",
+      "id": 1144380341,
+      "tags": {
+        "leisure": "pitch",
+        "name": "sân bóng",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.88847224,
+        "lon": 106.76401848
+      }
+    },
+    {
+      "type": "way",
+      "id": 1145145559,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.732249939999999,
+        "lon": 106.69609686000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1146140723,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.89713034,
+        "lon": 106.73709088000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1146140724,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.89714208,
+        "lon": 106.73689952
+      }
+    },
+    {
+      "type": "way",
+      "id": 1146140759,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.89277936,
+        "lon": 106.73887676
+      }
+    },
+    {
+      "type": "way",
+      "id": 1146848493,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.899667733333333,
+        "lon": 106.73975555
+      }
+    },
+    {
+      "type": "way",
+      "id": 1148829618,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80724898,
+        "lon": 106.6175294
+      }
+    },
+    {
+      "type": "way",
+      "id": 1148922626,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80483596,
+        "lon": 106.62090588000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1149460677,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.81333884,
+        "lon": 106.62208166
+      }
+    },
+    {
+      "type": "way",
+      "id": 1152346892,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73088358,
+        "lon": 106.68775120000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1152659308,
+      "tags": {
+        "building:levels": "4.5",
+        "leisure": "pitch",
+        "roof:shape": "gabled",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80691334,
+        "lon": 106.61810618
+      }
+    },
+    {
+      "type": "way",
+      "id": 1155365688,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.743130400000002,
+        "lon": 106.69839294
+      }
+    },
+    {
+      "type": "way",
+      "id": 1155365689,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7431641,
+        "lon": 106.69820652000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1155365690,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7431966,
+        "lon": 106.69801996000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1156381706,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73183886,
+        "lon": 106.72721917999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1156381707,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73162352,
+        "lon": 106.7273521
+      }
+    },
+    {
+      "type": "way",
+      "id": 1156381708,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73145514,
+        "lon": 106.7274558
+      }
+    },
+    {
+      "type": "way",
+      "id": 1156381709,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7312875,
+        "lon": 106.72756216
+      }
+    },
+    {
+      "type": "way",
+      "id": 1157432560,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.72400172,
+        "lon": 106.70549903999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1157449245,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.720956339999999,
+        "lon": 106.70519886
+      }
+    },
+    {
+      "type": "way",
+      "id": 1157899276,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.717807279999999,
+        "lon": 106.70414466
+      }
+    },
+    {
+      "type": "way",
+      "id": 1157899277,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.71789694,
+        "lon": 106.70435305999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1157990282,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.733105259999999,
+        "lon": 106.71140276000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1162776052,
+      "tags": {
+        "leisure": "sports_centre",
+        "name": "Sân bóng đá Sport Plus WeSport",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80497855,
+        "lon": 106.61221233333333
+      }
+    },
+    {
+      "type": "way",
+      "id": 1166149905,
+      "tags": {
+        "addr:city": "Thành phố Biên Hòa",
+        "addr:housenumber": "79",
+        "addr:province": "Tỉnh Đồng Nai",
+        "addr:street": "Đường Huỳnh Văn Lũy",
+        "addr:subdistrict": "Phường Thanh Bình",
+        "leisure": "pitch",
+        "name": "Sân bóng đá Biên Hòa",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.94878562,
+        "lon": 106.81257786
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102271,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80650196,
+        "lon": 106.6200803
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102272,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80646032,
+        "lon": 106.62026318000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102273,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80641954,
+        "lon": 106.62044541999998
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102274,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80605478,
+        "lon": 106.62004726
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102275,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.806098460000001,
+        "lon": 106.62043212
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102276,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.805905880000001,
+        "lon": 106.62045916
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102277,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.805710719999999,
+        "lon": 106.62048214000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102278,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80550626,
+        "lon": 106.62050916000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102279,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80530046,
+        "lon": 106.62053214
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102280,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80510258,
+        "lon": 106.62055649999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102281,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80505346,
+        "lon": 106.62017802
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102282,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80525396,
+        "lon": 106.62015905999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102283,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80545976,
+        "lon": 106.62013340000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102284,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80565496,
+        "lon": 106.62010232
+      }
+    },
+    {
+      "type": "way",
+      "id": 1169102285,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.805852779999999,
+        "lon": 106.62007932000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 1173063283,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90284594,
+        "lon": 106.73980464000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 1173063362,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.903737699999999,
+        "lon": 106.74015007999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1173063363,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90374848,
+        "lon": 106.73998188
+      }
+    },
+    {
+      "type": "way",
+      "id": 1173820894,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91234654,
+        "lon": 106.73888452000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1173821033,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90829026,
+        "lon": 106.73183832
+      }
+    },
+    {
+      "type": "way",
+      "id": 1173821043,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.9072284,
+        "lon": 106.72982078
+      }
+    },
+    {
+      "type": "way",
+      "id": 1173821044,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.907250066666668,
+        "lon": 106.72961253333334
+      }
+    },
+    {
+      "type": "way",
+      "id": 1189112106,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.816808720000001,
+        "lon": 106.72761705999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1189341037,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.810792320000001,
+        "lon": 106.73119682000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1189341038,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8116244,
+        "lon": 106.73167348
+      }
+    },
+    {
+      "type": "way",
+      "id": 1197568533,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.92036274,
+        "lon": 106.74103848
+      }
+    },
+    {
+      "type": "way",
+      "id": 1211762401,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng đá Mã Lò",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.784392925,
+        "lon": 106.596930475
+      }
+    },
+    {
+      "type": "way",
+      "id": 1214273250,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.81463974,
+        "lon": 106.70241524000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1215418779,
+      "tags": {
+        "addr:city": "Phường Tân Thới Hòa",
+        "addr:district": "Tân Phú",
+        "addr:province": "Hồ Chí Minh",
+        "addr:street": "Hẻm 17 Lương Minh Nguyệt",
+        "addr:subdistrict": "Tân Thới Hòa",
+        "leisure": "sports_centre",
+        "name": "Sân bóng đá mini Tân Thới Hòa",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.760169059999999,
+        "lon": 106.63059944
+      }
+    },
+    {
+      "type": "way",
+      "id": 1219278791,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng Chảo Lửa",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.806556345454545,
+        "lon": 106.65550509090909
+      }
+    },
+    {
+      "type": "way",
+      "id": 1219282139,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.809400953846154,
+        "lon": 106.65423673076923
+      }
+    },
+    {
+      "type": "way",
+      "id": 1219698166,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.694582819999999,
+        "lon": 106.59033300000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 1219698167,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.69434912,
+        "lon": 106.59036146000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1220207232,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.732833959999999,
+        "lon": 106.61341144000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1220207233,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73280466,
+        "lon": 106.61361070000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1220207234,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7327744,
+        "lon": 106.61380890000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1220207235,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73316136,
+        "lon": 106.613869
+      }
+    },
+    {
+      "type": "way",
+      "id": 1220207236,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73319166,
+        "lon": 106.6136708
+      }
+    },
+    {
+      "type": "way",
+      "id": 1220207237,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.733220900000001,
+        "lon": 106.61347152
+      }
+    },
+    {
+      "type": "way",
+      "id": 1221371354,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78186464,
+        "lon": 106.66073191999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1221371355,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78168534,
+        "lon": 106.66082142
+      }
+    },
+    {
+      "type": "way",
+      "id": 1221371361,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.781439500000001,
+        "lon": 106.65996116000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1221371362,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78157822,
+        "lon": 106.66008588
+      }
+    },
+    {
+      "type": "way",
+      "id": 1221371363,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78171524,
+        "lon": 106.6602097
+      }
+    },
+    {
+      "type": "way",
+      "id": 1221371364,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78142996,
+        "lon": 106.66033978
+      }
+    },
+    {
+      "type": "way",
+      "id": 1222385049,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.839907239999999,
+        "lon": 106.83641568
+      }
+    },
+    {
+      "type": "way",
+      "id": 1222703219,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76828508,
+        "lon": 106.7119882
+      }
+    },
+    {
+      "type": "way",
+      "id": 1222756411,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.83957628,
+        "lon": 106.83705328
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223109007,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79294472,
+        "lon": 106.76164383999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223110707,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79310504,
+        "lon": 106.77737022000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223110708,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79315196,
+        "lon": 106.77786042
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223149556,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8351668,
+        "lon": 106.82946311999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223149557,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.83554166,
+        "lon": 106.82969238000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223356290,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8368651,
+        "lon": 106.84492158
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223444711,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.716474340000001,
+        "lon": 106.64217546
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223444712,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.716567040000001,
+        "lon": 106.64230516
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223689087,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.715646060000001,
+        "lon": 106.64273189999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223689088,
+      "tags": {
+        "leisure": "sports_centre",
+        "name": "Sân bóng đá 13C",
+        "sport": "soccer;billiards"
+      },
+      "center": {
+        "lat": 10.715650033333333,
+        "lon": 106.64278976666667
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223771816,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76801674,
+        "lon": 106.5661307
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223771817,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76784084,
+        "lon": 106.56605196000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1223771818,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76819122,
+        "lon": 106.56620882
+      }
+    },
+    {
+      "type": "way",
+      "id": 1225202377,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "concrete"
+      },
+      "center": {
+        "lat": 10.66895156,
+        "lon": 106.64783956000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1226734739,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.65067962,
+        "lon": 106.60217686000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1226734740,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.65061884,
+        "lon": 106.60230718
+      }
+    },
+    {
+      "type": "way",
+      "id": 1229027475,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78990086,
+        "lon": 106.77556636
+      }
+    },
+    {
+      "type": "way",
+      "id": 1229027476,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78987968,
+        "lon": 106.77576045999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1229027477,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.789628780000001,
+        "lon": 106.77562184000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1229242213,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.69688828,
+        "lon": 106.92088745999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1230566154,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80613755,
+        "lon": 106.65842526666667
+      }
+    },
+    {
+      "type": "way",
+      "id": 1230566155,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.806148899999998,
+        "lon": 106.6580136
+      }
+    },
+    {
+      "type": "way",
+      "id": 1230566156,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80585655,
+        "lon": 106.65791551666666
+      }
+    },
+    {
+      "type": "way",
+      "id": 1230566157,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.805865433333333,
+        "lon": 106.65812161666668
+      }
+    },
+    {
+      "type": "way",
+      "id": 1230566158,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.805947683333335,
+        "lon": 106.65840663333334
+      }
+    },
+    {
+      "type": "way",
+      "id": 1230566159,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80576845,
+        "lon": 106.65838908333335
+      }
+    },
+    {
+      "type": "way",
+      "id": 1230566160,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.806049,
+        "lon": 106.6587302
+      }
+    },
+    {
+      "type": "way",
+      "id": 1230566161,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.805851833333334,
+        "lon": 106.65871115
+      }
+    },
+    {
+      "type": "way",
+      "id": 1230566162,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8056706,
+        "lon": 106.65869373333334
+      }
+    },
+    {
+      "type": "way",
+      "id": 1233474635,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.82113504,
+        "lon": 106.76998395999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1233474636,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8210282,
+        "lon": 106.77022034000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1235149489,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78431214,
+        "lon": 106.64034222000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246114512,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.768213540000001,
+        "lon": 106.65658426
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246114541,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7695862,
+        "lon": 106.65550764
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246114542,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7693125,
+        "lon": 106.65508556
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325903,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.765665440000001,
+        "lon": 106.65657633999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325907,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76619276,
+        "lon": 106.65814204
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325913,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7694864,
+        "lon": 106.65644724
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325914,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76919092,
+        "lon": 106.65663972
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325915,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76889414,
+        "lon": 106.65683102
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325916,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76857942,
+        "lon": 106.65703103999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325917,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76827806,
+        "lon": 106.65722716
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325918,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76776942,
+        "lon": 106.65755641999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325919,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76745738,
+        "lon": 106.65776558
+      }
+    },
+    {
+      "type": "way",
+      "id": 1246325922,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76652154,
+        "lon": 106.65839224000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1266440163,
+      "tags": {
+        "access": "yes",
+        "leisure": "pitch",
+        "name": "Sân bóng chợ Hera",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.86510822,
+        "lon": 106.92563616
+      }
+    },
+    {
+      "type": "way",
+      "id": 1271061071,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.83998488,
+        "lon": 106.80896182000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1271061072,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.839806939999999,
+        "lon": 106.80878442000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1287312261,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.79770504,
+        "lon": 106.65580652000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1287312262,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.79778846,
+        "lon": 106.65595671999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1287312263,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.79787384,
+        "lon": 106.65610594
+      }
+    },
+    {
+      "type": "way",
+      "id": 1287312264,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.79746916,
+        "lon": 106.65615392
+      }
+    },
+    {
+      "type": "way",
+      "id": 1287312265,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.79755454,
+        "lon": 106.65630312
+      }
+    },
+    {
+      "type": "way",
+      "id": 1287312266,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.797385760000001,
+        "lon": 106.65600372000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 1292050355,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng Cao đẳng Saigon Tech",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8558309,
+        "lon": 106.630549
+      }
+    },
+    {
+      "type": "way",
+      "id": 1292192116,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85151526,
+        "lon": 106.62761452
+      }
+    },
+    {
+      "type": "way",
+      "id": 1292830125,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73879224,
+        "lon": 106.69702522
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293024911,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.702401120000001,
+        "lon": 106.70553858000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293024912,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.702192919999998,
+        "lon": 106.70554796000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293024922,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.68008788,
+        "lon": 106.7412037
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293333283,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7837735,
+        "lon": 106.73735298
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293362913,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84909644,
+        "lon": 106.76813774
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293445485,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73554334,
+        "lon": 106.62798935999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293445490,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7474182,
+        "lon": 106.63652952
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293449997,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.727082200000002,
+        "lon": 106.69289996
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293548508,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73489492,
+        "lon": 106.63740958000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293548515,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73378718,
+        "lon": 106.65942815999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293548516,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73339972,
+        "lon": 106.65944666
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293548523,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.77891206,
+        "lon": 106.6619841
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293549741,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.87182346,
+        "lon": 106.64538268000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293671798,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.69055676,
+        "lon": 106.57627398
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293671799,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.690905480000001,
+        "lon": 106.57618975999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1293671812,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.808981766666667,
+        "lon": 106.67623213333333
+      }
+    },
+    {
+      "type": "way",
+      "id": 1296131376,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.81430952,
+        "lon": 106.70117076
+      }
+    },
+    {
+      "type": "way",
+      "id": 1296131377,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.81432236,
+        "lon": 106.70135678
+      }
+    },
+    {
+      "type": "way",
+      "id": 1296131378,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8143347,
+        "lon": 106.70153434
+      }
+    },
+    {
+      "type": "way",
+      "id": 1301028947,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8810021,
+        "lon": 106.73727062
+      }
+    },
+    {
+      "type": "way",
+      "id": 1301028948,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.882003814285714,
+        "lon": 106.73602705714286
+      }
+    },
+    {
+      "type": "way",
+      "id": 1301707199,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.77705356,
+        "lon": 106.6607951
+      }
+    },
+    {
+      "type": "way",
+      "id": 1302162895,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.845995460000001,
+        "lon": 106.77672676
+      }
+    },
+    {
+      "type": "way",
+      "id": 1305790050,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.714765766666666,
+        "lon": 106.72805553333335
+      }
+    },
+    {
+      "type": "way",
+      "id": 1305790051,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.71467782,
+        "lon": 106.72787401999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1308105274,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng đá NTĐ Quận 7",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.74094858,
+        "lon": 106.72903772
+      }
+    },
+    {
+      "type": "way",
+      "id": 1308319281,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.72811822,
+        "lon": 106.72727024000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1308395575,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng đá nhà thiếu nhi huyện Nhà Bè",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.675536439999998,
+        "lon": 106.73142714000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1308397281,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.71484128,
+        "lon": 106.73347813999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1308720685,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84973716,
+        "lon": 106.67472438
+      }
+    },
+    {
+      "type": "way",
+      "id": 1308839142,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.830310399999998,
+        "lon": 106.70034163999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1308941552,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.840717960000001,
+        "lon": 106.83958636
+      }
+    },
+    {
+      "type": "way",
+      "id": 1308942450,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8364451,
+        "lon": 106.843677
+      }
+    },
+    {
+      "type": "way",
+      "id": 1309074049,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.87861912,
+        "lon": 106.63499404
+      }
+    },
+    {
+      "type": "way",
+      "id": 1310456270,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91392548,
+        "lon": 106.93740928
+      }
+    },
+    {
+      "type": "way",
+      "id": 1310615900,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.87240772,
+        "lon": 106.64160056
+      }
+    },
+    {
+      "type": "way",
+      "id": 1310615901,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.872308440000001,
+        "lon": 106.64177416
+      }
+    },
+    {
+      "type": "way",
+      "id": 1310615902,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.872209999999999,
+        "lon": 106.64194638
+      }
+    },
+    {
+      "type": "way",
+      "id": 1310615939,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.86665124,
+        "lon": 106.64076808
+      }
+    },
+    {
+      "type": "way",
+      "id": 1314671854,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng Đông Thạnh",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90512622,
+        "lon": 106.63558292
+      }
+    },
+    {
+      "type": "way",
+      "id": 1323498030,
+      "tags": {
+        "access": "private",
+        "leisure": "pitch",
+        "name": "RMIT University Football Pitch",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.72968306,
+        "lon": 106.69156438
+      }
+    },
+    {
+      "type": "way",
+      "id": 1323498075,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân Banh Đại Học Cảnh Sát",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73506328,
+        "lon": 106.69579496000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1331561460,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79768074,
+        "lon": 106.77242804
+      }
+    },
+    {
+      "type": "way",
+      "id": 1331561461,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79767374,
+        "lon": 106.77227564
+      }
+    },
+    {
+      "type": "way",
+      "id": 1338236842,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân thể thao UEL",
+        "sport": "soccer;basketball;badminton"
+      },
+      "center": {
+        "lat": 10.87265461818182,
+        "lon": 106.77750316363635
+      }
+    },
+    {
+      "type": "way",
+      "id": 1338236846,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng đá UEL",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.87243992,
+        "lon": 106.77751132
+      }
+    },
+    {
+      "type": "way",
+      "id": 1344367114,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91298536,
+        "lon": 106.78832138
+      }
+    },
+    {
+      "type": "way",
+      "id": 1344367115,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.912816333333334,
+        "lon": 106.78866251666666
+      }
+    },
+    {
+      "type": "way",
+      "id": 1344367116,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.912871857142859,
+        "lon": 106.78885195714285
+      }
+    },
+    {
+      "type": "way",
+      "id": 1344367117,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.913104233333334,
+        "lon": 106.78868545
+      }
+    },
+    {
+      "type": "way",
+      "id": 1344367118,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.912939249999999,
+        "lon": 106.78849525
+      }
+    },
+    {
+      "type": "way",
+      "id": 1344367123,
+      "tags": {
+        "addr:hamlet": "Khu phố Tân An",
+        "addr:housenumber": "71",
+        "addr:street": "Đường Tân An",
+        "barrier": "fence",
+        "leisure": "sports_centre",
+        "name": "Khu Thể thao Tân An",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.91281445625,
+        "lon": 106.78852265625
+      }
+    },
+    {
+      "type": "way",
+      "id": 1353113762,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.660760419999999,
+        "lon": 106.56603794
+      }
+    },
+    {
+      "type": "way",
+      "id": 1356478718,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.774191988888889,
+        "lon": 106.72992972222222
+      }
+    },
+    {
+      "type": "way",
+      "id": 1356745215,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.73190314,
+        "lon": 106.66685546
+      }
+    },
+    {
+      "type": "way",
+      "id": 1368997054,
+      "tags": {
+        "addr:city": "Hồ Chí Minh",
+        "addr:district": "Bình Tân",
+        "addr:housenumber": "21",
+        "addr:postcode": "70000",
+        "addr:province": "Hồ Chí Minh",
+        "addr:street": "Kênh Nước Đen",
+        "addr:subdistrict": "Bình Hưng Hoà A",
+        "leisure": "pitch",
+        "lit": "yes",
+        "name": "Sân bóng đá Cầu Trắng",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.788325788888889,
+        "lon": 106.61540615555556
+      }
+    },
+    {
+      "type": "way",
+      "id": 1369819610,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng đá hẻm 278 Gò Xoài",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.789668026666668,
+        "lon": 106.6055183
+      }
+    },
+    {
+      "type": "way",
+      "id": 1369868812,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân bóng đá Mã Lò",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7843503,
+        "lon": 106.59655273999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1393700000,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.850060039999999,
+        "lon": 106.79303030000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1411716048,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "name": "Mansion Sports Club",
+        "sport": "soccer",
+        "website": "https://www.facebook.com/mansionsportsclubvn"
+      },
+      "center": {
+        "lat": 10.71600446,
+        "lon": 106.74458346000002
+      }
+    },
+    {
+      "type": "way",
+      "id": 1414592753,
+      "tags": {
+        "access": "yes",
+        "leisure": "pitch",
+        "lit": "yes",
+        "sport": "soccer",
+        "surface": "grass"
+      },
+      "center": {
+        "lat": 10.82212374,
+        "lon": 106.7021933
+      }
+    },
+    {
+      "type": "way",
+      "id": 1415800624,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7771141,
+        "lon": 106.67611634
+      }
+    },
+    {
+      "type": "way",
+      "id": 1447254332,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.762390360000001,
+        "lon": 106.67996326
+      }
+    },
+    {
+      "type": "way",
+      "id": 1447254333,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.76232462,
+        "lon": 106.67978783999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1447254334,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "sport": "soccer",
+        "surface": "artificial_turf"
+      },
+      "center": {
+        "lat": 10.76225936,
+        "lon": 106.67961404
+      }
+    },
+    {
+      "type": "way",
+      "id": 1448150719,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.757673966666665,
+        "lon": 106.67094474999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1453252499,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.75751498,
+        "lon": 106.66372142
+      }
+    },
+    {
+      "type": "way",
+      "id": 1453252500,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7574524125,
+        "lon": 106.6633722125
+      }
+    },
+    {
+      "type": "way",
+      "id": 1453252501,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.75750647142857,
+        "lon": 106.66398931428571
+      }
+    },
+    {
+      "type": "way",
+      "id": 1453252502,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7571076,
+        "lon": 106.66409686666667
+      }
+    },
+    {
+      "type": "way",
+      "id": 1461306782,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80834346,
+        "lon": 106.6502547
+      }
+    },
+    {
+      "type": "way",
+      "id": 1461306783,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.808173459999999,
+        "lon": 106.65023788
+      }
+    },
+    {
+      "type": "way",
+      "id": 1461306784,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8080044,
+        "lon": 106.6502217
+      }
+    },
+    {
+      "type": "way",
+      "id": 1461306785,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80831134,
+        "lon": 106.65060814
+      }
+    },
+    {
+      "type": "way",
+      "id": 1461306786,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80814242,
+        "lon": 106.650593
+      }
+    },
+    {
+      "type": "way",
+      "id": 1461306787,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.807973839999999,
+        "lon": 106.65057766
+      }
+    },
+    {
+      "type": "way",
+      "id": 1461306788,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.80861708,
+        "lon": 106.65075776
+      }
+    },
+    {
+      "type": "way",
+      "id": 1461306789,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.808662833333335,
+        "lon": 106.65031975
+      }
+    },
+    {
+      "type": "way",
+      "id": 1464064892,
+      "tags": {
+        "leisure": "pitch",
+        "name": "San bóng ngoài trời",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.869490233333332,
+        "lon": 106.79108101666667
+      }
+    },
+    {
+      "type": "way",
+      "id": 1489005379,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.773825059999998,
+        "lon": 106.7584261
+      }
+    },
+    {
+      "type": "way",
+      "id": 1492128530,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.72617558,
+        "lon": 106.66217818
+      }
+    },
+    {
+      "type": "way",
+      "id": 1492128531,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.72651304,
+        "lon": 106.66204528
+      }
+    },
+    {
+      "type": "way",
+      "id": 1492128532,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.727053219999998,
+        "lon": 106.66185626
+      }
+    },
+    {
+      "type": "way",
+      "id": 1511017350,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.720394039999999,
+        "lon": 106.73377404
+      }
+    },
+    {
+      "type": "way",
+      "id": 1537122683,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.77288292,
+        "lon": 106.5968718
+      }
+    },
+    {
+      "type": "way",
+      "id": 1537906310,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.851569979999999,
+        "lon": 106.7682372
+      }
+    },
+    {
+      "type": "way",
+      "id": 1537906311,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8513798,
+        "lon": 106.76816088000001
+      }
+    },
+    {
+      "type": "way",
+      "id": 1537906328,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.852843920000002,
+        "lon": 106.75844336
+      }
+    },
+    {
+      "type": "way",
+      "id": 1537906329,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85283864,
+        "lon": 106.75824352
+      }
+    },
+    {
+      "type": "way",
+      "id": 1537906330,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85283402,
+        "lon": 106.75803802
+      }
+    },
+    {
+      "type": "way",
+      "id": 1537906331,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.853223539999998,
+        "lon": 106.75843246
+      }
+    },
+    {
+      "type": "way",
+      "id": 1537906332,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85321826,
+        "lon": 106.75823266
+      }
+    },
+    {
+      "type": "way",
+      "id": 1537906333,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.853213640000002,
+        "lon": 106.75802712
+      }
+    },
+    {
+      "type": "way",
+      "id": 1539651902,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.743052899999999,
+        "lon": 106.63407748
+      }
+    },
+    {
+      "type": "way",
+      "id": 1539651921,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78664058,
+        "lon": 106.62161378
+      }
+    },
+    {
+      "type": "way",
+      "id": 1539651922,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78669644,
+        "lon": 106.6214194
+      }
+    },
+    {
+      "type": "way",
+      "id": 1546456886,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.905712920000001,
+        "lon": 106.58628228
+      }
+    },
+    {
+      "type": "way",
+      "id": 1546456887,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.90562156,
+        "lon": 106.58706898
+      }
+    },
+    {
+      "type": "way",
+      "id": 1546456888,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.905146579999998,
+        "lon": 106.5867516
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547212930,
+      "tags": {
+        "leisure": "pitch",
+        "lit": "yes",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.781005900000002,
+        "lon": 106.79014986666668
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547212931,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7805464,
+        "lon": 106.79011088
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547381899,
+      "tags": {
+        "access": "private",
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78953752,
+        "lon": 106.74963471999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547397046,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7878131,
+        "lon": 106.78769093999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547397047,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.787807619999999,
+        "lon": 106.78787478
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547397048,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78780126,
+        "lon": 106.78804752
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547397049,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7877933,
+        "lon": 106.78822696
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547397050,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78778604,
+        "lon": 106.7884155
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547397051,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.78778018,
+        "lon": 106.7885943
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547420207,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.791613680000001,
+        "lon": 106.79567258
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547420208,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.791779819999999,
+        "lon": 106.79574484
+      }
+    },
+    {
+      "type": "way",
+      "id": 1547420209,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.79194454,
+        "lon": 106.79581737999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1548550153,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85039294,
+        "lon": 106.79273134
+      }
+    },
+    {
+      "type": "way",
+      "id": 1548550156,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84931794,
+        "lon": 106.79296437999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1548550157,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.849665439999999,
+        "lon": 106.79292828
+      }
+    },
+    {
+      "type": "way",
+      "id": 1548550158,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85003704,
+        "lon": 106.79321026
+      }
+    },
+    {
+      "type": "way",
+      "id": 1548729448,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.8025031,
+        "lon": 106.69530114
+      }
+    },
+    {
+      "type": "way",
+      "id": 1548729460,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.845688800000001,
+        "lon": 106.79794523999999
+      }
+    },
+    {
+      "type": "way",
+      "id": 1548729468,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.84219228,
+        "lon": 106.7967611
+      }
+    },
+    {
+      "type": "way",
+      "id": 1548829731,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.7975679,
+        "lon": 106.74418538
+      }
+    },
+    {
+      "type": "way",
+      "id": 1573845929,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85701632,
+        "lon": 106.80897198
+      }
+    },
+    {
+      "type": "way",
+      "id": 1573845930,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.85762036,
+        "lon": 106.80928566
+      }
+    },
+    {
+      "type": "way",
+      "id": 1577240435,
+      "tags": {
+        "leisure": "pitch",
+        "sport": "soccer"
+      },
+      "center": {
+        "lat": 10.76601172,
+        "lon": 106.65709726
+      }
+    }
+  ]
+}
