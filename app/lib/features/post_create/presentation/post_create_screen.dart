@@ -184,6 +184,53 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     if (v != null) setState(() => _ratioWin = v);
   }
 
+  /// Chọn một sân trong danh sách sân gần bạn (dữ liệu thật từ API sân) rồi điền tên sân.
+  Future<void> _pickPitchFromList() async {
+    final picked = await showModalBottomSheet<PitchDto>(
+      context: context,
+      useRootNavigator: true,
+      showDragHandle: true,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      builder: (ctx) => Consumer(
+        builder: (ctx, ref, _) {
+          final list = ref.watch(pitchListProvider);
+          return SizedBox(
+            height: MediaQuery.sizeOf(ctx).height * 0.6,
+            child: list.when(
+              loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              error: (_, _) => Center(
+                child: TextButton(
+                  onPressed: () => ref.invalidate(pitchListProvider),
+                  child: const Text('Không tải được danh sách sân. Thử lại'),
+                ),
+              ),
+              data: (pitches) => pitches.isEmpty
+                  ? const Center(child: Text('Chưa có sân nào'))
+                  : ListView(
+                      children: [
+                        for (final p in pitches)
+                          ListTile(
+                            minTileHeight: 56,
+                            title: Text(p.name),
+                            subtitle: Text(
+                              [
+                                p.district,
+                                if (p.distanceM != null) Fmt.distance(p.distanceM!),
+                              ].join(' · '),
+                            ),
+                            onTap: () => Navigator.pop(ctx, p),
+                          ),
+                      ],
+                    ),
+            ),
+          );
+        },
+      ),
+    );
+    if (picked != null && mounted) setState(() => _pitch.text = picked.name);
+  }
+
   Future<void> _pickBooking(List<BookingDto> options) async {
     final picked = await showModalBottomSheet<BookingDto>(
       context: context,
@@ -396,6 +443,19 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
                           : 'Tên sân (để trống nếu chưa có)',
                       textCapitalization: TextCapitalization.words,
                       inputFormatters: [LengthLimitingTextInputFormatter(120)],
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        SoftButton(label: 'Tìm trên bản đồ', onPressed: _pickPitchFromList),
+                        if (_type != PostTypeValue.passPitch)
+                          SoftButton(
+                            label: 'Chưa có sân',
+                            onPressed: () => setState(_pitch.clear),
+                          ),
+                      ],
                     ),
                   ],
                   if (_type != PostTypeValue.recruit) ...[
