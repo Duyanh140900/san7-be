@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Patch, Post } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiNoContentResponse,
@@ -50,5 +50,12 @@ export class UsersController {
     @Body() dto: RegisterDeviceDto,
   ): Promise<void> {
     return this.users.registerDevice(user.userId, dto);
+  }
+
+  @Delete()
+  @HttpCode(204)
+  @ApiNoContentResponse()
+  removeAccount(@CurrentUser() user: AuthUser): Promise<void> {
+    return this.users.removeAccount(user.userId);
   }
 }

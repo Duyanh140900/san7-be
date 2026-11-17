@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { AppError } from '../common/errors.js';
 import { MediaService } from '../media/media.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { RealtimeService } from '../realtime/realtime.service.js';
 import type { MeDto, NotificationSettingsDto, RegisterDeviceDto, UpdateMeDto, UpdateNotificationSettingsDto } from './users.dto.js';
 
 @Injectable()
@@ -9,6 +10,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly media: MediaService,
+    private readonly realtime: RealtimeService,
   ) {}
 
   async getMe(userId: string): Promise<MeDto> {
@@ -94,5 +96,57 @@ export class UsersService {
       create: { userId, fcmToken: dto.fcmToken, platform: dto.platform },
       update: { userId, platform: dto.platform },
     });
+  }
+
+  /** Xoá dữ liệu nhận diện, rời đội và thu hồi toàn bộ phiên, nhưng giữ lịch sử đội/trận. */
+  async removeAccount(userId: string): Promise<void> {
+    const teamIds = await this.prisma.$transaction(async (tx) => {
+      const captainTeams = await tx.teamMember.findMany({
+        where: { userId, status: 'active', role: 'captain' },
+        select: { teamId: true },
+      });
+      for (const { teamId } of captainTeams) {
+        const activeCount = await tx.teamMember.count({
+          where: { teamId, status: 'active' },
+        });
+        if (activeCount > 1) {
+          throw new AppError(
+            HttpStatus.CONFLICT,
+            'captain_must_transfer',
+            'Vui lòng chuyển quyền Đội trưởng hoặc giải tán đội trước khi xoá tài khoản',
+          );
+        }
+      }
+
+      const memberships = await tx.teamMember.findMany({
+        where: { userId },
+        select: { teamId: true },
+      });
+      await tx.postSchedule.updateMany({
+        where: { authorId: userId, status: 'scheduled' },
+        data: { status: 'cancelled' },
+      });
+      await tx.refreshToken.updateMany({
+        where: { userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+      await tx.device.deleteMany({ where: { userId } });
+      await tx.notificationSettings.deleteMany({ where: { userId } });
+      await tx.teamMember.deleteMany({ where: { userId } });
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          googleSub: `deleted-${userId}`,
+          email: `deleted-${userId}@invalid.local`,
+          name: 'Người dùng đã xoá',
+          avatarUrl: null,
+          position: null,
+          shirtNumber: null,
+          area: null,
+        },
+      });
+      return memberships.map((membership) => membership.teamId);
+    });
+    for (const teamId of teamIds) this.realtime.evictFromTeam(userId, teamId);
   }
 }
