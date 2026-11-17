@@ -174,7 +174,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final m = match.value;
     final opponent = m == null ? null : (m.homeTeam.id == m.myTeamId ? m.awayTeam : m.homeTeam);
     final cancelled = m?.status == MatchStatus.cancelled;
-    final lastRead = DateTime.tryParse('${m?.additionalProperties['opponentLastReadAt'] ?? ''}');
+    final lastRead = m?.opponentLastReadAt;
     return Scaffold(
       body: SafeArea(
         child: Column(

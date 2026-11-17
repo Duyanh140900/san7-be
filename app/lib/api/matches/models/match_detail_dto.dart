@@ -22,6 +22,9 @@ class MatchDetailDto {
 
     /// Chỉ trả sau khi trận đã chốt
     this.opponentCaptainPhone,
+
+    /// Lần đội bạn đọc chat gần nhất
+    this.opponentLastReadAt,
     this.homeScore,
     this.awayScore,
 
@@ -69,6 +72,9 @@ class MatchDetailDto {
     opponentCaptainPhone: json.containsKey("opponentCaptainPhone")
         ? json["opponentCaptainPhone"] as String
         : null,
+    opponentLastReadAt: json.containsKey("opponentLastReadAt")
+        ? DateTime.parse(json["opponentLastReadAt"] as String).toUtc()
+        : null,
     homeScore: json.containsKey("homeScore") ? json["homeScore"] as int : null,
     awayScore: json.containsKey("awayScore") ? json["awayScore"] as int : null,
     resultState: MatchDetailDtoResultState.fromJson(json["resultState"]),
@@ -113,6 +119,9 @@ class MatchDetailDto {
 
   /// Chỉ trả sau khi trận đã chốt
   final String? opponentCaptainPhone;
+
+  /// Lần đội bạn đọc chat gần nhất
+  final DateTime? opponentLastReadAt;
 
   final int? homeScore;
 
@@ -159,6 +168,7 @@ class MatchDetailDto {
     "myTeamId",
     "opponentCaptainName",
     "opponentCaptainPhone",
+    "opponentLastReadAt",
     "homeScore",
     "awayScore",
     "resultState",
@@ -189,6 +199,8 @@ class MatchDetailDto {
     "myTeamId": this.myTeamId,
     if (this.opponentCaptainName != null) "opponentCaptainName": this.opponentCaptainName,
     if (this.opponentCaptainPhone != null) "opponentCaptainPhone": this.opponentCaptainPhone,
+    if (this.opponentLastReadAt != null)
+      "opponentLastReadAt": this.opponentLastReadAt?.toUtc().toIso8601String(),
     if (this.homeScore != null) "homeScore": this.homeScore,
     if (this.awayScore != null) "awayScore": this.awayScore,
     "resultState": this.resultState.toJson(),
