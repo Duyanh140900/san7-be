@@ -6548,6 +6548,11 @@
             "type": "string",
             "description": "Chỉ trả sau khi trận đã chốt"
           },
+          "opponentLastReadAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Lần đội bạn đọc chat gần nhất"
+          },
           "homeScore": {
             "type": "integer"
           },
