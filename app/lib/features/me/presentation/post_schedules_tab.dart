@@ -21,11 +21,14 @@ class PostSchedulesTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final teams = ref.watch(managedTeamsProvider);
     if (teams.isEmpty) {
-      return const _Empty(text: 'Chỉ đội trưởng hoặc đội phó mới hẹn lịch đăng kèo');
+      return const _Empty(
+        text: 'Chỉ đội trưởng hoặc đội phó mới hẹn lịch đăng kèo',
+      );
     }
     final team = teams.first;
     final value = ref.watch(postSchedulesProvider(team.teamId));
-    Future<Object?> refresh() => ref.refresh(postSchedulesProvider(team.teamId).future);
+    Future<Object?> refresh() =>
+        ref.refresh(postSchedulesProvider(team.teamId).future);
     return RefreshIndicator(
       onRefresh: refresh,
       child: ListView(
@@ -38,13 +41,31 @@ class PostSchedulesTab extends ConsumerWidget {
             data: (items) => ScheduleList(
               schedules: items,
               onCancel: (s) async {
-                await ref.read(meRepositoryProvider).cancelSchedule(team.teamId, s.id);
+                await ref
+                    .read(meRepositoryProvider)
+                    .cancelSchedule(team.teamId, s.id);
+                ref.invalidate(postSchedulesProvider(team.teamId));
+              },
+              onUpdate: (s, edit) async {
+                await ref
+                    .read(meRepositoryProvider)
+                    .updateSchedule(
+                      team.teamId,
+                      s.id,
+                      time: edit.time,
+                      weekday: edit.weekday,
+                      pausedUntil: edit.pausedUntil,
+                      resume: edit.resume,
+                    );
                 ref.invalidate(postSchedulesProvider(team.teamId));
               },
             ),
           ),
           const SizedBox(height: 4),
-          SoftButton(label: 'Đăng kèo mới', onPressed: () => context.push(Routes.postNew)),
+          SoftButton(
+            label: 'Đăng kèo mới',
+            onPressed: () => context.push(Routes.postNew),
+          ),
         ],
       ),
     );
@@ -53,9 +74,15 @@ class PostSchedulesTab extends ConsumerWidget {
 
 /// Danh sách lịch đang chờ đăng (bỏ lịch đã huỷ), có trạng thái trống.
 class ScheduleList extends StatelessWidget {
-  const ScheduleList({super.key, required this.schedules, required this.onCancel});
+  const ScheduleList({
+    super.key,
+    required this.schedules,
+    required this.onCancel,
+    this.onUpdate,
+  });
   final List<PostScheduleDto> schedules;
   final Future<void> Function(PostScheduleDto) onCancel;
+  final Future<void> Function(PostScheduleDto, ScheduleEdit)? onUpdate;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +99,11 @@ class ScheduleList extends StatelessWidget {
     return Column(
       children: [
         for (final s in active) ...[
-          ScheduleCard(schedule: s, onCancel: () => onCancel(s)),
+          ScheduleCard(
+            schedule: s,
+            onCancel: () => onCancel(s),
+            onUpdate: onUpdate == null ? null : (edit) => onUpdate!(s, edit),
+          ),
           const SizedBox(height: 12),
         ],
       ],
@@ -100,7 +131,11 @@ class _Empty extends StatelessWidget {
           Text(
             hint!,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
           ),
         ],
       ],
@@ -108,11 +143,41 @@ class _Empty extends StatelessWidget {
   );
 }
 
-/// Thẻ một lịch đăng: giờ tự đăng, lặp tuần, kèo sẽ đăng và nút huỷ có xác nhận.
+/// Thay đổi gửi lên `PATCH post-schedules`: sửa giờ/thứ hoặc tạm dừng/tiếp tục.
+class ScheduleEdit {
+  const ScheduleEdit({
+    this.time,
+    this.weekday,
+    this.pausedUntil,
+    this.resume = false,
+  });
+  final String? time;
+  final int? weekday;
+  final DateTime? pausedUntil;
+  final bool resume;
+}
+
+const _weekdayNames = [
+  'Chủ nhật',
+  'Thứ hai',
+  'Thứ ba',
+  'Thứ tư',
+  'Thứ năm',
+  'Thứ sáu',
+  'Thứ bảy',
+];
+
+/// Thẻ một lịch đăng: giờ tự đăng, lặp tuần, kèo sẽ đăng, sửa giờ, tạm dừng và huỷ có xác nhận.
 class ScheduleCard extends StatefulWidget {
-  const ScheduleCard({super.key, required this.schedule, required this.onCancel});
+  const ScheduleCard({
+    super.key,
+    required this.schedule,
+    required this.onCancel,
+    this.onUpdate,
+  });
   final PostScheduleDto schedule;
   final Future<void> Function() onCancel;
+  final Future<void> Function(ScheduleEdit)? onUpdate;
 
   @override
   State<ScheduleCard> createState() => _ScheduleCardState();
@@ -128,21 +193,117 @@ class _ScheduleCardState extends State<ScheduleCard> {
         title: const Text('Huỷ lịch đăng?'),
         content: const Text('Kèo này sẽ không tự lên Bảng tin nữa.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Giữ lại')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Huỷ lịch')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Giữ lại'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Huỷ lịch'),
+          ),
         ],
       ),
     );
     if (ok != true || !mounted) return;
     setState(() => _busy = true);
-    final done = await runAction(context, widget.onCancel, success: 'Đã huỷ lịch đăng');
+    final done = await runAction(
+      context,
+      widget.onCancel,
+      success: 'Đã huỷ lịch đăng',
+    );
     if (mounted && !done) setState(() => _busy = false);
+  }
+
+  DateTime? get _pausedUntil {
+    final v = DateTime.tryParse(
+      '${widget.schedule.additionalProperties['pausedUntil'] ?? ''}',
+    );
+    return v != null && v.isAfter(DateTime.now()) ? v.toLocal() : null;
+  }
+
+  Future<void> _apply(ScheduleEdit edit, String success) async {
+    setState(() => _busy = true);
+    final done = await runAction(
+      context,
+      () => widget.onUpdate!(edit),
+      success: success,
+    );
+    if (mounted && !done) setState(() => _busy = false);
+  }
+
+  Future<void> _editTime() async {
+    final s = widget.schedule;
+    final at = s.scheduledAt.toLocal();
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: at.hour, minute: at.minute),
+      helpText: 'Giờ tự đăng',
+      cancelText: 'Huỷ',
+      confirmText: 'Lưu',
+    );
+    if (picked == null || !mounted) return;
+    int? weekday;
+    if (s.repeatWeekly) {
+      weekday = await showDialog<int>(
+        context: context,
+        builder: (ctx) => SimpleDialog(
+          title: const Text('Lặp vào thứ mấy?'),
+          children: [
+            for (var i = 0; i < 7; i++)
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(ctx, i),
+                child: Text(
+                  _weekdayNames[i],
+                  style: TextStyle(
+                    fontWeight: i == at.weekday % 7 ? FontWeight.w700 : null,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+      if (weekday == null || !mounted) return;
+    }
+    final time =
+        '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+    await _apply(
+      ScheduleEdit(time: time, weekday: weekday),
+      'Đã cập nhật giờ đăng',
+    );
+  }
+
+  Future<void> _pause() async {
+    final days = await showModalBottomSheet<int>(
+      context: context,
+      useRootNavigator: true,
+      backgroundColor: AppColors.surface,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (label, d) in const [
+              ('Tạm dừng 1 tuần', 7),
+              ('Tạm dừng 2 tuần', 14),
+              ('Tạm dừng 1 tháng', 30),
+            ])
+              ListTile(title: Text(label), onTap: () => Navigator.pop(ctx, d)),
+          ],
+        ),
+      ),
+    );
+    if (days == null || !mounted) return;
+    await _apply(
+      ScheduleEdit(pausedUntil: DateTime.now().add(Duration(days: days))),
+      'Đã tạm dừng lịch đăng',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final s = widget.schedule;
     final post = s.post;
+    final paused = _pausedUntil;
+    final canEdit = widget.onUpdate != null;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,32 +312,70 @@ class _ScheduleCardState extends State<ScheduleCard> {
             'Tự đăng ${Fmt.slot(s.scheduledAt)}${s.repeatWeekly ? ' · lặp hằng tuần' : ''}',
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
+          if (paused != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Đang tạm dừng đến ${Fmt.dayMonth(paused)}',
+              style: const TextStyle(fontSize: 13, color: AppColors.warnText),
+            ),
+          ],
           const SizedBox(height: 6),
           Text(
             '${Labels.postType(post.type)} · đá ${Fmt.slot(post.startAt)}',
-            style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+            ),
           ),
           if (post.pitchName != null)
             Text(
               post.pitchName!,
-              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
-            ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: SizedBox(
-              height: AppSizes.tapTarget,
-              child: TextButton(
-                onPressed: _busy ? null : _cancel,
-                child: _busy
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Huỷ lịch'),
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
               ),
             ),
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.end,
+            children: [
+              if (canEdit) ...[
+                SizedBox(
+                  height: AppSizes.tapTarget,
+                  child: TextButton(
+                    onPressed: _busy ? null : _editTime,
+                    child: const Text('Sửa giờ'),
+                  ),
+                ),
+                SizedBox(
+                  height: AppSizes.tapTarget,
+                  child: TextButton(
+                    onPressed: _busy
+                        ? null
+                        : paused != null
+                        ? () => _apply(
+                            const ScheduleEdit(resume: true),
+                            'Đã tiếp tục lịch đăng',
+                          )
+                        : _pause,
+                    child: Text(paused != null ? 'Tiếp tục' : 'Tạm dừng'),
+                  ),
+                ),
+              ],
+              SizedBox(
+                height: AppSizes.tapTarget,
+                child: TextButton(
+                  onPressed: _busy ? null : _cancel,
+                  child: _busy
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Huỷ lịch'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
