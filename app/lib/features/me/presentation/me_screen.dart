@@ -31,18 +31,15 @@ class MeScreen extends ConsumerWidget {
         bottom: false,
         child: Column(
           children: [
-            const DetailHeader(backLabel: 'Bảng tin'),
+            DetailHeader(
+              backLabel: 'Bảng tin',
+              trailing: LinkButton('Sửa', onTap: () => context.push(Routes.editProfile)),
+            ),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
                 children: [
                   _Profile(me: me),
-                  const SizedBox(height: 12),
-                  MeGroup(
-                    children: [
-                      MeRow(title: 'Sửa hồ sơ', onTap: () => context.push(Routes.editProfile)),
-                    ],
-                  ),
                   const SizedBox(height: 12),
                   _Stats(stats: me.stats),
                   const SizedBox(height: 16),
@@ -81,7 +78,13 @@ class MeScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   const SectionLabel('Mặc định'),
                   MeGroup(
-                    children: [MeRow(title: 'Khu vực', value: me.area ?? 'Chưa chọn')],
+                    children: [
+                      MeRow(
+                        title: 'Khu vực',
+                        value: me.area ?? 'Chưa chọn',
+                        onTap: () => context.push(Routes.editProfile),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   MeGroup(

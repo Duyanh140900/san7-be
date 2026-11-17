@@ -1,3 +1,5 @@
+import '../../../core/widgets/app_icon.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -39,10 +41,25 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
         child: Column(
           children: [
             DetailHeader(
-              backLabel: 'Cá nhân',
-              trailing: TextButton(
-                onPressed: () => context.push(Routes.postNew),
-                child: const Text('Đăng kèo mới'),
+              backLabel: 'Bảng tin',
+              trailing: Semantics(
+                button: true,
+                label: 'Đăng kèo mới',
+                child: Material(
+                  color: AppColors.surface,
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => context.push(Routes.postNew),
+                    child: const SizedBox(
+                      width: AppSizes.tapTarget,
+                      height: AppSizes.tapTarget,
+                      child: Center(
+                        child: AppIcon(AppIcons.plus, size: 22, color: AppColors.primary),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             Padding(
