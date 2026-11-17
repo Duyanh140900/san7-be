@@ -7,6 +7,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/format.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
 import '../data/posts_repository.dart';
@@ -78,15 +79,11 @@ class PostCommunityBar extends ConsumerWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (final kind in visible.take(3))
-                      Text(reactionEmoji(kind)),
+                    for (final kind in visible.take(3)) Text(reactionEmoji(kind)),
                     const SizedBox(width: 6),
                     Text(
                       '$total',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                      ),
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -97,7 +94,8 @@ class PostCommunityBar extends ConsumerWidget {
           children: [
             Expanded(
               child: _ActionButton(
-                icon: reacted == null ? '♡' : reactionEmoji(reacted),
+                icon: AppIcons.heart,
+                emoji: reacted == null ? null : reactionEmoji(reacted),
                 label: reacted == null ? 'Cảm xúc' : 'Đã bày tỏ',
                 selected: reacted != null,
                 onTap: () => _showReactionPicker(context, ref, postId, reacted),
@@ -106,7 +104,7 @@ class PostCommunityBar extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: _ActionButton(
-                icon: '◯',
+                icon: AppIcons.comment,
                 label: compact ? 'Bình luận' : 'Bình luận',
                 onTap: () => showCommentsSheet(
                   context,
@@ -127,9 +125,11 @@ class _ActionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.emoji,
     this.selected = false,
   });
-  final String icon;
+  final AppIcons icon;
+  final String? emoji;
   final String label;
   final VoidCallback onTap;
   final bool selected;
@@ -145,13 +145,27 @@ class _ActionButton extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: AppSizes.tapTarget),
         child: Center(
-          child: Text(
-            '$icon  $label',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: selected ? AppColors.primary : AppColors.textSecondary,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (emoji != null)
+                Text(emoji!, style: const TextStyle(fontSize: 16))
+              else
+                AppIcon(
+                  icon,
+                  size: 18,
+                  color: selected ? AppColors.primary : AppColors.textSecondary,
+                ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: selected ? AppColors.primary : AppColors.textSecondary,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -222,8 +236,7 @@ Future<void> showCommentsSheet(
   useRootNavigator: true,
   isScrollControlled: true,
   backgroundColor: AppColors.surface,
-  builder: (_) =>
-      _CommentsSheet(postId: postId, canManageComments: canManageComments),
+  builder: (_) => _CommentsSheet(postId: postId, canManageComments: canManageComments),
 );
 
 class _CommentsSheet extends ConsumerStatefulWidget {
@@ -262,9 +275,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
 
   Future<void> _loadInitial() async {
     try {
-      final page = await ref
-          .read(postsRepositoryProvider)
-          .comments(widget.postId);
+      final page = await ref.read(postsRepositoryProvider).comments(widget.postId);
       if (mounted) {
         setState(() {
           _comments
@@ -287,9 +298,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
     if (cursor == null || _loadingMore) return;
     setState(() => _loadingMore = true);
     try {
-      final page = await ref
-          .read(postsRepositoryProvider)
-          .comments(widget.postId, cursor: cursor);
+      final page = await ref.read(postsRepositoryProvider).comments(widget.postId, cursor: cursor);
       if (mounted) {
         setState(() {
           _comments.addAll(page.items);
@@ -300,11 +309,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
     } catch (_) {
       if (mounted) {
         setState(() => _loadingMore = false);
-        showToast(
-          context,
-          'Không tải thêm được bình luận',
-          type: ToastType.error,
-        );
+        showToast(context, 'Không tải thêm được bình luận', type: ToastType.error);
       }
     }
   }
@@ -314,9 +319,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
     if (body.isEmpty || _sending) return;
     setState(() => _sending = true);
     try {
-      final comment = await ref
-          .read(postsRepositoryProvider)
-          .addComment(widget.postId, body);
+      final comment = await ref.read(postsRepositoryProvider).addComment(widget.postId, body);
       if (mounted) {
         setState(() {
           _comments.insert(0, comment);
@@ -335,9 +338,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
   Future<void> _delete(CommentDto comment) async {
     final ok = await runAction(
       context,
-      () => ref
-          .read(postsRepositoryProvider)
-          .deleteComment(widget.postId, comment.id),
+      () => ref.read(postsRepositoryProvider).deleteComment(widget.postId, comment.id),
       success: 'Đã xóa bình luận',
     );
     if (ok && mounted) {
@@ -368,9 +369,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
               const Divider(height: 1, color: AppColors.divider),
               Expanded(
                 child: _loading
-                    ? const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                    ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
                     : _comments.isEmpty
                     ? const Center(
                         child: Text(
@@ -388,16 +387,12 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(8),
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
+                                child: CircularProgressIndicator(strokeWidth: 2),
                               ),
                             );
                           }
                           final comment = _comments[index];
-                          final allowed =
-                              widget.canManageComments ||
-                              comment.author.id == myId;
+                          final allowed = widget.canManageComments || comment.author.id == myId;
                           return _CommentTile(
                             comment: comment,
                             canDelete: allowed,
@@ -424,9 +419,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                           filled: true,
                           fillColor: AppColors.background,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(AppRadius.group),
-                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(AppRadius.group)),
                             borderSide: BorderSide.none,
                           ),
                         ),
@@ -445,9 +438,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                             ? const SizedBox(
                                 width: 18,
                                 height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
+                                child: CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Text('Gửi'),
                       ),
@@ -464,11 +455,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
 }
 
 class _CommentTile extends StatelessWidget {
-  const _CommentTile({
-    required this.comment,
-    required this.canDelete,
-    required this.onDelete,
-  });
+  const _CommentTile({required this.comment, required this.canDelete, required this.onDelete});
   final CommentDto comment;
   final bool canDelete;
   final VoidCallback onDelete;
@@ -477,11 +464,7 @@ class _CommentTile extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Avatar(
-        name: comment.author.name,
-        url: comment.author.avatarUrl,
-        size: 36,
-      ),
+      Avatar(name: comment.author.name, url: comment.author.avatarUrl, size: 36),
       const SizedBox(width: 10),
       Expanded(
         child: Column(
@@ -492,40 +475,25 @@ class _CommentTile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     comment.author.name,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
                 Text(
                   Fmt.ago(comment.createdAt),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
                 if (canDelete)
                   TextButton(
                     onPressed: onDelete,
                     style: TextButton.styleFrom(
-                      minimumSize: const Size(
-                        AppSizes.tapTarget,
-                        AppSizes.tapTarget,
-                      ),
+                      minimumSize: const Size(AppSizes.tapTarget, AppSizes.tapTarget),
                     ),
-                    child: const Text(
-                      'Xóa',
-                      style: TextStyle(color: AppColors.red),
-                    ),
+                    child: const Text('Xóa', style: TextStyle(color: AppColors.red)),
                   ),
               ],
             ),
             const SizedBox(height: 2),
-            Text(
-              comment.body,
-              style: const TextStyle(fontSize: 15, height: 1.35),
-            ),
+            Text(comment.body, style: const TextStyle(fontSize: 15, height: 1.35)),
           ],
         ),
       ),
