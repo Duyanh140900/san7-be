@@ -19,6 +19,7 @@ import { MAX_AMOUNT } from '../common/money.js';
 import { Trim } from '../common/trim.js';
 import {
   Position,
+  ApplicationStatus,
   PostDeal,
   PostStatus,
   PostType,
@@ -166,10 +167,24 @@ export class FeedQuery {
   @MaxLength(50)
   area?: string;
 
-  @ApiPropertyOptional({ format: 'uuid' })
+  @ApiPropertyOptional({
+    description: 'Cursor phân trang của bảng tin',
+    maxLength: 255,
+  })
   @IsOptional()
-  @IsUUID()
+  @IsString()
+  @MaxLength(255)
   cursor?: string;
+
+  @ApiPropertyOptional({
+    maxLength: 100,
+    description: 'Tìm theo tên đội, khu vực hoặc tên sân',
+  })
+  @IsOptional()
+  @Trim()
+  @IsString()
+  @MaxLength(100)
+  q?: string;
 
   @ApiPropertyOptional({
     type: 'integer',
@@ -239,6 +254,26 @@ export class SendRequestDto {
   message?: string;
 }
 
+export class CreatePostApplicationDto {
+  @ApiPropertyOptional({ enum: Position, enumName: 'Position' })
+  @IsOptional()
+  @IsEnum(Position)
+  position?: Position;
+
+  @ApiPropertyOptional({ maxLength: 500 })
+  @IsOptional()
+  @Trim()
+  @IsString()
+  @MaxLength(500)
+  note?: string;
+}
+
+export class UpdatePostApplicationDto {
+  @ApiProperty({ enum: ['accepted', 'rejected'] })
+  @IsEnum(['accepted', 'rejected'])
+  status: 'accepted' | 'rejected';
+}
+
 // ---------- Đầu ra ----------
 
 export class TeamBriefDto {
@@ -284,13 +319,50 @@ export class PostDto {
 }
 
 export class FeedPageDto {
-  @ApiProperty({ type: [PostDto] }) items: PostDto[];
+  @ApiProperty({
+    type: 'array',
+    items: {
+      oneOf: [
+        { $ref: '#/components/schemas/PostDto' },
+        { $ref: '#/components/schemas/FeedMatchResultItemDto' },
+      ],
+    },
+  })
+  items: FeedItemDto[];
   @ApiPropertyOptional({
     type: String,
     description: 'Truyền lại để lấy trang sau',
   })
   nextCursor?: string;
 }
+
+export class ResultTeamDto {
+  @ApiProperty({ format: 'uuid' }) id: string;
+  @ApiProperty() name: string;
+  @ApiProperty({ example: '#0066CC' }) crestColor: string;
+  @ApiProperty({ type: 'integer' }) score: number;
+}
+
+export class MatchScorerDto {
+  @ApiProperty() name: string;
+  @ApiProperty({ type: 'integer' }) goals: number;
+}
+
+export class FeedMatchResultDto {
+  @ApiProperty({ format: 'uuid' }) matchId: string;
+  @ApiProperty({ type: String, format: 'date-time' }) playedAt: Date;
+  @ApiProperty({ type: ResultTeamDto }) teamA: ResultTeamDto;
+  @ApiProperty({ type: ResultTeamDto }) teamB: ResultTeamDto;
+  @ApiProperty({ type: [MatchScorerDto] }) scorers: MatchScorerDto[];
+  @ApiPropertyOptional({ type: String }) mvpName?: string | null;
+}
+
+export class FeedMatchResultItemDto {
+  @ApiProperty({ enum: ['match_result'] }) kind: 'match_result';
+  @ApiProperty({ type: FeedMatchResultDto }) result: FeedMatchResultDto;
+}
+
+export type FeedItemDto = PostDto | FeedMatchResultItemDto;
 
 export class MyRequestDto {
   @ApiProperty({ format: 'uuid' }) id: string;
@@ -312,11 +384,39 @@ export class PostDetailDto {
     description: 'Yêu cầu gần nhất của một đội tôi quản lý cho kèo này',
   })
   myRequest?: MyRequestDto;
+  @ApiPropertyOptional({ enum: ApplicationStatus, enumName: 'ApplicationStatus' })
+  myApplicationStatus?: ApplicationStatus;
   @ApiProperty({
     type: [TeamBriefDto],
     description: 'Các đội đang chờ (tối đa 5, để hiện avatar)',
   })
   requestTeams: TeamBriefDto[];
+  @ApiPropertyOptional({ type: Number, format: 'double' }) venueLat?: number | null;
+  @ApiPropertyOptional({ type: Number, format: 'double' }) venueLng?: number | null;
+  @ApiProperty({ type: () => [PostLineupPlayerDto] }) lineup: PostLineupPlayerDto[];
+}
+
+export class PostLineupPlayerDto {
+  @ApiProperty({ format: 'uuid' }) userId: string;
+  @ApiProperty() name: string;
+  @ApiPropertyOptional({ enum: Position, enumName: 'Position' })
+  position?: Position | null;
+}
+
+export class PostApplicationUserDto {
+  @ApiProperty({ format: 'uuid' }) id: string;
+  @ApiProperty() name: string;
+}
+
+export class PostApplicationDto {
+  @ApiProperty({ format: 'uuid' }) id: string;
+  @ApiProperty({ enum: ApplicationStatus, enumName: 'ApplicationStatus' })
+  status: ApplicationStatus;
+  @ApiProperty({ type: PostApplicationUserDto }) user: PostApplicationUserDto;
+  @ApiPropertyOptional({ enum: Position, enumName: 'Position' })
+  position?: Position | null;
+  @ApiPropertyOptional({ type: String }) note?: string | null;
+  @ApiProperty({ type: String, format: 'date-time' }) createdAt: Date;
 }
 
 export class RequestTeamDto extends TeamBriefDto {

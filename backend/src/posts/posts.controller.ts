@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Patch,
   Param,
   ParseUUIDPipe,
   Post,
@@ -11,6 +12,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
@@ -25,26 +27,35 @@ import {
 } from '../common/team-member.guard.js';
 import {
   AcceptResultDto,
+  CreatePostApplicationDto,
   CreatePostDto,
   FeedPageDto,
+  FeedMatchResultItemDto,
   FeedQuery,
   MatchRequestDto,
   MyPostsQuery,
   MyRequestDto,
   PostDetailDto,
+  PostApplicationDto,
   PostDto,
   RequestDetailDto,
   SendRequestDto,
+  UpdatePostApplicationDto,
 } from './posts.dto.js';
+import { ApplicationsService } from './applications.service.js';
 import { PostsService } from './posts.service.js';
 import { RequestsService } from './requests.service.js';
 
 /** Bảng tin và chi tiết kèo: mọi người đã đăng nhập đều xem được. */
 @ApiTags('posts')
 @ApiBearerAuth()
+@ApiExtraModels(FeedMatchResultItemDto)
 @Controller()
 export class PostsController {
-  constructor(private readonly posts: PostsService) {}
+  constructor(
+    private readonly posts: PostsService,
+    private readonly applications: ApplicationsService,
+  ) {}
 
   @Get('feed')
   @ApiOkResponse({ type: FeedPageDto })
@@ -59,6 +70,37 @@ export class PostsController {
     @Param('postId', ParseUUIDPipe) postId: string,
   ): Promise<PostDetailDto> {
     return this.posts.detail(user.userId, postId);
+  }
+
+  @Post('posts/:postId/applications')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  @ApiCreatedResponse({ type: PostApplicationDto })
+  apply(
+    @CurrentUser() user: AuthUser,
+    @Param('postId', ParseUUIDPipe) postId: string,
+    @Body() dto: CreatePostApplicationDto,
+  ): Promise<PostApplicationDto> {
+    return this.applications.create(user.userId, postId, dto);
+  }
+
+  @Get('posts/:postId/applications')
+  @ApiOkResponse({ type: [PostApplicationDto] })
+  listApplications(
+    @CurrentUser() user: AuthUser,
+    @Param('postId', ParseUUIDPipe) postId: string,
+  ): Promise<PostApplicationDto[]> {
+    return this.applications.list(user.userId, postId);
+  }
+
+  @Patch('posts/:postId/applications/:applicationId')
+  @ApiOkResponse({ type: PostApplicationDto })
+  updateApplication(
+    @CurrentUser() user: AuthUser,
+    @Param('postId', ParseUUIDPipe) postId: string,
+    @Param('applicationId', ParseUUIDPipe) applicationId: string,
+    @Body() dto: UpdatePostApplicationDto,
+  ): Promise<PostApplicationDto> {
+    return this.applications.update(user.userId, postId, applicationId, dto);
   }
 
   @Get('me/posts')

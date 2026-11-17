@@ -86,6 +86,12 @@ enum RequestStatus {
   cancelled
 }
 
+enum ApplicationStatus {
+  pending
+  accepted
+  rejected
+}
+
 enum MatchStatus {
   scheduled
   finished
@@ -171,6 +177,7 @@ model User {
   matchStats           MatchPlayerStat[]
   reviewsMade          TeamReview[]
   requestsSent         MatchRequest[]
+  postApplications     PostApplication[]
   notifications        Notification[]
   comments             Comment[]
   matchMessages        MatchMessage[]
@@ -416,6 +423,7 @@ model Post {
   team     Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
   author   User           @relation(fields: [authorId], references: [id])
   requests MatchRequest[]
+  applications PostApplication[]
   comments Comment[]
   match    Match?
   pitch    Pitch?         @relation(fields: [pitchId], references: [id], onDelete: SetNull)
@@ -538,6 +546,25 @@ model MatchRequest {
   @@index([teamId, status])
   @@index([createdById])
   @@map("match_requests")
+}
+
+/// Đơn ứng tuyển cá nhân cho kèo tuyển người. Mỗi người chỉ ứng tuyển một lần cho mỗi kèo.
+model PostApplication {
+  id        String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId    String            @map("post_id") @db.Uuid
+  userId    String            @map("user_id") @db.Uuid
+  position  Position?
+  note      String?
+  status    ApplicationStatus @default(pending)
+  createdAt DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId, createdAt])
+  @@index([userId])
+  @@map("post_applications")
 }
 
 /// Trận giữa hai đội (chốt từ kèo). Kết quả, thống kê thêm ở M4.

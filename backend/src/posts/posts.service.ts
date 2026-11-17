@@ -19,12 +19,31 @@ import {
 } from './post-mapper.js';
 import type {
   CreatePostDto,
+  FeedItemDto,
   FeedPageDto,
   FeedQuery,
   MyPostsQuery,
   PostDetailDto,
   PostDto,
 } from './posts.dto.js';
+
+type FeedCursor = { at: Date; id: string };
+
+function decodeFeedCursor(value: string | undefined): FeedCursor | undefined {
+  if (!value) return undefined;
+  try {
+    const [at, id] = Buffer.from(value, 'base64url').toString('utf8').split('|');
+    const date = new Date(at);
+    if (!id || Number.isNaN(date.getTime())) return undefined;
+    return { at: date, id };
+  } catch {
+    return undefined;
+  }
+}
+
+function encodeFeedCursor(cursor: FeedCursor): string {
+  return Buffer.from(`${cursor.at.toISOString()}|${cursor.id}`).toString('base64url');
+}
 
 const MAX_DURATION_MS = 6 * 3_600_000;
 const MAX_AHEAD_MS = 60 * 86_400_000;
@@ -202,22 +221,117 @@ export class PostsService {
   async feed(q: FeedQuery): Promise<FeedPageDto> {
     const now = new Date();
     const limit = q.limit ?? 20;
+    const cursor = decodeFeedCursor(q.cursor);
+    const search = q.q?.trim();
+    const postSearch = search
+      ? {
+          OR: [
+            { team: { name: { contains: search, mode: 'insensitive' as const } } },
+            { area: { contains: search, mode: 'insensitive' as const } },
+            { pitchName: { contains: search, mode: 'insensitive' as const } },
+            { pitch: { name: { contains: search, mode: 'insensitive' as const } } },
+          ],
+        }
+      : {};
+    const afterCursor = cursor
+      ? {
+          OR: [
+            { createdAt: { lt: cursor.at } },
+            { createdAt: cursor.at, id: { lt: cursor.id } },
+          ],
+        }
+      : {};
     const rows = await this.prisma.post.findMany({
       where: {
         status: 'open',
         startAt: { gt: now },
         ...(q.type ? { type: q.type } : {}),
         ...(q.area ? { area: q.area } : {}),
+        AND: [postSearch, afterCursor],
       },
       include: postInclude(now),
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
-      ...(q.cursor ? { cursor: { id: q.cursor }, skip: 1 } : {}),
     });
-    const page = rows.slice(0, limit);
+    const resultSearch = search
+      ? {
+          OR: [
+            { homeTeam: { name: { contains: search, mode: 'insensitive' as const } } },
+            { awayTeam: { name: { contains: search, mode: 'insensitive' as const } } },
+            {
+              post: {
+                is: {
+                  OR: [
+                    { area: { contains: search, mode: 'insensitive' as const } },
+                    { pitchName: { contains: search, mode: 'insensitive' as const } },
+                    { pitch: { name: { contains: search, mode: 'insensitive' as const } } },
+                  ],
+                },
+              },
+            },
+          ],
+        }
+      : {};
+    const resultCursor = cursor
+      ? {
+          OR: [
+            { confirmedAt: { lt: cursor.at } },
+            { confirmedAt: cursor.at, id: { lt: cursor.id } },
+          ],
+        }
+      : {};
+    const matches = await this.prisma.match.findMany({
+      where: {
+        status: 'finished',
+        confirmedAt: { not: null },
+        homeScore: { not: null },
+        awayScore: { not: null },
+        AND: [resultSearch, resultCursor],
+      },
+      include: {
+        homeTeam: { select: teamBriefSelect },
+        awayTeam: { select: teamBriefSelect },
+        stats: {
+          where: { goals: { gt: 0 } },
+          select: { goals: true, mvp: true, user: { select: { name: true } } },
+          orderBy: [{ goals: 'desc' }, { userId: 'asc' }],
+        },
+      },
+      orderBy: [{ confirmedAt: 'desc' }, { id: 'desc' }],
+      take: limit + 1,
+    });
+    const feedRows: { item: FeedItemDto; at: Date; id: string }[] = [
+      ...rows.map((post) => ({
+        item: this.toPostDto(post),
+        at: post.createdAt,
+        id: post.id,
+      })),
+      ...matches.map((match) => ({
+        item: {
+          kind: 'match_result' as const,
+          result: {
+            matchId: match.id,
+            playedAt: match.startAt,
+            teamA: { ...match.homeTeam, score: match.homeScore! },
+            teamB: { ...match.awayTeam, score: match.awayScore! },
+            scorers: match.stats.map((stat) => ({
+              name: stat.user.name,
+              goals: stat.goals,
+            })),
+            mvpName: match.stats.find((stat) => stat.mvp)?.user.name ?? null,
+          },
+        },
+        at: match.confirmedAt!,
+        id: match.id,
+      })),
+    ].sort((a, b) => b.at.getTime() - a.at.getTime() || b.id.localeCompare(a.id));
+    const page = feedRows.slice(0, limit);
     return {
-      items: page.map((post) => this.toPostDto(post)),
-      nextCursor: rows.length > limit ? page[page.length - 1].id : undefined,
+      items: page.map((row) => row.item),
+      nextCursor:
+        feedRows.length > limit
+          ? encodeFeedCursor({ at: page[page.length - 1].at, id: page[page.length - 1].id })
+          : undefined,
     };
   }
 
@@ -250,7 +364,7 @@ export class PostsService {
       select: { teamId: true },
     });
     const managedIds = managed.map((m) => m.teamId);
-    const [mine, pending] = await Promise.all([
+    const [mine, pending, myApplication, venue, attendance] = await Promise.all([
       this.prisma.matchRequest.findFirst({
         where: { postId, teamId: { in: managedIds } },
         orderBy: { createdAt: 'desc' },
@@ -261,6 +375,33 @@ export class PostsService {
         orderBy: { createdAt: 'asc' },
         take: 5,
         select: { team: { select: teamBriefSelect } },
+      }),
+      this.prisma.postApplication.findUnique({
+        where: { postId_userId: { postId, userId } },
+        select: { status: true },
+      }),
+      post.pitchId
+        ? this.prisma.$queryRaw<{ lat: number; lng: number }[]>`
+            SELECT ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng
+            FROM pitches WHERE id = ${post.pitchId}::uuid
+          `
+        : Promise.resolve([]),
+      this.prisma.attendance.findMany({
+        where: {
+          status: 'go',
+          event: {
+            teamId: post.teamId,
+            OR: [
+              ...(post.bookingId ? [{ bookingId: post.bookingId }] : []),
+              { match: { postId } },
+            ],
+          },
+        },
+        select: {
+          userId: true,
+          user: { select: { name: true, position: true } },
+        },
+        orderBy: { user: { name: 'asc' } },
       }),
     ]);
     return {
@@ -275,7 +416,15 @@ export class PostsService {
             expiresAt: mine.expiresAt,
           }
         : undefined,
+      myApplicationStatus: myApplication?.status,
       requestTeams: pending.map((r) => r.team),
+      venueLat: venue[0]?.lat ?? null,
+      venueLng: venue[0]?.lng ?? null,
+      lineup: attendance.map((a) => ({
+        userId: a.userId,
+        name: a.user.name,
+        position: a.user.position,
+      })),
     };
   }
 

@@ -2062,8 +2062,19 @@
             "name": "cursor",
             "required": false,
             "in": "query",
+            "description": "Cursor phân trang của bảng tin",
             "schema": {
-              "format": "uuid",
+              "maxLength": 255,
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Tìm theo tên đội, khu vực hoặc tên sân",
+            "schema": {
+              "maxLength": 100,
               "type": "string"
             }
           },
@@ -2121,6 +2132,140 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PostDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/posts/{postId}/applications": {
+      "post": {
+        "operationId": "Posts_apply",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostApplicationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostApplicationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      },
+      "get": {
+        "operationId": "Posts_listApplications",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PostApplicationDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "posts"
+        ]
+      }
+    },
+    "/v1/posts/{postId}/applications/{applicationId}": {
+      "patch": {
+        "operationId": "Posts_updateApplication",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePostApplicationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostApplicationDto"
                 }
               }
             }
@@ -5384,12 +5529,130 @@
           }
         }
       },
+      "ResultTeamDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "crestColor": {
+            "type": "string",
+            "example": "#0066CC"
+          },
+          "score": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "crestColor",
+          "score"
+        ]
+      },
+      "MatchScorerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "goals": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "goals"
+        ]
+      },
+      "FeedMatchResultDto": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "playedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "teamA": {
+            "$ref": "#/components/schemas/ResultTeamDto"
+          },
+          "teamB": {
+            "$ref": "#/components/schemas/ResultTeamDto"
+          },
+          "scorers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MatchScorerDto"
+            }
+          },
+          "mvpName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "matchId",
+          "playedAt",
+          "teamA",
+          "teamB",
+          "scorers"
+        ]
+      },
+      "FeedMatchResultItemDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "match_result"
+            ]
+          },
+          "result": {
+            "$ref": "#/components/schemas/FeedMatchResultDto"
+          }
+        },
+        "required": [
+          "kind",
+          "result"
+        ]
+      },
       "PostType": {
         "type": "string",
         "enum": [
           "find_opponent",
           "recruit",
           "pass_pitch"
+        ]
+      },
+      "FeedPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/PostDto"
+                },
+                {
+                  "$ref": "#/components/schemas/FeedMatchResultItemDto"
+                }
+              ]
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Truyền lại để lấy trang sau"
+          }
+        },
+        "required": [
+          "items"
         ]
       },
       "TeamBriefDto": {
@@ -5562,24 +5825,6 @@
           "requestCount"
         ]
       },
-      "FeedPageDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PostDto"
-            }
-          },
-          "nextCursor": {
-            "type": "string",
-            "description": "Truyền lại để lấy trang sau"
-          }
-        },
-        "required": [
-          "items"
-        ]
-      },
       "RequestStatus": {
         "type": "string",
         "enum": [
@@ -5624,6 +5869,14 @@
           "expiresAt"
         ]
       },
+      "ApplicationStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "accepted",
+          "rejected"
+        ]
+      },
       "PostDetailDto": {
         "type": "object",
         "properties": {
@@ -5642,6 +5895,13 @@
               }
             ]
           },
+          "myApplicationStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              }
+            ]
+          },
           "requestTeams": {
             "description": "Các đội đang chờ (tối đa 5, để hiện avatar)",
             "type": "array",
@@ -5654,6 +5914,92 @@
           "post",
           "canManage",
           "requestTeams"
+        ]
+      },
+      "CreatePostApplicationDto": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              }
+            ]
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      },
+      "PostApplicationUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "PostApplicationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              }
+            ]
+          },
+          "user": {
+            "$ref": "#/components/schemas/PostApplicationUserDto"
+          },
+          "position": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              }
+            ]
+          },
+          "note": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "user",
+          "createdAt"
+        ]
+      },
+      "UpdatePostApplicationDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "CreatePostDto": {
