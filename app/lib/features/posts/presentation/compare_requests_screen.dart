@@ -15,6 +15,8 @@ import 'post_widgets.dart';
 
 enum _Sort {
   fit('Phù hợp nhất'),
+  reputation('Uy tín cao'),
+  nearest('Gần nhất'),
   early('Đăng ký sớm'),
   experienced('Đá nhiều nhất');
 
@@ -50,6 +52,15 @@ class _CompareRequestsScreenState extends ConsumerState<CompareRequestsScreen> {
         out.sort((a, b) {
           final c = fit(a).compareTo(fit(b));
           return c != 0 ? c : b.team.matchesPlayed.compareTo(a.team.matchesPlayed);
+        });
+      case _Sort.reputation:
+        out.sort((a, b) => (b.team.reputation ?? -1).compareTo(a.team.reputation ?? -1));
+      case _Sort.nearest:
+        // API chưa trả khoảng cách: ưu tiên đội cùng khu vực với kèo.
+        int far(MatchRequestDto r) => r.team.area == post.area ? 0 : 1;
+        out.sort((a, b) {
+          final c = far(a).compareTo(far(b));
+          return c != 0 ? c : a.createdAt.compareTo(b.createdAt);
         });
       case _Sort.early:
         out.sort((a, b) => a.createdAt.compareTo(b.createdAt));
@@ -164,6 +175,10 @@ class _Body extends StatelessWidget {
               (_levelIndex(r.team.level) - postLevel).abs() == bestLevel,
             ),
         ],
+      ),
+      (
+        'Khu vực',
+        [for (final r in requests) (r.team.area, r.team.area == post.area)],
       ),
       (
         'Đã đá',
