@@ -47,11 +47,11 @@ void main() {
     await tester.pumpWidget(subject());
 
     expect(find.text('3'), findsOneWidget);
-    expect(find.text('👍  Đã bày tỏ'), findsOneWidget);
-    await tester.tap(find.text('👍  Đã bày tỏ'));
+    expect(find.text('Đã bày tỏ'), findsOneWidget);
+    await tester.tap(find.text('Đã bày tỏ'));
     await tester.pumpAndSettle();
 
-    expect(find.text('👍'), findsNWidgets(2));
+    expect(find.text('👍'), findsNWidgets(3));
     expect(find.text('❤️'), findsNWidgets(2));
     expect(find.text('🔥'), findsOneWidget);
     expect(find.text('😂'), findsOneWidget);
@@ -61,10 +61,10 @@ void main() {
   testWidgets('mở sheet bình luận có ô nhập và nút gửi', (tester) async {
     await tester.pumpWidget(subject());
 
-    await tester.tap(find.text('◯  Bình luận'));
+    await tester.tap(find.text('Bình luận').first);
     await tester.pump();
 
-    expect(find.text('Bình luận'), findsOneWidget);
+    expect(find.text('Bình luận'), findsNWidgets(2));
     expect(find.byKey(const Key('comment-input')), findsOneWidget);
     expect(find.byKey(const Key('comment-send')), findsOneWidget);
   });

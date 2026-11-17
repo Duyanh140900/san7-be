@@ -158,7 +158,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            DetailHeader(backLabel: 'Lịch', title: opponent?.name ?? 'Nhắn tin'),
+            DetailHeader(backLabel: 'Quay lại', title: opponent?.name ?? 'Nhắn tin'),
             if (m != null) _PinnedMatch(match: m),
             Expanded(child: _body(myId)),
             _QuickReplies(onTap: _send),

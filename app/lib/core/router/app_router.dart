@@ -14,6 +14,8 @@ import '../../features/honors/presentation/honors_screen.dart';
 import '../../features/matches/presentation/match_result_screen.dart';
 import '../../features/matches/presentation/team_profile_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
+import '../../features/me/presentation/booking_history_screen.dart';
+import '../../features/me/presentation/edit_profile_screen.dart';
 import '../../features/me/presentation/me_screen.dart';
 import '../../features/me/presentation/my_posts_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
@@ -84,6 +86,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
       GoRoute(path: Routes.me, builder: (_, _) => const MeScreen()),
+      GoRoute(path: Routes.bookingHistory, builder: (_, _) => const BookingHistoryScreen()),
+      GoRoute(path: Routes.editProfile, builder: (_, _) => const EditProfileScreen()),
       GoRoute(path: Routes.myPosts, builder: (_, _) => const MyPostsScreen()),
       GoRoute(
         path: '/teams/:teamId/matches/:matchId/chat',

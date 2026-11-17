@@ -130,6 +130,11 @@ final teamBookingsProvider = FutureProvider.autoDispose.family<List<BookingDto>,
   (ref, teamId) => ref.watch(bookingsRepositoryProvider).upcoming(teamId),
 );
 
+/// Lịch sử đặt sân (các lượt đã qua) của đội.
+final teamPastBookingsProvider = FutureProvider.autoDispose.family<List<BookingDto>, String>(
+  (ref, teamId) => ref.watch(bookingsRepositoryProvider).past(teamId),
+);
+
 /// Đội dùng để đặt sân: đội đang xem nếu tôi quản lý nó, không thì đội quản lý đầu tiên.
 final bookingTeamProvider = Provider<MyTeamDto?>((ref) {
   final managed = ref.watch(managedTeamsProvider);

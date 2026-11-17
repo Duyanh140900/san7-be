@@ -38,6 +38,12 @@ class MeScreen extends ConsumerWidget {
                 children: [
                   _Profile(me: me),
                   const SizedBox(height: 12),
+                  MeGroup(
+                    children: [
+                      MeRow(title: 'Sửa hồ sơ', onTap: () => context.push(Routes.editProfile)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
                   _Stats(stats: me.stats),
                   const SizedBox(height: 16),
                   const SectionLabel('Đội của tôi'),
@@ -61,6 +67,11 @@ class MeScreen extends ConsumerWidget {
                         value: openPosts == null ? null : '$openPosts đang mở',
                         onTap: () => context.push(Routes.myPosts),
                       ),
+                      MeRow(
+                        title: 'Lịch sử đặt sân',
+                        onTap: () => context.push(Routes.bookingHistory),
+                      ),
+                      MeRow(title: 'Quỹ của tôi', onTap: () => context.go(Routes.teamFunds)),
                       MeRow(title: 'Danh hiệu', onTap: () => context.go(Routes.honors)),
                     ],
                   ),

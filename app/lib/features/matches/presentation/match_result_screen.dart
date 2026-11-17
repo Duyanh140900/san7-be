@@ -10,6 +10,7 @@ import '../../../core/labels.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_widgets.dart';
+import '../../chat/presentation/chat_entry_row.dart';
 import '../../notifications/data/notifications_repository.dart';
 import '../../posts/presentation/post_widgets.dart';
 import '../../team/team_providers.dart';
@@ -251,6 +252,8 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
         _banner(d, opp),
+        ChatEntryRow(teamId: widget.teamId, matchId: widget.matchId),
+        const SizedBox(height: 12),
         _ScoreCard(
           detail: d,
           home: _home,

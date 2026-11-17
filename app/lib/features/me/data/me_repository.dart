@@ -15,9 +15,8 @@ class MeRepository {
   Future<List<PostScheduleDto>> postSchedules(String teamId) =>
       apiCall(() => _api.postSchedules.postSchedulesList(teamId: teamId));
 
-  Future<void> cancelSchedule(String teamId, String scheduleId) => apiCall(
-    () => _api.postSchedules.postSchedulesCancel(teamId: teamId, scheduleId: scheduleId),
-  );
+  Future<void> cancelSchedule(String teamId, String scheduleId) =>
+      apiCall(() => _api.postSchedules.postSchedulesCancel(teamId: teamId, scheduleId: scheduleId));
 
   Future<NotificationSettingsDto> notificationSettings() =>
       apiCall(() => _api.users.usersGetNotificationSettings());

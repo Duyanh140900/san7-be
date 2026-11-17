@@ -25,6 +25,8 @@ abstract final class Routes {
   static const notifications = '/notifications';
   static const me = '/me';
   static const myPosts = '/me/posts';
+  static const bookingHistory = '/me/bookings';
+  static const editProfile = '/me/edit';
   static String chat(String teamId, String matchId) => '/teams/$teamId/matches/$matchId/chat';
   static String pitch(String id) => '/pitch/$id';
   static String matchResult(String teamId, String matchId) =>

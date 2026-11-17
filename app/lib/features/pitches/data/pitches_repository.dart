@@ -52,6 +52,10 @@ class BookingsRepository {
   Future<BookingDto> get(String teamId, String bookingId) =>
       apiCall(() => _api.bookings.bookingsGet(teamId: teamId, bookingId: bookingId));
 
+  Future<List<BookingDto>> past(String teamId) => apiCall(
+    () => _api.bookings.bookingsList(teamId: teamId, scope: BookingsListScope.past),
+  );
+
   Future<List<BookingDto>> upcoming(String teamId) =>
       apiCall(() => _api.bookings.bookingsList(teamId: teamId));
 
