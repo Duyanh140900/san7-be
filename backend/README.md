@@ -28,6 +28,16 @@ không nhân đôi. Vì OSM thường không công bố bảng giá, các khung 
 
 Có thể chọn mirror khi endpoint chuẩn quá tải: `OVERPASS_URL='https://maps.mail.ru/osm/tools/overpass/api/interpreter' npm run import:osm`.
 
+Nếu các endpoint Overpass đều không sẵn sàng, tạo lại cache từ bản trích Việt Nam
+ODbL của Geofabrik. File `.pbf` chỉ dùng cục bộ và không được commit; cache JSON
+đã lọc nhỏ trong `prisma/seed-data/osm/` thì cần commit để seed hoạt động khi
+không có mạng.
+
+```bash
+pip install osmium
+python scripts/osm-pbf-to-cache.py vietnam-latest.osm.pbf prisma/seed-data/osm
+```
+
 NestJS 12 (ESM) + Prisma 7 (PostgreSQL/PostGIS). Xem hướng dẫn chạy ở `../CLAUDE.md` và kế hoạch ở `../docs/PLAN.md`.
 
 ```bash
