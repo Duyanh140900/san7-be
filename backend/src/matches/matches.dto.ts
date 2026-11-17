@@ -152,6 +152,7 @@ export class MatchDetailDto {
   myTeamId: string;
   @ApiPropertyOptional({ type: String }) opponentCaptainName?: string | null;
   @ApiPropertyOptional({ type: String, description: 'Chỉ trả sau khi trận đã chốt' }) opponentCaptainPhone?: string | null;
+  @ApiPropertyOptional({ type: String, format: 'date-time', description: 'Lần đội bạn đọc chat gần nhất' }) opponentLastReadAt?: Date | null;
   @ApiPropertyOptional({ type: 'integer' }) homeScore?: number | null;
   @ApiPropertyOptional({ type: 'integer' }) awayScore?: number | null;
   @ApiProperty({
