@@ -49,6 +49,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.welcome, builder: (_, _) => const WelcomeStep()),
       GoRoute(path: Routes.onboardingProfile, builder: (_, _) => const ProfileStep()),
       GoRoute(path: Routes.onboardingTeam, builder: (_, _) => const TeamStep()),
+      GoRoute(path: Routes.addTeam, builder: (_, _) => const TeamStep(addAnother: true)),
       GoRoute(
         path: Routes.postNew,
         pageBuilder: (_, _) =>

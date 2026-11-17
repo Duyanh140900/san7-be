@@ -8,6 +8,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/labels.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/pills.dart';
@@ -53,6 +54,11 @@ class MeScreen extends ConsumerWidget {
                           value: Labels.role(t.role),
                           onTap: () => context.go(Routes.team),
                         ),
+                      MeRow(
+                        title: 'Tạo hoặc tham gia đội khác',
+                        accent: true,
+                        onTap: () => context.push(Routes.addTeam),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -60,16 +66,26 @@ class MeScreen extends ConsumerWidget {
                   MeGroup(
                     children: [
                       MeRow(
+                        leading: const ActivityIcon(AppIcons.chatBox, AppColors.primary),
                         title: 'Kèo của tôi',
                         value: openPosts == null ? null : '$openPosts đang mở',
                         onTap: () => context.push(Routes.myPosts),
                       ),
                       MeRow(
+                        leading: const ActivityIcon(AppIcons.pin, AppColors.green),
                         title: 'Lịch sử đặt sân',
                         onTap: () => context.push(Routes.bookingHistory),
                       ),
-                      MeRow(title: 'Quỹ của tôi', onTap: () => context.go(Routes.teamFunds)),
-                      MeRow(title: 'Danh hiệu', onTap: () => context.go(Routes.honors)),
+                      MeRow(
+                        leading: const ActivityIcon(AppIcons.wallet, AppColors.activityOrange),
+                        title: 'Quỹ của tôi',
+                        onTap: () => context.go(Routes.teamFunds),
+                      ),
+                      MeRow(
+                        leading: const ActivityIcon(AppIcons.trophy, AppColors.activityGold),
+                        title: 'Danh hiệu',
+                        onTap: () => context.go(Routes.honors),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -125,31 +141,45 @@ class _Profile extends StatelessWidget {
   final MeDto me;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Row(
-      children: [
-        Avatar(name: me.name, url: me.avatarUrl, size: 64),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                me.name,
-                style: Theme.of(context).textTheme.headlineSmall,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                Labels.playerLine(me.position, me.shirtNumber),
-                style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
-              ),
-            ],
-          ),
+  Widget build(BuildContext context) => Row(
+    children: [
+      Avatar(name: me.name, url: me.avatarUrl, size: 76),
+      const SizedBox(width: 16),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              me.name,
+              style: Theme.of(context).textTheme.headlineSmall,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              Labels.playerLine(me.position, me.shirtNumber),
+              style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
+            ),
+          ],
         ),
-      ],
-    ),
+      ),
+    ],
+  );
+}
+
+/// Ô icon 30px bo 8 nền màu của dòng trong mục Hoạt động.
+class ActivityIcon extends StatelessWidget {
+  const ActivityIcon(this.icon, this.color, {super.key});
+  final AppIcons icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 30,
+    height: 30,
+    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
+    alignment: Alignment.center,
+    child: AppIcon(icon, size: 18, color: AppColors.surface),
   );
 }
 
@@ -219,12 +249,16 @@ class MeRow extends StatelessWidget {
     this.onTap,
     this.leading,
     this.destructive = false,
+    this.accent = false,
   });
   final String title;
   final String? value;
   final VoidCallback? onTap;
   final Widget? leading;
   final bool destructive;
+
+  /// Chữ xanh chủ đạo, không có mũi tên (dòng hành động như "Tạo hoặc tham gia đội khác").
+  final bool accent;
 
   @override
   Widget build(BuildContext context) => InkWell(
@@ -239,7 +273,14 @@ class MeRow extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(fontSize: 16, color: destructive ? AppColors.red : AppColors.text),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: destructive
+                      ? AppColors.red
+                      : accent
+                      ? AppColors.primary
+                      : AppColors.text,
+                ),
               ),
             ),
             if (value != null)
@@ -250,7 +291,7 @@ class MeRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            if (onTap != null && !destructive)
+            if (onTap != null && !destructive && !accent)
               const Padding(
                 padding: EdgeInsets.only(left: 6),
                 child: Text('›', style: TextStyle(fontSize: 20, color: AppColors.disabled)),

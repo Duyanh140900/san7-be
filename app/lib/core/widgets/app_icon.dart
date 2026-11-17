@@ -43,6 +43,7 @@ enum AppIcons {
   image(
     '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4.5 17 4.5-4.5 3.5 3.5 2.5-2.5 5 4"/>',
   ),
+  chatBox('<path d="M4 5h16v11H9l-5 4z"/>'),
   close('<path d="M6 6l12 12M18 6 6 18"/>');
 
   const AppIcons(this.body);

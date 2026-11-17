@@ -5,6 +5,7 @@ abstract final class Routes {
   static const welcome = '/welcome';
   static const onboardingProfile = '/onboarding/profile';
   static const onboardingTeam = '/onboarding/team';
+  static const addTeam = '/me/add-team';
   static const feed = '/feed';
   static const pitches = '/pitches';
   static const team = '/team';

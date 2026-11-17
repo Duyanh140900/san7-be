@@ -48,6 +48,10 @@ abstract final class AppColors {
   /// Sao đánh giá
   static const star = Color(0xFFFF9500);
 
+  /// Nền ô icon mục Hoạt động (màn Cá nhân): cam đậm và vàng đậm
+  static const activityOrange = Color(0xFFB25000);
+  static const activityGold = Color(0xFFC69200);
+
   /// Xám của mục bị vô hiệu (khung giờ đã qua/hết sân, ghim hết chỗ)
   static const disabled = Color(0xFFAEAEB2);
 

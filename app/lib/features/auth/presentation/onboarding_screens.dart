@@ -454,7 +454,10 @@ class _GoogleProfileCard extends StatelessWidget {
 enum _TeamMode { join, create }
 
 class TeamStep extends ConsumerStatefulWidget {
-  const TeamStep({super.key});
+  const TeamStep({super.key, this.addAnother = false});
+
+  /// Mở từ màn Cá nhân để tạo/vào thêm đội: xong thì quay lại, không có "Để sau".
+  final bool addAnother;
 
   @override
   ConsumerState<TeamStep> createState() => _TeamStepState();
@@ -523,6 +526,7 @@ class _TeamStepState extends ConsumerState<TeamStep> {
         if (mounted) _toast(context, 'Đã tạo ${t.name}. Mã mời: ${t.inviteCode}', type: ToastType.success);
       }
       await auth.reloadMe(); // có đội → router chuyển sang Bảng tin
+      if (widget.addAnother && mounted && context.canPop()) context.pop();
     } on ApiError catch (e) {
       if (mounted) _toast(context, e.message);
     } finally {
@@ -543,7 +547,7 @@ class _TeamStepState extends ConsumerState<TeamStep> {
 
     return OnboardingScaffold(
       step: 3,
-      onBack: () => context.go(Routes.onboardingProfile),
+      onBack: () => widget.addAnother ? context.pop() : context.go(Routes.onboardingProfile),
       child: _StepBody(
         content: [
           _pad(Text('Vào đội của bạn', style: Theme.of(context).textTheme.headlineMedium)),
@@ -634,6 +638,7 @@ class _TeamStepState extends ConsumerState<TeamStep> {
                   : Text(cta, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ),
+          if (!widget.addAnother)
           _pad(
             SizedBox(
               height: 48,
