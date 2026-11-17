@@ -23,7 +23,7 @@ describe('PostSchedulesService', () => {
     vi.useFakeTimers(); vi.setSystemTime(now);
     const { service, prisma, queue } = setup();
     prisma.postSchedule.create.mockResolvedValue({ id: 's1', teamId: 't1', authorId: 'u1', payload: { ...post, startAt: post.startAt.toISOString(), endAt: post.endAt.toISOString() }, scheduledAt: post.scheduledAt, repeatWeekly: false, status: 'scheduled', publishedPostId: null });
-    await service.create(me, post);
+    await service.create(me, post as never);
     expect(prisma.postSchedule.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ teamId: 't1', authorId: 'u1', repeatWeekly: false }) }));
     expect(queue.add).toHaveBeenCalledWith('post-schedule.publish', { scheduleId: 's1' }, expect.objectContaining({ jobId: postScheduleJobId('s1', post.scheduledAt), delay: 86_400_000 }));
     vi.useRealTimers();
