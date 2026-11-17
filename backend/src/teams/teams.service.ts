@@ -95,6 +95,7 @@ export class TeamsService {
       memberCount,
       myRole: me.role,
       monthlyDue: toMoney(team.monthlyDue),
+      homePitchId: team.homePitchId,
       inviteCode: canInvite ? team.inviteCode : undefined,
       inviteExpiresAt: canInvite ? team.inviteExpiresAt : undefined,
     };
@@ -110,6 +111,7 @@ export class TeamsService {
         crestColor: dto.crestColor?.toUpperCase(),
         monthlyDue:
           dto.monthlyDue === undefined ? undefined : BigInt(dto.monthlyDue),
+        homePitchId: dto.homePitchId,
       },
     });
     return this.detail(me);

@@ -3,7 +3,7 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import type { Queue } from 'bullmq';
 import { AppError } from '../common/errors.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
-import type { Prisma } from '../generated/prisma/client.js';
+import { Prisma } from '../generated/prisma/client.js';
 import type { NotificationRow } from '../notifications/notification-writer.js';
 import {
   notifyTeamManagers,
@@ -51,6 +51,7 @@ function toRequestDto(
   r: Omit<RequestRow, 'post'>,
   stats: TeamStats | undefined,
   now: Date,
+  distanceKm: number | null = null,
 ): MatchRequestDto {
   return {
     id: r.id,
@@ -73,10 +74,44 @@ function toRequestDto(
       reputation: stats?.reputation ?? null,
       onTimePercent: stats?.onTimePercent ?? null,
     },
-    // Team hiện chưa lưu vị trí sân nhà/khu vực bằng toạ độ PostGIS. Giữ null
-    // thay vì suy diễn từ tên khu vực; sẽ có giá trị khi nguồn toạ độ được bổ sung.
-    distanceKm: null,
+    distanceKm,
   };
+}
+
+async function requestDistances(
+  prisma: PrismaService,
+  postPitchId: string | null,
+  requestIds: string[],
+): Promise<Map<string, number>> {
+  if (!postPitchId || requestIds.length === 0) return new Map();
+  const rows = await prisma.$queryRaw<
+    { requestId: string; distanceKm: number | string }[]
+  >(Prisma.sql`
+    SELECT requests.id AS "requestId",
+           ST_Distance(venue.location, source.location) / 1000.0 AS "distanceKm"
+    FROM match_requests AS requests
+    JOIN teams AS team ON team.id = requests.team_id
+    JOIN pitches AS venue ON venue.id = ${postPitchId}::uuid
+    LEFT JOIN LATERAL (
+      SELECT candidate.pitch_id
+      FROM (
+        SELECT booking.pitch_id, booking.start_at
+        FROM bookings AS booking
+        WHERE booking.team_id = team.id
+        UNION ALL
+        SELECT post.pitch_id, game.start_at
+        FROM matches AS game
+        JOIN posts AS post ON post.id = game.post_id
+        WHERE (game.home_team_id = team.id OR game.away_team_id = team.id)
+          AND post.pitch_id IS NOT NULL
+      ) AS candidate
+      ORDER BY candidate.start_at DESC
+      LIMIT 1
+    ) AS recent ON TRUE
+    JOIN pitches AS source ON source.id = COALESCE(team.home_pitch_id, recent.pitch_id)
+    WHERE requests.id IN (${Prisma.join(requestIds)})
+  `);
+  return new Map(rows.map((row) => [row.requestId, Number(row.distanceKm)]));
 }
 
 /**
@@ -244,7 +279,7 @@ export class RequestsService {
     const now = new Date();
     const post = await this.prisma.post.findUnique({
       where: { id: postId },
-      select: { teamId: true },
+      select: { teamId: true, pitchId: true },
     });
     if (!post || post.teamId !== me.teamId) throw this.postNotFound();
     const rows = await this.prisma.matchRequest.findMany({
@@ -252,12 +287,21 @@ export class RequestsService {
       include: { team: { select: teamBriefSelect } },
       orderBy: { createdAt: 'asc' },
     });
-    const stats = await teamStats(
-      this.prisma,
-      me.teamId,
-      rows.map((r) => r.teamId),
+    const [stats, distances] = await Promise.all([
+      teamStats(
+        this.prisma,
+        me.teamId,
+        rows.map((r) => r.teamId),
+      ),
+      requestDistances(
+        this.prisma,
+        post.pitchId,
+        rows.map((r) => r.id),
+      ),
+    ]);
+    return rows.map((r) =>
+      toRequestDto(r, stats.get(r.teamId), now, distances.get(r.id) ?? null),
     );
-    return rows.map((r) => toRequestDto(r, stats.get(r.teamId), now));
   }
 
   /** Chi tiết yêu cầu, xem từ đội đăng kèo hoặc đội gửi. */

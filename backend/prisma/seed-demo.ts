@@ -77,7 +77,11 @@ async function createUsers(prisma: PrismaClient): Promise<DemoUser[]> {
   return users;
 }
 
-async function createTeams(prisma: PrismaClient, users: DemoUser[]): Promise<DemoTeam[]> {
+async function createTeams(
+  prisma: PrismaClient,
+  users: DemoUser[],
+  pitchIds: string[],
+): Promise<DemoTeam[]> {
   const teams: DemoTeam[] = [];
   for (let index = 0; index < TEAM_NAMES.length; index += 1) {
     const members = users.slice(index * 5, index * 5 + 5);
@@ -90,6 +94,7 @@ async function createTeams(prisma: PrismaClient, users: DemoUser[]): Promise<Dem
         level: LEVELS[index % LEVELS.length],
         inviteCode: nextInviteCode(index),
         monthlyDue: BigInt(100_000),
+        homePitchId: pitchIds[index % pitchIds.length],
         createdById: captain.id,
         members: {
           create: members.map((member, memberIndex) => ({
@@ -219,7 +224,7 @@ async function main() {
 
     await deleteDemoData(prisma);
     const users = await createUsers(prisma);
-    const teams = await createTeams(prisma, users);
+    const teams = await createTeams(prisma, users, pitches.map((pitch) => pitch.id));
     await createPosts(prisma, teams, pitches.map((pitch) => pitch.id));
     await createFinishedMatches(prisma, teams, pitches.map((pitch) => pitch.name));
 

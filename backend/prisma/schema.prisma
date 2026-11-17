@@ -240,6 +240,8 @@ model Team {
   crestColor      String    @map("crest_color")
   area            String
   level           TeamLevel
+  /// Sân nhà do đội tự chọn, dùng để tính khoảng cách nhận kèo.
+  homePitchId     String?   @map("home_pitch_id") @db.Uuid
   inviteCode      String    @unique @map("invite_code")
   inviteExpiresAt DateTime? @map("invite_expires_at") @db.Timestamptz(6)
   /// quỹ tháng mỗi người (VND), 0 = không thu quỹ tháng
@@ -251,6 +253,7 @@ model Team {
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   createdBy       User              @relation(fields: [createdById], references: [id])
+  homePitch       Pitch?            @relation("TeamHomePitch", fields: [homePitchId], references: [id], onDelete: SetNull)
   members         TeamMember[]
   events          Event[]
   transactions    FundTransaction[]
@@ -266,6 +269,7 @@ model Team {
   awayMatches     Match[]           @relation("AwayTeam")
 
   @@index([createdById])
+  @@index([homePitchId])
   @@map("teams")
 }
 
@@ -679,6 +683,7 @@ model Pitch {
 
   bookings Booking[]
   posts    Post[]
+  homeTeams Team[] @relation("TeamHomePitch")
 
   @@index([location], type: Gist)
   @@index([district])

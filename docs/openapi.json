@@ -4599,6 +4599,11 @@
             "type": "integer",
             "description": "Quỹ tháng mỗi người (VND), 0 = không thu"
           },
+          "homePitchId": {
+            "type": "object",
+            "format": "uuid",
+            "description": "Sân nhà của đội"
+          },
           "inviteCode": {
             "type": "string",
             "description": "Chỉ đội trưởng/đội phó thấy"
@@ -4647,6 +4652,11 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 10000000
+          },
+          "homePitchId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true
           }
         }
       },

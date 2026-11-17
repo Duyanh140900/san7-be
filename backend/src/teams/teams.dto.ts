@@ -7,6 +7,7 @@ import {
   Min,
   IsOptional,
   IsString,
+  IsUUID,
   Length,
   Matches,
   MaxLength,
@@ -89,6 +90,8 @@ export class TeamDetailDto {
     description: 'Quỹ tháng mỗi người (VND), 0 = không thu',
   })
   monthlyDue: number;
+  @ApiPropertyOptional({ format: 'uuid', description: 'Sân nhà của đội' })
+  homePitchId?: string | null;
   @ApiPropertyOptional({ description: 'Chỉ đội trưởng/đội phó thấy' })
   inviteCode?: string;
   @ApiPropertyOptional({ type: String, format: 'date-time' })
@@ -126,6 +129,11 @@ export class UpdateTeamDto {
   @Min(0)
   @Max(10_000_000)
   monthlyDue?: number;
+
+  @ApiPropertyOptional({ format: 'uuid', nullable: true })
+  @IsOptional()
+  @IsUUID()
+  homePitchId?: string | null;
 }
 
 export class InviteDto {
