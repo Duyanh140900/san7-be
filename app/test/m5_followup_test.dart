@@ -93,10 +93,21 @@ void main() {
     expect(find.bySemanticsLabel('Xoá ảnh 1'), findsOneWidget);
   });
 
-  test('contentTypeOf nhận jpg/png/webp/heic, từ chối khác', () {
+  test('contentTypeOf nhận jpg/png/webp, từ chối heic và khác', () {
     expect(MediaRepository.contentTypeOf('x.JPG'), CreateUploadDtoContentType.imageJpeg);
-    expect(MediaRepository.contentTypeOf('x.heic'), CreateUploadDtoContentType.imageHeic);
+    expect(MediaRepository.contentTypeOf('x.heic'), isNull);
     expect(MediaRepository.contentTypeOf('x.gif'), isNull);
+  });
+
+  test('sniffContentType nhận theo nội dung, không tin đuôi tên', () {
+    final jpeg = Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0, 0, 0]);
+    final png = Uint8List.fromList([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+    final webp = Uint8List.fromList([...'RIFF'.codeUnits, 0, 0, 0, 0, ...'WEBP'.codeUnits]);
+    final heic = Uint8List.fromList([0, 0, 0, 0x18, ...'ftypheic'.codeUnits]);
+    expect(MediaRepository.sniffContentType(jpeg), CreateUploadDtoContentType.imageJpeg);
+    expect(MediaRepository.sniffContentType(png), CreateUploadDtoContentType.imagePng);
+    expect(MediaRepository.sniffContentType(webp), CreateUploadDtoContentType.imageWebp);
+    expect(MediaRepository.sniffContentType(heic), isNull);
   });
 
   testWidgets('PostMediaStrip hiện ảnh theo số lượng', (tester) async {

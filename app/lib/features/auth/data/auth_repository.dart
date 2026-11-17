@@ -74,6 +74,7 @@ class AuthRepository {
     required PositionValue position,
     int? shirtNumber,
     String? area,
+    String? avatarKey,
   }) async {
     try {
       return await _api.users.usersUpdateMe(
@@ -82,6 +83,7 @@ class AuthRepository {
           position: PositionKnown(position),
           shirtNumber: shirtNumber,
           area: area,
+          avatarKey: avatarKey,
         ),
       );
     } catch (e) {

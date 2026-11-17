@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../api/exports.dart';
@@ -10,9 +11,10 @@ import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_field_row.dart';
 import '../../../core/widgets/pills.dart';
+import '../../media/data/media_repository.dart';
 import '../../posts/presentation/post_widgets.dart';
 
-/// Sửa hồ sơ: tên, vị trí, số áo, khu vực (PATCH /v1/me). Ảnh đại diện chờ backend hỗ trợ avatarUrl.
+/// Sửa hồ sơ: tên, vị trí, số áo, khu vực (PATCH /v1/me). Ảnh đại diện: chọn ảnh → upload purpose avatar → PATCH avatarKey.
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -24,8 +26,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late final TextEditingController _name;
   late final TextEditingController _shirt;
   PositionValue? _position;
+  String? _avatarUrl;
   String? _area;
   bool _saving = false;
+  Uint8List? _avatarBytes;
+  CreateUploadDtoContentType? _avatarType;
+
+  Future<void> _pickAvatar() async {
+    // imageQuality buộc bộ chọn đổi HEIC/định dạng lạ sang JPEG trước khi tới đây.
+    final file = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 88,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    );
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    if (!mounted) return;
+    final type = MediaRepository.sniffContentType(bytes);
+    if (type == null || bytes.length > MediaRepository.maxBytes) {
+      showToast(context, 'Chỉ nhận ảnh JPEG, PNG, WebP tối đa 10MB', type: ToastType.warning);
+      return;
+    }
+    setState(() {
+      _avatarBytes = bytes;
+      _avatarType = type;
+    });
+  }
 
   @override
   void initState() {
@@ -39,6 +66,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _ => null,
     };
     _area = me?.area;
+    _avatarUrl = me?.avatarUrl;
   }
 
   @override
@@ -55,16 +83,29 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       return showToast(context, 'Chọn vị trí sở trường', type: ToastType.warning);
     }
     setState(() => _saving = true);
+    final bytes = _avatarBytes;
     final ok = await runAction(
       context,
-      () => ref
-          .read(authControllerProvider.notifier)
-          .updateProfile(
-            name: name,
-            position: _position!,
-            shirtNumber: int.tryParse(_shirt.text),
-            area: _area,
-          ),
+      () async {
+        String? avatarKey;
+        if (bytes != null) {
+          avatarKey = await ref
+              .read(mediaRepositoryProvider)
+              .upload(
+                PickedImage(name: 'avatar', bytes: bytes, contentType: _avatarType!),
+                purpose: MediaPurpose.avatar,
+              );
+        }
+        await ref
+            .read(authControllerProvider.notifier)
+            .updateProfile(
+              name: name,
+              position: _position!,
+              shirtNumber: int.tryParse(_shirt.text),
+              area: _area,
+              avatarKey: avatarKey,
+            );
+      },
       success: 'Đã lưu hồ sơ',
     );
     if (!mounted) return;
@@ -95,6 +136,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
               children: [
+                Center(
+                  child: Semantics(
+                    button: true,
+                    label: 'Đổi ảnh đại diện',
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: _saving ? null : _pickAvatar,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _avatarBytes != null
+                                ? CircleAvatar(
+                                    radius: 44,
+                                    backgroundImage: MemoryImage(_avatarBytes!),
+                                  )
+                                : Avatar(name: _name.text, url: _avatarUrl, size: 88),
+                            const SizedBox(height: 8),
+                            const Text('Đổi ảnh đại diện'),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 FormFieldRow(
                   label: 'Tên hiển thị',
                   controller: _name,

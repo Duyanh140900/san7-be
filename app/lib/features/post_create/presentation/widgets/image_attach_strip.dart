@@ -35,10 +35,8 @@ class ImageAttachStrip extends StatelessWidget {
     var skipped = 0;
     for (final f in files) {
       if (next.length >= max) break;
-      final type =
-          MediaRepository.contentTypeOf(f.name) ??
-          MediaRepository.contentTypeOf(f.path);
       final bytes = await f.readAsBytes();
+      final type = MediaRepository.sniffContentType(bytes);
       if (type == null || bytes.length > MediaRepository.maxBytes) {
         skipped++;
         continue;
@@ -49,7 +47,7 @@ class ImageAttachStrip extends StatelessWidget {
     if (skipped > 0 && context.mounted) {
       showToast(
         context,
-        'Bỏ qua $skipped ảnh: chỉ nhận JPEG, PNG, WebP, HEIC tối đa 10MB',
+        'Bỏ qua $skipped ảnh: chỉ nhận JPEG, PNG, WebP tối đa 10MB',
         type: ToastType.warning,
       );
     }

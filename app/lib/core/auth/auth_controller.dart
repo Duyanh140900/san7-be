@@ -71,12 +71,14 @@ class AuthController extends Notifier<AuthState> {
     required PositionValue position,
     int? shirtNumber,
     String? area,
+    String? avatarKey,
   }) async {
     final me = await _repo.updateProfile(
       name: name,
       position: position,
       shirtNumber: shirtNumber,
       area: area,
+      avatarKey: avatarKey,
     );
     _setMe(me);
   }
