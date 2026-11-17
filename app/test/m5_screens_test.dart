@@ -61,4 +61,18 @@ void main() {
     );
     expect(find.text('›'), findsNothing);
   });
+
+  test('withoutNulls bỏ null lồng nhau và giữ kiểu Map<String, dynamic>', () {
+    final out = withoutNulls({
+      'a': null,
+      'sender': {'id': '1', 'avatarUrl': null},
+      'xs': [
+        {'k': null, 'v': 1},
+      ],
+    });
+    final m = out as Map<String, dynamic>;
+    expect(m.containsKey('a'), false);
+    expect((m['sender'] as Map<String, dynamic>).containsKey('avatarUrl'), false);
+    expect(((m['xs'] as List).first as Map<String, dynamic>)['v'], 1);
+  });
 }

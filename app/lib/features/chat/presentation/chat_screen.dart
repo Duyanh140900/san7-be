@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -9,6 +10,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/format.dart';
 import '../../../core/realtime/realtime_client.dart';
 import '../../../core/theme/tokens.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
 import '../../matches/matches_providers.dart';
@@ -16,6 +18,17 @@ import '../../posts/presentation/post_widgets.dart';
 import '../data/chat_repository.dart';
 
 const chatQuickReplies = ['Gửi vị trí sân', 'Đổi giờ?', 'Đến muộn 10 phút'];
+
+/// Socket không qua OmitNullInterceptor của REST nên phải bỏ trường null trước khi parse.
+@visibleForTesting
+Object? withoutNulls(Object? v) => switch (v) {
+  Map() => <String, dynamic>{
+    for (final e in v.entries)
+      if (e.value != null) e.key as String: withoutNulls(e.value),
+  },
+  List() => <dynamic>[for (final x in v) withoutNulls(x)],
+  _ => v,
+};
 
 /// Màn 21 · Nhắn tin giữa 2 đội (realtime qua Socket.IO, phòng match:{id}).
 class ChatScreen extends ConsumerStatefulWidget {
@@ -50,7 +63,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final raw = data['message'];
       if (raw is! Map) return;
       try {
-        _add(MessageDto.fromJson(Map<String, Object?>.from(raw)));
+        _add(
+          MessageDto.fromJson(withoutNulls(jsonDecode(jsonEncode(raw))) as Map<String, dynamic>),
+        );
       } catch (_) {}
     });
     _scroll.addListener(() {
@@ -143,7 +158,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            DetailHeader(backLabel: 'Quay lại', title: opponent?.name ?? 'Nhắn tin'),
+            DetailHeader(backLabel: 'Lịch', title: opponent?.name ?? 'Nhắn tin'),
             if (m != null) _PinnedMatch(match: m),
             Expanded(child: _body(myId)),
             _QuickReplies(onTap: _send),
@@ -321,7 +336,7 @@ class _Composer extends StatelessWidget {
               : IconButton(
                   tooltip: 'Gửi',
                   onPressed: onSend,
-                  icon: const Icon(Icons.send, color: AppColors.primary),
+                  icon: const AppIcon(AppIcons.arrowUp, size: 24, color: AppColors.primary),
                 ),
         ),
       ],
