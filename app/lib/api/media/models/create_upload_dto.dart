@@ -7,11 +7,14 @@ class CreateUploadDto {
   const CreateUploadDto({
     required this.purpose,
 
-    /// Loại ảnh cho phép: jpeg, png, webp, heic
+    /// Loại ảnh cho phép: jpeg, png, webp
     required this.contentType,
 
     /// Dung lượng file (byte), tối đa 10MB
     required this.size,
+
+    /// Bắt buộc khi purpose = receipt: đội được xem biên lai (người tải phải là thành viên active)
+    this.teamId,
     this.additionalProperties = const {},
   });
 
@@ -19,6 +22,7 @@ class CreateUploadDto {
     purpose: MediaPurpose.fromJson(json["purpose"]),
     contentType: CreateUploadDtoContentType.fromJson(json["contentType"]),
     size: json["size"] as int,
+    teamId: json.containsKey("teamId") ? json["teamId"] as String : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -27,13 +31,16 @@ class CreateUploadDto {
 
   final MediaPurpose purpose;
 
-  /// Loại ảnh cho phép: jpeg, png, webp, heic
+  /// Loại ảnh cho phép: jpeg, png, webp
   final CreateUploadDtoContentType contentType;
 
   /// Dung lượng file (byte), tối đa 10MB
   final int size;
 
-  static const _knownKeys = <String>{"purpose", "contentType", "size"};
+  /// Bắt buộc khi purpose = receipt: đội được xem biên lai (người tải phải là thành viên active)
+  final String? teamId;
+
+  static const _knownKeys = <String>{"purpose", "contentType", "size", "teamId"};
 
   final Map<String, Object?> additionalProperties;
 
@@ -43,5 +50,6 @@ class CreateUploadDto {
     "purpose": this.purpose.toJson(),
     "contentType": this.contentType.toJson(),
     "size": this.size,
+    if (this.teamId != null) "teamId": this.teamId,
   };
 }

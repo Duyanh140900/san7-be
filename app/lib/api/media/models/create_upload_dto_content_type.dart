@@ -3,8 +3,7 @@
 enum CreateUploadDtoContentTypeValue {
   imageJpeg("image/jpeg"),
   imagePng("image/png"),
-  imageWebp("image/webp"),
-  imageHeic("image/heic");
+  imageWebp("image/webp");
 
   const CreateUploadDtoContentTypeValue(this.value);
   final String value;
@@ -18,9 +17,6 @@ sealed class CreateUploadDtoContentType {
   static const imagePng = CreateUploadDtoContentTypeKnown(CreateUploadDtoContentTypeValue.imagePng);
   static const imageWebp = CreateUploadDtoContentTypeKnown(
     CreateUploadDtoContentTypeValue.imageWebp,
-  );
-  static const imageHeic = CreateUploadDtoContentTypeKnown(
-    CreateUploadDtoContentTypeValue.imageHeic,
   );
   factory CreateUploadDtoContentType.fromJson(Object? json) {
     if (!(json is String)) {

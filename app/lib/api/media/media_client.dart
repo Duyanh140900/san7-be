@@ -5,6 +5,8 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
 import 'models/create_upload_dto.dart' as models show CreateUploadDto;
+import 'models/finalize_upload_dto.dart' as models show FinalizeUploadDto;
+import 'models/finalized_media_dto.dart' as models show FinalizedMediaDto;
 import 'models/upload_url_dto.dart' as models show UploadUrlDto;
 
 class MediaClient {
@@ -44,5 +46,99 @@ class MediaClient {
       cancelToken: cancelToken,
     );
     return models.UploadUrlDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.FinalizedMediaDto> mediaFinalize({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required models.FinalizeUploadDto body,
+  }) async {
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/media/uploads/finalize",
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.FinalizedMediaDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<void> mediaReadReceipt({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    await _transport.request<dynamic>(
+      "/v1/media/receipts/" + Uri.encodeComponent(id),
+      options: _options,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<void> mediaReadPublic({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    await _transport.request<dynamic>(
+      "/v1/media/public/" + Uri.encodeComponent(id),
+      options: _options,
+      cancelToken: cancelToken,
+    );
   }
 }

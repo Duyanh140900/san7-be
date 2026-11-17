@@ -84,6 +84,8 @@ export 'matches/models/team_record_dto_form_item.dart';
 export 'media/media_client.dart';
 export 'media/models/create_upload_dto.dart';
 export 'media/models/create_upload_dto_content_type.dart';
+export 'media/models/finalize_upload_dto.dart';
+export 'media/models/finalized_media_dto.dart';
 export 'media/models/media_purpose.dart';
 export 'media/models/upload_url_dto.dart';
 export 'members/members_client.dart';

@@ -8,6 +8,9 @@ class UpdateMeDto {
     this.position,
     this.shirtNumber,
     this.area,
+
+    /// Khoá ảnh đại diện (purpose=avatar) đã PUT lên quarantine; server xác minh rồi cập nhật avatarUrl
+    this.avatarKey,
     this.additionalProperties = const {},
   });
 
@@ -16,6 +19,7 @@ class UpdateMeDto {
     position: json.containsKey("position") ? Position.fromJson(json["position"]) : null,
     shirtNumber: json.containsKey("shirtNumber") ? json["shirtNumber"] as int : null,
     area: json.containsKey("area") ? json["area"] as String : null,
+    avatarKey: json.containsKey("avatarKey") ? json["avatarKey"] as String : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -30,7 +34,10 @@ class UpdateMeDto {
 
   final String? area;
 
-  static const _knownKeys = <String>{"name", "position", "shirtNumber", "area"};
+  /// Khoá ảnh đại diện (purpose=avatar) đã PUT lên quarantine; server xác minh rồi cập nhật avatarUrl
+  final String? avatarKey;
+
+  static const _knownKeys = <String>{"name", "position", "shirtNumber", "area", "avatarKey"};
 
   final Map<String, Object?> additionalProperties;
 
@@ -41,5 +48,6 @@ class UpdateMeDto {
     if (this.position != null) "position": this.position?.toJson(),
     if (this.shirtNumber != null) "shirtNumber": this.shirtNumber,
     if (this.area != null) "area": this.area,
+    if (this.avatarKey != null) "avatarKey": this.avatarKey,
   };
 }

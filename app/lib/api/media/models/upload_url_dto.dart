@@ -10,7 +10,7 @@ class UploadUrlDto {
     /// Header bắt buộc khi PUT (phải khớp chữ ký)
     required this.headers,
 
-    /// Khoá object, dạng users/{userId}/{purpose}/…
+    /// Khoá ảnh sẽ được công khai sau bước xác minh nội dung
     required this.key,
 
     /// URL xem ảnh sau khi tải lên xong
@@ -42,7 +42,7 @@ class UploadUrlDto {
   /// Header bắt buộc khi PUT (phải khớp chữ ký)
   final Map<String, String> headers;
 
-  /// Khoá object, dạng users/{userId}/{purpose}/…
+  /// Khoá ảnh sẽ được công khai sau bước xác minh nội dung
   final String key;
 
   /// URL xem ảnh sau khi tải lên xong
