@@ -365,6 +365,12 @@ export class MatchRequestDto {
   @ApiPropertyOptional({ type: 'integer' }) ratioLose?: number | null;
   @ApiPropertyOptional({ type: String }) message?: string | null;
   @ApiProperty({ type: RequestTeamDto }) team: RequestTeamDto;
+  @ApiPropertyOptional({
+    type: Number,
+    description:
+      'Khoảng cách từ vị trí sân nhà/khu vực đã có toạ độ của đội nhận kèo tới sân của kèo (km)',
+  })
+  distanceKm?: number | null;
 }
 
 export class RequestDetailDto {

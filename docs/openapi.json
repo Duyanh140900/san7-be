@@ -5864,6 +5864,10 @@
           },
           "team": {
             "$ref": "#/components/schemas/RequestTeamDto"
+          },
+          "distanceKm": {
+            "type": "number",
+            "description": "Khoảng cách từ vị trí sân nhà/khu vực đã có toạ độ của đội nhận kèo tới sân của kèo (km)"
           }
         },
         "required": [

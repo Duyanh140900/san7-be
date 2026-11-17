@@ -73,6 +73,9 @@ function toRequestDto(
       reputation: stats?.reputation ?? null,
       onTimePercent: stats?.onTimePercent ?? null,
     },
+    // Team hiện chưa lưu vị trí sân nhà/khu vực bằng toạ độ PostGIS. Giữ null
+    // thay vì suy diễn từ tên khu vực; sẽ có giá trị khi nguồn toạ độ được bổ sung.
+    distanceKm: null,
   };
 }
 
