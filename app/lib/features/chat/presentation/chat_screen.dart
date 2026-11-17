@@ -2,19 +2,21 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/api/api_error.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/format.dart';
+import '../../../core/labels.dart';
 import '../../../core/realtime/realtime_client.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/team_crest.dart';
 import '../../matches/matches_providers.dart';
-import '../../posts/presentation/post_widgets.dart';
 import '../data/chat_repository.dart';
 
 const chatQuickReplies = ['Gửi vị trí sân', 'Đổi giờ?', 'Đến muộn 10 phút'];
@@ -159,7 +161,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            DetailHeader(backLabel: 'Trận', title: opponent?.name ?? 'Nhắn tin'),
+            _ChatHeader(opponent: opponent),
             if (m != null) _PinnedMatch(match: m),
             Expanded(child: _body(myId)),
             if (cancelled)
@@ -206,26 +208,113 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 }
 
+/// Header màn 21: mũi tên quay lại, avatar đội bạn 38px, tên + phụ đề (khu vực · trình độ).
+/// Bản vẽ còn tên đội trưởng và nút gọi, nhưng API chưa trả tên/số điện thoại đội trưởng nên chưa hiển thị.
+class _ChatHeader extends StatelessWidget {
+  const _ChatHeader({required this.opponent});
+  final TeamBriefDto? opponent;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = opponent;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(4, 6, 12, 10),
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(bottom: BorderSide(color: AppColors.border)),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: 'Quay lại',
+            onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            icon: const AppIcon(AppIcons.back, size: 26, color: AppColors.primary),
+          ),
+          if (t != null) ...[
+            TeamAvatar(name: t.name, color: t.crestColor, size: 38),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t?.name ?? 'Nhắn tin',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                if (t != null)
+                  Text(
+                    '${t.area} · ${Labels.level(t.level)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Thẻ kèo ghim: pill "Kèo", giờ · sân, trạng thái bên phải.
 class _PinnedMatch extends StatelessWidget {
   const _PinnedMatch({required this.match});
   final MatchDetailDto match;
 
+  static (String, Color) _status(MatchStatus s) => switch (s) {
+    MatchStatusKnown(value: MatchStatusValue.finished) => ('Đã đá', AppColors.textSecondary),
+    MatchStatusKnown(value: MatchStatusValue.cancelled) => ('Đã huỷ', AppColors.red),
+    _ => ('Đã chốt', AppColors.greenSoftText),
+  };
+
   @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(AppRadius.group),
-    ),
-    child: Text(
-      ['Kèo ${Fmt.slot(match.startAt)}', ?match.location].join(' · '),
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final (label, color) = _status(match.status);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.group),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.primarySoft,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+            ),
+            child: const Text(
+              'Kèo',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primarySoftText,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              [Fmt.slot(match.startAt), ?match.location].join(' · '),
+              style: const TextStyle(fontSize: 14),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color)),
+        ],
+      ),
+    );
+  }
 }
 
 /// Bong bóng chat: của tôi bên phải (xanh), của đội bạn bên trái (trắng).
@@ -319,9 +408,11 @@ class _QuickReplies extends StatelessWidget {
             child: ActionChip(
               label: Text(t),
               onPressed: () => onTap(t),
-              backgroundColor: AppColors.primarySoft,
-              labelStyle: const TextStyle(color: AppColors.primarySoftText),
-              side: BorderSide.none,
+              backgroundColor: AppColors.surface,
+              labelStyle: const TextStyle(fontSize: 14, color: AppColors.primary),
+              side: const BorderSide(color: AppColors.pillBorder),
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
             ),
           ),
       ],
