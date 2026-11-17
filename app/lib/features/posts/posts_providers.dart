@@ -5,14 +5,15 @@ import '../../core/auth/auth_controller.dart';
 import 'data/posts_repository.dart';
 
 /// Bộ lọc Bảng tin: loại kèo + khu vực (null = tất cả).
-typedef FeedFilter = ({PostTypeValue? type, String? area});
+typedef FeedFilter = ({PostTypeValue? type, String? area, String q});
 
 class FeedFilterNotifier extends Notifier<FeedFilter> {
   @override
-  FeedFilter build() => (type: null, area: null);
+  FeedFilter build() => (type: null, area: null, q: '');
 
-  void setType(PostTypeValue? type) => state = (type: type, area: state.area);
-  void setArea(String? area) => state = (type: state.type, area: area);
+  void setType(PostTypeValue? type) => state = (type: type, area: state.area, q: state.q);
+  void setArea(String? area) => state = (type: state.type, area: area, q: state.q);
+  void setQuery(String q) => state = (type: state.type, area: state.area, q: q);
 }
 
 final feedFilterProvider = NotifierProvider<FeedFilterNotifier, FeedFilter>(
@@ -25,12 +26,12 @@ class FeedState {
     this.nextCursor,
     this.loadingMore = false,
   });
-  final List<PostDto> items;
+  final List<FeedEntry> items;
   final String? nextCursor;
   final bool loadingMore;
 
   FeedState copyWith({
-    List<PostDto>? items,
+    List<FeedEntry>? items,
     String? nextCursor,
     bool? loadingMore,
   }) => FeedState(
@@ -47,7 +48,7 @@ class FeedNotifier extends AsyncNotifier<FeedState> {
     final f = ref.watch(feedFilterProvider);
     final page = await ref
         .read(postsRepositoryProvider)
-        .feed(type: f.type, area: f.area);
+        .feed(type: f.type, area: f.area, q: f.q);
     return FeedState(items: page.items, nextCursor: page.nextCursor);
   }
 
@@ -61,7 +62,7 @@ class FeedNotifier extends AsyncNotifier<FeedState> {
     try {
       final page = await ref
           .read(postsRepositoryProvider)
-          .feed(type: f.type, area: f.area, cursor: cur.nextCursor);
+          .feed(type: f.type, area: f.area, q: f.q, cursor: cur.nextCursor);
       state = AsyncData(
         FeedState(
           items: [...cur.items, ...page.items],

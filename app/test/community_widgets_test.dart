@@ -71,7 +71,7 @@ void main() {
 }
 
 class _FakePostsRepository extends PostsRepository {
-  _FakePostsRepository() : super(San7Api(Dio()));
+  _FakePostsRepository() : super(San7Api(Dio()), Dio());
 
   @override
   Future<CommentPageDto> comments(String postId, {String? cursor}) async =>
