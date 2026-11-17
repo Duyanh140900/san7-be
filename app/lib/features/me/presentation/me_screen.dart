@@ -14,6 +14,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/widgets/pills.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../../posts/presentation/post_widgets.dart';
+import '../data/account_repository.dart';
 import '../data/me_repository.dart';
 import '../me_providers.dart';
 
@@ -110,6 +111,11 @@ class MeScreen extends ConsumerWidget {
                         destructive: true,
                         onTap: () => _confirmSignOut(context, ref),
                       ),
+                      MeRow(
+                        title: 'Xoá tài khoản',
+                        destructive: true,
+                        onTap: () => _confirmDelete(context, ref),
+                      ),
                     ],
                   ),
                 ],
@@ -133,6 +139,49 @@ class MeScreen extends ConsumerWidget {
       ),
     );
     if (ok == true) await ref.read(authControllerProvider.notifier).signOut();
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xoá tài khoản?'),
+        content: const Text(
+          'Tài khoản, thiết bị và thông tin cá nhân của bạn sẽ bị xoá vĩnh viễn và không thể khôi phục.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Huỷ')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xoá vĩnh viễn', style: TextStyle(color: AppColors.red)),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await ref.read(accountRepositoryProvider).deleteAccount();
+      await ref.read(authControllerProvider.notifier).signOut();
+    } catch (e) {
+      final err = ApiError.from(e);
+      if (!context.mounted) return;
+      if (err.statusCode == 409 || err.code == 'captain_must_transfer') {
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Chưa thể xoá tài khoản'),
+            content: const Text(
+              'Vui lòng chuyển quyền Đội trưởng hoặc giải tán đội trước khi xoá tài khoản.',
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Đã hiểu')),
+            ],
+          ),
+        );
+      } else {
+        showToast(context, err.message, type: ToastType.error);
+      }
+    }
   }
 }
 
