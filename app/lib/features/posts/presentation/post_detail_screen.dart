@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/format.dart';
@@ -8,6 +9,7 @@ import '../../../core/labels.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../../chat/presentation/chat_launcher.dart';
@@ -318,7 +320,24 @@ class _PitchRow extends StatelessWidget {
             ],
           ),
         ),
+        TextButton(
+          style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
+          onPressed: () => _directions(context),
+          child: const Text('Chỉ đường'),
+        ),
       ],
     ),
   );
+
+  /// Kèo chưa có toạ độ sân nên mở bản đồ tìm theo tên sân và khu vực.
+  Future<void> _directions(BuildContext context) async {
+    final uri = Uri.https('www.google.com', '/maps/search/', {
+      'api': '1',
+      'query': '$name, $area',
+    });
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok && context.mounted) {
+      showToast(context, 'Không mở được bản đồ', type: ToastType.error);
+    }
+  }
 }
