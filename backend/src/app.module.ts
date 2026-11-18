@@ -22,6 +22,7 @@ import { RealtimeModule } from './realtime/realtime.module.js';
 import { TeamsModule } from './teams/teams.module.js';
 import { UsersModule } from './users/users.module.js';
 import { PostSchedulesModule } from './schedules/schedules.module.js';
+import { SearchModule } from './search/search.module.js';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { PostSchedulesModule } from './schedules/schedules.module.js';
     PostSchedulesModule,
     PitchesModule,
     MatchesModule,
+    SearchModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

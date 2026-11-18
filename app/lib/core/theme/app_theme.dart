@@ -1,73 +1,91 @@
-import 'package:flutter/foundation.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'tokens.dart';
 
-/// Theme phong cách Apple theo bản vẽ. iOS dùng font hệ thống, Android dùng Inter.
-/// [fontFamily] chỉ dùng trong test (thay Inter tải từ mạng).
+/// Theme tối "Floodlight Night" (bản vẽ v2). Font đóng gói trong assets, không tải mạng.
+/// [fontFamily] chỉ dùng trong test (thay font đóng gói bằng font mặc định).
 ThemeData buildAppTheme({String? fontFamily}) {
+  final family = fontFamily ?? AppFonts.body;
   final base = ThemeData(
     useMaterial3: true,
-    fontFamily: fontFamily,
-    brightness: Brightness.light,
-    scaffoldBackgroundColor: AppColors.background,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      primary: AppColors.primary,
-      onPrimary: Colors.white,
-      surface: AppColors.surface,
-      onSurface: AppColors.text,
-      error: AppColors.redBright,
+    fontFamily: family,
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: AppColors.night,
+    colorScheme: const ColorScheme.dark(
+      primary: AppColors.lime,
+      onPrimary: AppColors.ink,
+      secondary: AppColors.hot,
+      onSecondary: AppColors.ink,
+      tertiary: AppColors.trophy,
+      surface: AppColors.surfaceCard,
+      onSurface: AppColors.textMain,
+      error: AppColors.card,
+      onError: AppColors.ink,
+      outline: AppColors.lineStrong,
     ),
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
+    dividerColor: AppColors.divider,
   );
 
-  final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
-  final textTheme =
-      (isIOS || fontFamily != null ? base.textTheme : GoogleFonts.interTextTheme(base.textTheme))
-          .apply(bodyColor: AppColors.text, displayColor: AppColors.text);
+  final textTheme = base.textTheme.apply(
+    fontFamily: family,
+    bodyColor: AppColors.textMain,
+    displayColor: AppColors.textMain,
+  );
+
+  // Tiêu đề lớn: Barlow Condensed ExtraBold Italic (chỉ khi dùng font đóng gói)
+  TextStyle? display(TextStyle? s, double size) => fontFamily != null
+      ? s?.copyWith(fontSize: size, fontWeight: FontWeight.w700)
+      : s?.copyWith(
+          fontFamily: AppFonts.display,
+          fontSize: size,
+          fontWeight: FontWeight.w800,
+          fontStyle: FontStyle.italic,
+          height: 1.0,
+        );
 
   return base.copyWith(
     textTheme: textTheme.copyWith(
-      // Tiêu đề lớn của màn (34/30px, đậm, chữ hơi khít)
-      displaySmall: textTheme.displaySmall?.copyWith(
-        fontSize: 34,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.9,
-        height: 1.12,
-      ),
-      headlineMedium: textTheme.headlineMedium?.copyWith(
-        fontSize: 30,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.7,
-      ),
-      bodyLarge: textTheme.bodyLarge?.copyWith(fontSize: 17, letterSpacing: -0.2),
-      bodyMedium: textTheme.bodyMedium?.copyWith(fontSize: 15, letterSpacing: -0.2),
-      bodySmall: textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.textSecondary),
+      displaySmall: display(textTheme.displaySmall, 40),
+      headlineMedium: display(textTheme.headlineMedium, 34),
+      headlineSmall: display(textTheme.headlineSmall, 26),
+      bodyLarge: textTheme.bodyLarge?.copyWith(fontSize: 16, color: AppColors.textBody),
+      bodyMedium: textTheme.bodyMedium?.copyWith(fontSize: 15, color: AppColors.textBody),
+      bodySmall: textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.textDim),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
-        disabledForegroundColor: Colors.white,
-        minimumSize: const Size.fromHeight(52),
-        shape: const StadiumBorder(),
-        textStyle: textTheme.labelLarge?.copyWith(fontSize: 17, fontWeight: FontWeight.w500),
+        backgroundColor: AppColors.lime,
+        foregroundColor: AppColors.ink,
+        disabledBackgroundColor: AppColors.lime.withValues(alpha: 0.35),
+        disabledForegroundColor: AppColors.ink.withValues(alpha: 0.6),
+        minimumSize: const Size.fromHeight(54),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        backgroundColor: AppColors.surfaceHigh,
+        foregroundColor: AppColors.textMain,
+        minimumSize: const Size(AppSizes.tapTarget, 54),
+        side: const BorderSide(color: AppColors.lineButton),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.primary,
+        foregroundColor: AppColors.lime,
         minimumSize: const Size(AppSizes.tapTarget, AppSizes.tapTarget),
         shape: const StadiumBorder(),
       ),
     ),
     snackBarTheme: const SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: AppColors.darkCard,
+      backgroundColor: AppColors.surfaceHigh,
+      contentTextStyle: TextStyle(color: AppColors.textMain),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(AppRadius.group)),
       ),
@@ -76,7 +94,17 @@ ThemeData buildAppTheme({String? fontFamily}) {
       border: InputBorder.none,
       isDense: true,
       contentPadding: EdgeInsets.zero,
-      hintStyle: TextStyle(color: AppColors.textSecondary),
+      hintStyle: TextStyle(color: AppColors.textDim),
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColors.lime),
+    dividerTheme: const DividerThemeData(color: AppColors.divider, thickness: 1),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.surfaceCard,
+      surfaceTintColor: Colors.transparent,
+    ),
+    dialogTheme: const DialogThemeData(
+      backgroundColor: AppColors.surfaceCard,
+      surfaceTintColor: Colors.transparent,
     ),
   );
 }
