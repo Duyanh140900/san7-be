@@ -1,3 +1,6 @@
+import '../data/funds_repository.dart';
+import '../../../core/widgets/app_toast.dart';
+import '../../../core/api/api_error.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -62,16 +65,25 @@ class _FundPayScreenState extends ConsumerState<FundPayScreen> {
     setState(() => _copied = true);
   }
 
-  Future<void> _send() async {
-    // TODO(api): gọi API "tôi đã chuyển" rồi mới đổi trạng thái khi server trả về.
+  Future<void> _send(String teamId, int total, String memo) async {
     setState(() => _sending = true);
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    if (!mounted) return;
-    setState(() {
-      _sending = false;
-      _sent = true;
-      _sentAt = DateTime.now();
-    });
+    try {
+      await ref.read(fundsRepositoryProvider).claimTransfer(
+        teamId,
+        amount: total,
+        transferCode: memo,
+      );
+      if (!mounted) return;
+      setState(() {
+        _sent = true;
+        _sentAt = DateTime.now();
+      });
+      AppToast.success('Đã gửi thông báo cho thủ quỹ xác nhận');
+    } catch (e) {
+      if (mounted) AppToast.error(ApiError.from(e).message);
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
   }
 
   @override
@@ -108,6 +120,9 @@ class _FundPayScreenState extends ConsumerState<FundPayScreen> {
     ).day;
     final monthNum = int.parse(period.split('-')[1]);
     final treasurerName = treasurer?.name ?? 'Thủ quỹ';
+    final tBankBin = team?.additionalProperties['treasurerBankBin'] as String?;
+    final tAccountNo = team?.additionalProperties['treasurerAccountNo'] as String?;
+    final tAccountName = team?.additionalProperties['treasurerAccountName'] as String?;
 
     return Scaffold(
       backgroundColor: AppColors.night,
@@ -198,13 +213,13 @@ class _FundPayScreenState extends ConsumerState<FundPayScreen> {
                           const SizedBox(height: 14),
                           _QrCard(
                             payload: buildVietQrPayload(
-                              bin: _bank.bin,
-                              account: _bank.account,
+                              bin: tBankBin ?? _bank.bin,
+                              account: tAccountNo ?? _bank.account,
                               amount: total,
                               memo: memo,
                             ),
-                            name: stripVietnamese(treasurerName),
-                            account: _bank.accountSpaced,
+                            name: stripVietnamese(tAccountName ?? treasurerName),
+                            account: tAccountNo ?? _bank.accountSpaced,
                             bank: _bank.bankName,
                             memo: memo,
                             copied: _copied,
@@ -267,7 +282,7 @@ class _FundPayScreenState extends ConsumerState<FundPayScreen> {
                     : LimeButton(
                         label: 'Tôi đã chuyển ${Fmt.money(total)}',
                         loading: _sending,
-                        onPressed: total > 0 ? _send : null,
+                        onPressed: total > 0 && !_sending ? () => _send(teamId, total, memo) : null,
                       ),
               ),
             ),

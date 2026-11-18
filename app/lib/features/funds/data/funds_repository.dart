@@ -46,6 +46,38 @@ class FundsRepository {
 
   Future<void> removeFineRule(String teamId, String ruleId) =>
       apiCall(() => _api.funds.fundsRemoveFineRule(teamId: teamId, ruleId: ruleId));
+  Future<Map<String, dynamic>> claimTransfer(
+    String teamId, {
+    required int amount,
+    required String transferCode,
+    String? note,
+  }) => apiCall(() async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/v1/teams/$teamId/funds/transfer-claims',
+      data: {
+        'amount': amount,
+        'transferCode': transferCode,
+        'note': ?note,
+      },
+    );
+    return res.data ?? {};
+  });
+
+  Future<void> updateTreasurerAccount(
+    String teamId, {
+    required String bankBin,
+    required String accountNo,
+    required String accountName,
+  }) => apiCall(() async {
+    await _dio.patch(
+      '/v1/teams/$teamId/treasurer-account',
+      data: {
+        'treasurerBankBin': bankBin,
+        'treasurerAccountNo': accountNo,
+        'treasurerAccountName': accountName,
+      },
+    );
+  });
 }
 
 final fundsRepositoryProvider = Provider<FundsRepository>(

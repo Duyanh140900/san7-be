@@ -116,6 +116,8 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
       if (d.canReport) {
         if (state == MatchDetailDtoResultState.awaitingMe && sameAsReported) {
           await repo.confirm(widget.teamId, widget.matchId);
+        } else if (state == MatchDetailDtoResultState.awaitingMe) {
+          await repo.reProposeResult(widget.teamId, widget.matchId, home: _home, away: _away);
         } else if (!(state == MatchDetailDtoResultState.awaitingOpponent && sameAsReported)) {
           await repo.setResult(widget.teamId, widget.matchId, _home, _away);
         }

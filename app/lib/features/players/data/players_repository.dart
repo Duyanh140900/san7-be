@@ -19,11 +19,14 @@ class HeadToHeadDto {
 
   factory HeadToHeadDto.fromJson(Map<String, dynamic>? json) {
     if (json == null) return const HeadToHeadDto();
+    final played = json['played'] as int?;
+    final note = json['lastMatchNote'] as String? ??
+        (played != null ? 'Đã gặp $played trận' : null);
     return HeadToHeadDto(
-      wins: json['wins'] as int? ?? 1,
+      wins: json['wins'] as int? ?? 0,
       draws: json['draws'] as int? ?? 0,
-      losses: json['losses'] as int? ?? 1,
-      lastMatchNote: json['lastMatchNote'] as String? ?? 'Gần đây',
+      losses: json['losses'] as int? ?? 0,
+      lastMatchNote: note,
     );
   }
 }

@@ -1,3 +1,7 @@
+
+import '../data/matches_repository.dart';
+import '../../../core/api/api_error.dart';
+import '../../../core/widgets/app_toast.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -12,6 +16,10 @@ import '../../../core/widgets/lime_button.dart';
 import '../../../core/widgets/system_state.dart';
 import '../matches_providers.dart';
 import 'match_widgets.dart';
+
+final mvpVotesProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, MatchKey>(
+  (ref, k) => ref.watch(matchesRepositoryProvider).mvpVotes(k.teamId, k.matchId),
+);
 
 /// Màn 39 · Bình chọn MVP sau trận.
 /// TODO(backend): danh sách ứng viên lấy từ roster thật; số phiếu, phần trăm, hạn bình chọn và
@@ -29,10 +37,26 @@ class MvpVoteScreen extends ConsumerStatefulWidget {
 class _MvpVoteScreenState extends ConsumerState<MvpVoteScreen> {
   String? _pick;
   String? _voted;
+  bool _saving = false;
 
   MatchKey get _key => (teamId: widget.teamId, matchId: widget.matchId);
 
-  /// Số phiếu giả, ổn định theo thứ tự trong roster.
+  Future<void> _submitVote() async {
+    if (_pick == null) return;
+    setState(() => _saving = true);
+    try {
+      await ref.read(matchesRepositoryProvider).castMvpVote(widget.teamId, widget.matchId, _pick!);
+      if (!mounted) return;
+      ref.invalidate(mvpVotesProvider(_key));
+      setState(() => _voted = _pick);
+      AppToast.success('Đã gửi phiếu bình chọn MVP!');
+    } catch (e) {
+      if (mounted) AppToast.error(ApiError.from(e).message);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   int _fakeVotes(int index, MatchPlayerDto p) => (p.goals * 2 + p.assists + 5 - index).clamp(0, 99);
 
   @override
@@ -73,7 +97,24 @@ class _MvpVoteScreenState extends ConsumerState<MvpVoteScreen> {
     final opp = iAmHome ? d.awayTeam : d.homeTeam;
     final score = '${d.homeScore ?? 0}–${d.awayScore ?? 0}';
     final players = d.roster;
-    final votes = [for (final (i, p) in players.indexed) _fakeVotes(i, p) + (p.userId == _voted ? 1 : 0)];
+    final voteData = ref.watch(mvpVotesProvider(_key)).value;
+    final candidates = (voteData?['candidates'] as List<dynamic>?) ?? [];
+    final candidateVotes = {
+      for (final item in candidates)
+        if (item is Map<String, dynamic>)
+          (item['userId'] as String? ?? ''): (item['votes'] as int? ?? 0)
+    };
+    if (voteData?['myVoteUserId'] case final String myVote when _voted == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _voted == null) setState(() { _voted = myVote; _pick ??= myVote; });
+      });
+    }
+    final votes = [
+      for (final (i, p) in players.indexed)
+        candidateVotes.containsKey(p.userId)
+            ? candidateVotes[p.userId]!
+            : (_fakeVotes(i, p) + (p.userId == _voted ? 1 : 0))
+    ];
     final total = votes.fold(0, (a, b) => a + b);
     final deadline = d.endAt.add(const Duration(hours: 24));
 
@@ -144,7 +185,8 @@ class _MvpVoteScreenState extends ConsumerState<MvpVoteScreen> {
       children: [
         LimeButton(
           label: label,
-          onPressed: changed ? () => setState(() => _voted = _pick) : null,
+          loading: _saving,
+          onPressed: changed && !_saving ? _submitVote : null,
         ),
       ],
     );
