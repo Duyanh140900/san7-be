@@ -16,6 +16,8 @@ import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/screen_header.dart';
+import '../../../core/widgets/system_state.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../../matches/matches_providers.dart';
 import '../data/chat_repository.dart';
@@ -199,23 +201,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _body(String? myId, DateTime? lastRead) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const Center(child: LoadingState(compact: true));
     if (_failed) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Không tải được tin nhắn', style: TextStyle(color: AppColors.textSecondary)),
-            TextButton(onPressed: _load, child: const Text('Thử lại')),
-          ],
+        child: SingleChildScrollView(
+          child: ErrorState(onRetry: _load, compact: true, message: 'Không tải được tin nhắn.'),
         ),
       );
     }
     if (_messages.isEmpty) {
       return const Center(
-        child: Text(
-          'Chưa có tin nhắn. Hãy chào đội bạn!',
-          style: TextStyle(color: AppColors.textSecondary),
+        child: SingleChildScrollView(
+          child: EmptyState(
+            title: 'Chưa có tin nhắn',
+            message: 'Hãy chào đội bạn!',
+            compact: true,
+          ),
         ),
       );
     }
@@ -251,22 +252,18 @@ class _ChatHeader extends StatelessWidget {
     final t = opponent;
     final captain = captainName;
     final phone = captainPhone;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(4, 6, 4, 10),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border)),
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       child: Row(
         children: [
-          IconButton(
+          SquareIconButton(
             tooltip: 'Quay lại',
             onPressed: () => context.canPop() ? context.pop() : context.go('/'),
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-            icon: const AppIcon(AppIcons.back, size: 26, color: AppColors.primary),
+            child: const AppIcon(AppIcons.back, size: 22, color: AppColors.textMain),
           ),
+          const SizedBox(width: 10),
           if (t != null) ...[
-            TeamAvatar(name: t.name, color: t.crestColor, size: 38),
+            TeamCrest(name: t.name, color: t.crestColor, width: 36),
             const SizedBox(width: 10),
           ],
           Expanded(
@@ -277,91 +274,121 @@ class _ChatHeader extends StatelessWidget {
                   t?.name ?? 'Nhắn tin',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textMain,
+                  ),
                 ),
                 if (t != null)
                   Text(
                     [
-                      '${t.area} · ${Labels.level(t.level)}',
                       if (captain != null) 'ĐT $captain',
+                      '${t.area} · ${Labels.level(t.level)}',
                     ].join(' · '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textDim),
                   ),
               ],
             ),
           ),
-          if (phone != null && phone.isNotEmpty)
-            IconButton(
+          if (phone != null && phone.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            SquareIconButton(
               tooltip: 'Gọi đội trưởng',
-              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
               onPressed: () => launchUrl(Uri(scheme: 'tel', path: phone)),
-              icon: const Icon(Icons.call, color: AppColors.primary),
+              child: const Icon(Icons.call_outlined, size: 20, color: AppColors.textMain),
             ),
+          ],
         ],
       ),
     );
   }
 }
-
-/// Thẻ kèo ghim: pill "Kèo", giờ · sân, trạng thái bên phải.
+/// Thẻ kèo ghim: icon bóng, giờ · sân, chip trạng thái bên phải.
 class _PinnedMatch extends StatelessWidget {
   const _PinnedMatch({required this.match});
   final MatchDetailDto match;
 
-  static (String, Color) _status(MatchStatus s) => switch (s) {
-    MatchStatusKnown(value: MatchStatusValue.finished) => ('Đã đá', AppColors.textSecondary),
-    MatchStatusKnown(value: MatchStatusValue.cancelled) => ('Đã huỷ', AppColors.red),
-    _ => ('Đã chốt', AppColors.greenSoftText),
+  static (String, Color, Color) _status(MatchStatus s) => switch (s) {
+    MatchStatusKnown(value: MatchStatusValue.finished) => (
+      'ĐÃ ĐÁ',
+      AppColors.surfaceHigh,
+      AppColors.textMuted,
+    ),
+    MatchStatusKnown(value: MatchStatusValue.cancelled) => (
+      'ĐÃ HUỶ',
+      AppColors.card.withValues(alpha: 0.16),
+      AppColors.card,
+    ),
+    _ => ('ĐÃ CHỐT', AppColors.greenSoft, AppColors.greenSoftText),
   };
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = _status(match.status);
+    final (label, bg, fg) = _status(match.status);
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.group),
+        color: AppColors.surfaceCard,
+        borderRadius: BorderRadius.circular(AppRadius.button),
+        border: Border.all(color: AppColors.line),
       ),
       child: Row(
         children: [
+          const AppIcon(AppIcons.ball, size: 22, color: AppColors.lime),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Kèo ${Fmt.slot(match.startAt)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textMain,
+                  ),
+                ),
+                if (match.location != null)
+                  Text(
+                    match.location!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: AppColors.textDim),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.primarySoft,
+              color: bg,
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
-            child: const Text(
-              'Kèo',
+            child: Text(
+              label,
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primarySoftText,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: fg,
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              [Fmt.slot(match.startAt), ?match.location].join(' · '),
-              style: const TextStyle(fontSize: 14),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color)),
         ],
       ),
     );
   }
 }
 
-/// Bong bóng chat: của tôi bên phải (xanh), của đội bạn bên trái (trắng).
+/// Bong bóng chat: của tôi bên phải (lime), của đội bạn bên trái (xanh cỏ tối).
 class ChatBubble extends StatelessWidget {
   const ChatBubble({super.key, required this.message, required this.mine, this.seen = false});
   final MessageDto message;
@@ -383,18 +410,18 @@ class ChatBubble extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 4, bottom: 2),
                 child: Text(
                   message.sender.name,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textDim),
                 ),
               ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: mine ? AppColors.primary : AppColors.surface,
+                color: mine ? AppColors.lime : AppColors.surfaceHigh,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(18),
-                  topRight: const Radius.circular(18),
-                  bottomLeft: Radius.circular(mine ? 18 : 6),
-                  bottomRight: Radius.circular(mine ? 6 : 18),
+                  topLeft: const Radius.circular(AppRadius.tile),
+                  topRight: const Radius.circular(AppRadius.tile),
+                  bottomLeft: Radius.circular(mine ? AppRadius.tile : 8),
+                  bottomRight: Radius.circular(mine ? 8 : AppRadius.tile),
                 ),
               ),
               child: Text(
@@ -402,7 +429,7 @@ class ChatBubble extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   height: 1.35,
-                  color: mine ? AppColors.surface : AppColors.text,
+                  color: mine ? AppColors.ink : AppColors.textMain,
                 ),
               ),
             ),
@@ -410,7 +437,7 @@ class ChatBubble extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(4, 2, 4, 0),
               child: Text(
                 seen ? '${Fmt.time(message.createdAt)} · Đã xem' : Fmt.time(message.createdAt),
-                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                style: const TextStyle(fontSize: 11, color: AppColors.textDim),
               ),
             ),
           ],
@@ -427,11 +454,11 @@ class _ReadOnlyNotice extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     width: double.infinity,
     padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-    color: AppColors.surface,
+    color: AppColors.surfaceCard,
     child: const Text(
       'Trận đấu đã huỷ — chỉ có thể xem lại tin nhắn cũ',
       textAlign: TextAlign.center,
-      style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+      style: TextStyle(fontSize: 14, color: AppColors.textDim),
     ),
   );
 }
@@ -442,7 +469,7 @@ class _QuickReplies extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 48,
+    height: 52,
     child: ListView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -450,14 +477,31 @@ class _QuickReplies extends StatelessWidget {
         for (final t in chatQuickReplies)
           Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: ActionChip(
-              label: Text(t),
-              onPressed: () => onTap(t),
-              backgroundColor: AppColors.surface,
-              labelStyle: const TextStyle(fontSize: 14, color: AppColors.primary),
-              side: const BorderSide(color: AppColors.pillBorder),
-              shape: const StadiumBorder(),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
+            child: Center(
+              child: Semantics(
+                button: true,
+                child: InkWell(
+                  onTap: () => onTap(t),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: AppSizes.tapTarget),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                      border: Border.all(color: AppColors.lime.withValues(alpha: 0.5)),
+                    ),
+                    child: Text(
+                      t,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.lime,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
       ],
@@ -473,7 +517,7 @@ class _Composer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 4, 8, 8),
+    padding: const EdgeInsets.fromLTRB(16, 4, 12, 8),
     child: Row(
       children: [
         Expanded(
@@ -486,7 +530,7 @@ class _Composer extends StatelessWidget {
             decoration: const InputDecoration(hintText: 'Nhập tin nhắn'),
           ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: 8),
         SizedBox(
           width: AppSizes.tapTarget,
           height: AppSizes.tapTarget,
@@ -495,10 +539,16 @@ class _Composer extends StatelessWidget {
                   padding: EdgeInsets.all(12),
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : IconButton(
-                  tooltip: 'Gửi',
-                  onPressed: onSend,
-                  icon: const AppIcon(AppIcons.arrowUp, size: 24, color: AppColors.primary),
+              : Material(
+                  color: AppColors.lime,
+                  borderRadius: BorderRadius.circular(AppRadius.button),
+                  child: InkWell(
+                    onTap: onSend,
+                    borderRadius: BorderRadius.circular(AppRadius.button),
+                    child: const Center(
+                      child: AppIcon(AppIcons.arrowUp, size: 22, color: AppColors.ink),
+                    ),
+                  ),
                 ),
         ),
       ],

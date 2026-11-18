@@ -4,16 +4,16 @@ import '../../api/exports.dart';
 import '../../core/auth/auth_controller.dart';
 import 'data/posts_repository.dart';
 
-/// Bộ lọc Bảng tin: loại kèo + khu vực (null = tất cả).
-typedef FeedFilter = ({PostTypeValue? type, String? area, String q});
-
 class FeedFilterNotifier extends Notifier<FeedFilter> {
   @override
-  FeedFilter build() => (type: null, area: null, q: '');
+  FeedFilter build() => const FeedFilter();
 
-  void setType(PostTypeValue? type) => state = (type: type, area: state.area, q: state.q);
-  void setArea(String? area) => state = (type: state.type, area: area, q: state.q);
-  void setQuery(String q) => state = (type: state.type, area: state.area, q: q);
+  void setType(PostTypeValue? type) => state = state.withBasic(type: () => type);
+  void setArea(String? area) => state = state.withBasic(area: () => area);
+  void setQuery(String q) => state = state.withBasic(q: q);
+
+  /// Áp bộ lọc từ màn 30 (giữ từ khoá đang gõ).
+  void apply(FeedFilter f) => state = f.withBasic(q: state.q);
 }
 
 final feedFilterProvider = NotifierProvider<FeedFilterNotifier, FeedFilter>(
@@ -25,10 +25,14 @@ class FeedState {
     required this.items,
     this.nextCursor,
     this.loadingMore = false,
+    this.total = 0,
   });
   final List<FeedEntry> items;
   final String? nextCursor;
   final bool loadingMore;
+
+  /// Tổng kèo phù hợp bộ lọc
+  final int total;
 
   FeedState copyWith({
     List<FeedEntry>? items,
@@ -38,6 +42,7 @@ class FeedState {
     items: items ?? this.items,
     nextCursor: nextCursor,
     loadingMore: loadingMore ?? this.loadingMore,
+    total: total,
   );
 }
 
@@ -46,10 +51,8 @@ class FeedNotifier extends AsyncNotifier<FeedState> {
   @override
   Future<FeedState> build() async {
     final f = ref.watch(feedFilterProvider);
-    final page = await ref
-        .read(postsRepositoryProvider)
-        .feed(type: f.type, area: f.area, q: f.q);
-    return FeedState(items: page.items, nextCursor: page.nextCursor);
+    final page = await ref.read(postsRepositoryProvider).feed(f);
+    return FeedState(items: page.items, nextCursor: page.nextCursor, total: page.total);
   }
 
   Future<void> loadMore() async {
@@ -60,13 +63,12 @@ class FeedNotifier extends AsyncNotifier<FeedState> {
     );
     final f = ref.read(feedFilterProvider);
     try {
-      final page = await ref
-          .read(postsRepositoryProvider)
-          .feed(type: f.type, area: f.area, q: f.q, cursor: cur.nextCursor);
+      final page = await ref.read(postsRepositoryProvider).feed(f, cursor: cur.nextCursor);
       state = AsyncData(
         FeedState(
           items: [...cur.items, ...page.items],
           nextCursor: page.nextCursor,
+          total: page.total,
         ),
       );
     } catch (_) {
@@ -76,6 +78,11 @@ class FeedNotifier extends AsyncNotifier<FeedState> {
     }
   }
 }
+
+/// Số kèo phù hợp một bộ lọc nháp (nút "Xem N kèo phù hợp" ở màn 30).
+final feedCountProvider = FutureProvider.autoDispose.family<int, FeedFilter>(
+  (ref, f) async => (await ref.watch(postsRepositoryProvider).feed(f, limit: 1)).total,
+);
 
 final feedProvider = AsyncNotifierProvider<FeedNotifier, FeedState>(
   FeedNotifier.new,
