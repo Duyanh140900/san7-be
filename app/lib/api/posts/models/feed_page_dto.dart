@@ -6,6 +6,9 @@ class FeedPageDto {
   const FeedPageDto({
     required this.items,
 
+    /// Tổng kèo phù hợp bộ lọc trước phân trang
+    required this.total,
+
     /// Truyền lại để lấy trang sau
     this.nextCursor,
     this.additionalProperties = const {},
@@ -15,6 +18,7 @@ class FeedPageDto {
     items: (json["items"] as List<Object?>)
         .map((item) => FeedPageDtoItemsItem.fromJson(item))
         .toList(),
+    total: _readJsonInteger(json["total"]),
     nextCursor: json.containsKey("nextCursor") ? json["nextCursor"] as String : null,
     additionalProperties: {
       for (final entry in json.entries)
@@ -24,10 +28,13 @@ class FeedPageDto {
 
   final List<FeedPageDtoItemsItem> items;
 
+  /// Tổng kèo phù hợp bộ lọc trước phân trang
+  final int total;
+
   /// Truyền lại để lấy trang sau
   final String? nextCursor;
 
-  static const _knownKeys = <String>{"items", "nextCursor"};
+  static const _knownKeys = <String>{"items", "total", "nextCursor"};
 
   final Map<String, Object?> additionalProperties;
 
@@ -35,6 +42,17 @@ class FeedPageDto {
     for (final entry in additionalProperties.entries)
       if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
     "items": this.items.map((item) => item.toJson()).toList(),
+    "total": this.total,
     if (this.nextCursor != null) "nextCursor": this.nextCursor,
   };
+}
+
+int _readJsonInteger(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double && value.isFinite && value == value.toInt()) {
+    return value.toInt();
+  }
+  throw FormatException('Expected a JSON integer.', value);
 }

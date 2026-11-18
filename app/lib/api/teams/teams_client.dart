@@ -5,12 +5,17 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
 import 'models/create_team_dto.dart' as models show CreateTeamDto;
+import 'models/create_team_report_dto.dart' as models show CreateTeamReportDto;
 import 'models/invite_dto.dart' as models show InviteDto;
 import 'models/join_team_dto.dart' as models show JoinTeamDto;
 import 'models/membership_dto.dart' as models show MembershipDto;
 import 'models/team_detail_dto.dart' as models show TeamDetailDto;
 import 'models/team_dto.dart' as models show TeamDto;
 import 'models/team_invite_preview_dto.dart' as models show TeamInvitePreviewDto;
+import 'models/team_member_dto.dart' as models show TeamMemberDto;
+import 'models/team_public_profile_dto.dart' as models show TeamPublicProfileDto;
+import 'models/team_safety_dto.dart' as models show TeamSafetyDto;
+import 'models/update_member_role_dto.dart' as models show UpdateMemberRoleDto;
 import 'models/update_team_dto.dart' as models show UpdateTeamDto;
 
 class TeamsClient {
@@ -117,6 +122,97 @@ class TeamsClient {
     return models.MembershipDto.fromJson(response.data as Map<String, Object?>);
   }
 
+  Future<models.TeamPublicProfileDto> teamsProfile({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/profile",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.TeamPublicProfileDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<void> teamsFollow({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 204),
+    );
+    await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/follow",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<void> teamsUnfollow({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "DELETE",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 204),
+    );
+    await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/follow",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+  }
+
   Future<models.TeamDetailDto> teamDetailDetail({
     Map<String, Object?> extra = const {
       "openapi.security": [
@@ -215,5 +311,269 @@ class TeamsClient {
       cancelToken: cancelToken,
     );
     return models.InviteDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<List<models.TeamMemberDto>> teamDetailJoinRequests({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/join-requests",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return (response.data as List<Object?>)
+        .map((item) => models.TeamMemberDto.fromJson(item as Map<String, Object?>))
+        .toList();
+  }
+
+  Future<models.MembershipDto> teamDetailApproveJoin({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String userId,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(userId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" +
+          Uri.encodeComponent(teamId) +
+          "/join-requests/" +
+          Uri.encodeComponent(userId) +
+          "/approve",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.MembershipDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.MembershipDto> teamDetailRejectJoin({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String userId,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(userId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" +
+          Uri.encodeComponent(teamId) +
+          "/join-requests/" +
+          Uri.encodeComponent(userId) +
+          "/reject",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.MembershipDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.TeamMemberDto> teamDetailUpdateMemberRole({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String userId,
+    required String teamId,
+    required models.UpdateMemberRoleDto body,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(userId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "PATCH",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" +
+          Uri.encodeComponent(teamId) +
+          "/members/" +
+          Uri.encodeComponent(userId) +
+          "/role",
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.TeamMemberDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.TeamSafetyDto> teamSafetyReport({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+    required models.CreateTeamReportDto body,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 201),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/reports",
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.TeamSafetyDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.TeamSafetyDto> teamSafetyBlock({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String blockedTeamId,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(blockedTeamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/blocks/" + Uri.encodeComponent(blockedTeamId),
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.TeamSafetyDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<void> teamSafetyUnblock({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String blockedTeamId,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(blockedTeamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "DELETE",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 204),
+    );
+    await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/blocks/" + Uri.encodeComponent(blockedTeamId),
+      options: _options,
+      cancelToken: cancelToken,
+    );
   }
 }

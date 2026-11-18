@@ -5,6 +5,7 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
 import '../auth/models/me_dto.dart' as models show MeDto;
+import 'models/booking_summary_dto.dart' as models show BookingSummaryDto;
 import 'models/notification_settings_dto.dart' as models show NotificationSettingsDto;
 import 'models/register_device_dto.dart' as models show RegisterDeviceDto;
 import 'models/update_me_dto.dart' as models show UpdateMeDto;
@@ -96,6 +97,35 @@ class UsersClient {
       cancelToken: cancelToken,
     );
     return models.MeDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.BookingSummaryDto> usersBookingSummary({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    int? year,
+  }) async {
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/me/bookings/summary",
+      options: _options,
+      queryParameters: <String, Object?>{if (year != null) "year": year},
+      cancelToken: cancelToken,
+    );
+    return models.BookingSummaryDto.fromJson(response.data as Map<String, Object?>);
   }
 
   Future<models.NotificationSettingsDto> usersGetNotificationSettings({

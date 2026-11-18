@@ -4,6 +4,7 @@ import 'dart:convert' as convert;
 
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
+import '../auth/models/team_level.dart' as models show TeamLevel;
 import 'models/accept_result_dto.dart' as models show AcceptResultDto;
 import 'models/create_post_application_dto.dart' as models show CreatePostApplicationDto;
 import 'models/create_post_dto.dart' as models show CreatePostDto;
@@ -12,9 +13,11 @@ import 'models/feed_page_dto_items_item.dart' as models show PostDto;
 import 'models/match_request_dto.dart' as models show MatchRequestDto;
 import 'models/my_request_dto.dart' as models show MyRequestDto;
 import 'models/post_application_dto.dart' as models show PostApplicationDto;
+import 'models/post_deal.dart' as models show PostDeal;
 import 'models/post_detail_dto.dart' as models show PostDetailDto;
 import 'models/post_status.dart' as models show PostStatus;
 import 'models/post_type.dart' as models show PostType;
+import 'models/posts_feed_time_slot.dart' as models show PostsFeedTimeSlot;
 import 'models/request_detail_dto.dart' as models show RequestDetailDto;
 import 'models/send_request_dto.dart' as models show SendRequestDto;
 import 'models/update_post_application_dto.dart' as models show UpdatePostApplicationDto;
@@ -36,6 +39,18 @@ class PostsClient {
     CancelToken? cancelToken,
     Options? options,
     models.PostType? type,
+
+    /// Tên mới của type trên màn lọc v2
+    models.PostType? kind,
+
+    /// Ngày đá theo giờ Việt Nam
+    String? date,
+    models.PostsFeedTimeSlot? timeSlot,
+    models.TeamLevel? levelMin,
+    models.TeamLevel? levelMax,
+    models.PostDeal? ratioType,
+    num? minRating,
+    bool? hideCancellers,
     String? area,
 
     /// Cursor phân trang của bảng tin
@@ -57,6 +72,14 @@ class PostsClient {
       options: _options,
       queryParameters: <String, Object?>{
         if (type != null) "type": type.toJson(),
+        if (kind != null) "kind": kind.toJson(),
+        if (date != null) "date": date,
+        if (timeSlot != null) "timeSlot": timeSlot.toJson(),
+        if (levelMin != null) "levelMin": levelMin.toJson(),
+        if (levelMax != null) "levelMax": levelMax.toJson(),
+        if (ratioType != null) "ratioType": ratioType.toJson(),
+        if (minRating != null) "minRating": minRating,
+        if (hideCancellers != null) "hideCancellers": hideCancellers,
         if (area != null) "area": area,
         if (cursor != null) "cursor": cursor,
         if (q != null) "q": q,

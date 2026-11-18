@@ -2,6 +2,7 @@
 
 enum BookingStatusValue {
   held("held"),
+  depositClaimed("deposit_claimed"),
   confirmed("confirmed"),
   cancelled("cancelled");
 
@@ -12,6 +13,7 @@ enum BookingStatusValue {
 sealed class BookingStatus {
   const BookingStatus();
   static const held = BookingStatusKnown(BookingStatusValue.held);
+  static const depositClaimed = BookingStatusKnown(BookingStatusValue.depositClaimed);
   static const confirmed = BookingStatusKnown(BookingStatusValue.confirmed);
   static const cancelled = BookingStatusKnown(BookingStatusValue.cancelled);
   factory BookingStatus.fromJson(Object? json) {

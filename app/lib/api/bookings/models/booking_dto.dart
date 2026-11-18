@@ -21,6 +21,9 @@ class BookingDto {
 
     /// Tiền cọc (VND), 0 ở bản trả tại sân
     required this.deposit,
+    this.transferCode,
+    required this.services,
+    required this.extraAmount,
     this.note,
 
     /// Hết hạn giữ chỗ (chỉ khi đang giữ)
@@ -49,6 +52,9 @@ class BookingDto {
     endAt: DateTime.parse(json["endAt"] as String).toUtc(),
     price: _readJsonInteger(json["price"]),
     deposit: _readJsonInteger(json["deposit"]),
+    transferCode: json.containsKey("transferCode") ? json["transferCode"] as String : null,
+    services: (json["services"] as List<Object?>).map((item) => item as String).toList(),
+    extraAmount: _readJsonInteger(json["extraAmount"]),
     note: json.containsKey("note") ? json["note"] as String : null,
     heldUntil: json.containsKey("heldUntil")
         ? DateTime.parse(json["heldUntil"] as String).toUtc()
@@ -86,6 +92,12 @@ class BookingDto {
   /// Tiền cọc (VND), 0 ở bản trả tại sân
   final int deposit;
 
+  final String? transferCode;
+
+  final List<String> services;
+
+  final int extraAmount;
+
   final String? note;
 
   /// Hết hạn giữ chỗ (chỉ khi đang giữ)
@@ -113,6 +125,9 @@ class BookingDto {
     "endAt",
     "price",
     "deposit",
+    "transferCode",
+    "services",
+    "extraAmount",
     "note",
     "heldUntil",
     "postId",
@@ -136,6 +151,9 @@ class BookingDto {
     "endAt": this.endAt.toUtc().toIso8601String(),
     "price": this.price,
     "deposit": this.deposit,
+    if (this.transferCode != null) "transferCode": this.transferCode,
+    "services": this.services.map((item) => item).toList(),
+    "extraAmount": this.extraAmount,
     if (this.note != null) "note": this.note,
     if (this.heldUntil != null) "heldUntil": this.heldUntil?.toUtc().toIso8601String(),
     if (this.postId != null) "postId": this.postId,

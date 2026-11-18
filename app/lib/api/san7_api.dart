@@ -19,6 +19,7 @@ import 'exports.dart'
         PitchesClient,
         PostSchedulesClient,
         PostsClient,
+        SearchClient,
         TeamsClient,
         UsersClient;
 
@@ -51,6 +52,7 @@ final class San7Api {
   late final clients.PitchesClient pitches = clients.PitchesClient(_client);
   late final clients.PostSchedulesClient postSchedules = clients.PostSchedulesClient(_client);
   late final clients.PostsClient posts = clients.PostsClient(_client);
+  late final clients.SearchClient search = clients.SearchClient(_client);
   late final clients.TeamsClient teams = clients.TeamsClient(_client);
   late final clients.UsersClient users = clients.UsersClient(_client);
 }

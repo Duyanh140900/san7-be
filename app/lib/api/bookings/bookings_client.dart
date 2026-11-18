@@ -165,6 +165,45 @@ class BookingsClient {
     return models.BookingDto.fromJson(response.data as Map<String, Object?>);
   }
 
+  Future<models.BookingDto> bookingsClaimDeposit({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String bookingId,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(bookingId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" +
+          Uri.encodeComponent(teamId) +
+          "/bookings/" +
+          Uri.encodeComponent(bookingId) +
+          "/deposit-claim",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.BookingDto.fromJson(response.data as Map<String, Object?>);
+  }
+
   Future<models.BookingDto> bookingsCancel({
     Map<String, Object?> extra = const {
       "openapi.security": [

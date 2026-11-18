@@ -8,6 +8,9 @@ class BookingPitchDto {
     required this.address,
     required this.lat,
     required this.lng,
+    this.bankBin,
+    this.accountNo,
+    this.accountName,
     this.additionalProperties = const {},
   });
 
@@ -18,6 +21,9 @@ class BookingPitchDto {
     address: json["address"] as String,
     lat: json["lat"] as num,
     lng: json["lng"] as num,
+    bankBin: json.containsKey("bankBin") ? json["bankBin"] as String : null,
+    accountNo: json.containsKey("accountNo") ? json["accountNo"] as String : null,
+    accountName: json.containsKey("accountName") ? json["accountName"] as String : null,
     additionalProperties: {
       for (final entry in json.entries)
         if (!_knownKeys.contains(entry.key)) entry.key: entry.value,
@@ -36,7 +42,23 @@ class BookingPitchDto {
 
   final num lng;
 
-  static const _knownKeys = <String>{"id", "name", "district", "address", "lat", "lng"};
+  final String? bankBin;
+
+  final String? accountNo;
+
+  final String? accountName;
+
+  static const _knownKeys = <String>{
+    "id",
+    "name",
+    "district",
+    "address",
+    "lat",
+    "lng",
+    "bankBin",
+    "accountNo",
+    "accountName",
+  };
 
   final Map<String, Object?> additionalProperties;
 
@@ -49,5 +71,8 @@ class BookingPitchDto {
     "address": this.address,
     "lat": this.lat,
     "lng": this.lng,
+    if (this.bankBin != null) "bankBin": this.bankBin,
+    if (this.accountNo != null) "accountNo": this.accountNo,
+    if (this.accountName != null) "accountName": this.accountName,
   };
 }
