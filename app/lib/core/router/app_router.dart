@@ -8,6 +8,7 @@ import '../../features/auth/presentation/onboarding_screens.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/feed/presentation/feed_screen.dart';
 import '../../features/funds/presentation/add_fund_tx_screen.dart';
+import '../../features/funds/presentation/fund_pay_screen.dart';
 import '../../features/funds/presentation/fund_transactions_screen.dart';
 import '../../features/funds/presentation/funds_page.dart';
 import '../../features/honors/presentation/honors_screen.dart';
@@ -30,6 +31,9 @@ import '../../features/posts/presentation/reactions_screen.dart';
 import '../../features/posts/presentation/send_request_screen.dart';
 import '../../features/team/presentation/members_page.dart';
 import '../../features/team/presentation/team_screen.dart';
+import '../../features/matches/presentation/match_confirm_screen.dart';
+import '../../features/matches/presentation/mvp_vote_screen.dart';
+import '../../features/search/presentation/search_screen.dart';
 import '../auth/auth_controller.dart';
 import '../widgets/app_shell.dart';
 import 'auth_redirect.dart';
@@ -49,6 +53,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.welcome, builder: (_, _) => const WelcomeStep()),
       GoRoute(path: Routes.onboardingProfile, builder: (_, _) => const ProfileStep()),
       GoRoute(path: Routes.onboardingTeam, builder: (_, _) => const TeamStep()),
+      GoRoute(path: Routes.onboardingPermissions, builder: (_, _) => const PermissionsStep()),
       GoRoute(path: Routes.addTeam, builder: (_, _) => const TeamStep(addAnother: true)),
       GoRoute(
         path: Routes.postNew,
@@ -86,6 +91,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
+      GoRoute(path: Routes.search, builder: (_, _) => const SearchScreen()),
       GoRoute(path: Routes.me, builder: (_, _) => const MeScreen()),
       GoRoute(path: Routes.bookingHistory, builder: (_, _) => const BookingHistoryScreen()),
       GoRoute(path: Routes.editProfile, builder: (_, _) => const EditProfileScreen()),
@@ -101,6 +107,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/teams/:teamId/matches/:matchId/result',
         builder: (_, state) => MatchResultScreen(
+          teamId: state.pathParameters['teamId']!,
+          matchId: state.pathParameters['matchId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/teams/:teamId/matches/:matchId/confirm',
+        builder: (_, state) => MatchConfirmRouteScreen(
+          teamId: state.pathParameters['teamId']!,
+          matchId: state.pathParameters['matchId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/teams/:teamId/matches/:matchId/mvp-vote',
+        builder: (_, state) => MvpVoteScreen(
           teamId: state.pathParameters['teamId']!,
           matchId: state.pathParameters['matchId']!,
         ),
@@ -137,6 +157,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(path: Routes.teamFundsAll, builder: (_, _) => const FundTransactionsScreen()),
+      GoRoute(path: Routes.teamFundPay, builder: (_, _) => const FundPayScreen()),
       GoRoute(
         path: Routes.teamEventNew,
         pageBuilder: (_, _) =>

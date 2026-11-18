@@ -36,6 +36,14 @@ abstract final class Routes {
       '/teams/$teamId/matches/$matchId/result';
   static String teamProfile(String teamId) => '/team-profile/$teamId';
   static String booking(String teamId, String bookingId) => '/teams/$teamId/bookings/$bookingId';
+  static const search = '/search';
+  static String matchConfirm(String teamId, String matchId) =>
+      '/teams/$teamId/matches/$matchId/confirm';
+  static String mvpVote(String teamId, String matchId) =>
+      '/teams/$teamId/matches/$matchId/mvp-vote';
+  static String player(String id) => '/player/$id';
+  static String reportTeam(String teamId, String targetTeamId) =>
+      '/report-team/$teamId/$targetTeamId';
 }
 
 /// Quyết định điều hướng theo trạng thái đăng nhập (luồng màn 12).

@@ -9,15 +9,16 @@ import '../../../core/format.dart';
 import '../../../core/labels.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
-import '../../../core/widgets/form_widgets.dart';
+import '../../../core/widgets/lime_button.dart';
 import '../../chat/presentation/chat_entry_row.dart';
 import '../../notifications/data/notifications_repository.dart';
-import '../../posts/presentation/post_widgets.dart';
 import '../../team/team_providers.dart';
 import '../data/matches_repository.dart';
 import '../matches_providers.dart';
+import 'match_confirm_screen.dart';
+import 'match_widgets.dart';
 
-/// Màn 17 · Kết quả trận và đánh giá: tỉ số, ghi bàn, kiến tạo, cầu thủ hay nhất, đánh giá đối thủ.
+/// Màn 09 · Kết quả trận và đánh giá: tỉ số, ghi bàn, kiến tạo, cầu thủ hay nhất, đánh giá đối thủ.
 class MatchResultScreen extends ConsumerStatefulWidget {
   const MatchResultScreen({super.key, required this.teamId, required this.matchId});
   final String teamId;
@@ -39,6 +40,9 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
   final _comment = TextEditingController();
   bool _seeded = false;
   bool _saving = false;
+
+  /// Đội đối đã gửi tỉ số mà mình bấm "Sai tỉ số, đề xuất lại": chuyển sang nhập tỉ số.
+  bool _proposing = false;
 
   MatchKey get _key => (teamId: widget.teamId, matchId: widget.matchId);
 
@@ -173,26 +177,24 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
     final d = detail.value;
     if (d != null && !_seeded) _seed(d);
 
+    if (d != null && d.resultState == MatchDetailDtoResultState.awaitingMe && d.canReport && !_proposing) {
+      return MatchConfirmScreen(
+        teamId: widget.teamId,
+        matchId: widget.matchId,
+        detail: d,
+        onPropose: () => setState(() => _proposing = true),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 6),
-              child: Row(
-                children: [
-                  LinkButton('Để sau', onTap: () => context.pop()),
-                  const Expanded(
-                    child: Text(
-                      'Kết quả trận',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  const SizedBox(width: 56),
-                ],
-              ),
+            ResultTopBar(
+              title: 'Kết quả trận',
+              leadingLabel: 'Để sau',
+              onLeading: () => context.pop(),
             ),
             Expanded(
               child: d == null
@@ -205,7 +207,7 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
                     )
                   : _body(d),
             ),
-            if (d != null && d.canEdit) _bottom(d),
+            if (d != null && (d.canEdit || d.canReport)) _bottom(d),
           ],
         ),
       ),
@@ -220,17 +222,12 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
         : confirming
         ? 'Xác nhận tỉ số $_home – $_away'
         : 'Gửi kết quả';
-    return BottomActionBar(
+    return ResultBottomBar(
       children: [
-        FilledButton(
+        LimeButton(
+          label: label,
+          loading: _saving,
           onPressed: _saving ? null : () => _submit(d),
-          child: _saving
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                )
-              : Text(label),
         ),
       ],
     );
@@ -263,13 +260,13 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
         ),
         if (d.canEdit) ...[
           const SizedBox(height: 20),
-          FormCaption('Ghi bàn · $myScore bàn'),
+          ResultSection('Ghi bàn', subtitle: '$myScore bàn của ${iAmHome ? d.homeTeam.name : d.awayTeam.name}'),
           _chips(d, _goals, myScore),
           const SizedBox(height: 20),
-          const FormCaption('Kiến tạo'),
+          const ResultSection('Kiến tạo'),
           _chips(d, _assists, myScore),
           const SizedBox(height: 20),
-          const FormCaption('Cầu thủ hay nhất'),
+          const ResultSection('Cầu thủ hay nhất'),
           SizedBox(
             height: 96,
             child: ListView(
@@ -285,14 +282,14 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          FormCaption('Đánh giá ${opp.name}'),
+          ResultSection('Đánh giá ${opp.name}'),
           _reviewCard(),
           const SizedBox(height: 14),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
               _footer(d, opp, fee),
-              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.45),
+              style: const TextStyle(fontSize: 13, color: AppColors.textDim, height: 1.45),
             ),
           ),
         ],
@@ -316,30 +313,30 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
   Widget _banner(MatchDetailDto d, TeamBriefDto opp) {
     final h = d.homeScore;
     final a = d.awayScore;
-    final (BannerTone, String)? b = switch (d.resultState) {
+    final (Color, String)? b = switch (d.resultState) {
       _ when !d.ended => (
-        BannerTone.neutral,
+        AppColors.textMuted,
         'Trận chưa kết thúc. Quay lại sau giờ đá để nhập kết quả.',
       ),
       MatchDetailDtoResultState.awaitingOpponent => (
-        BannerTone.waiting,
+        AppColors.trophy,
         'Đã gửi tỉ số $h – $a. Đang chờ ${opp.name} xác nhận.',
       ),
       MatchDetailDtoResultState.awaitingMe => (
-        BannerTone.waiting,
+        AppColors.trophy,
         '${opp.name} đã nhập $h – $a. Xác nhận nếu đúng, hoặc sửa tỉ số rồi gửi lại.',
       ),
       MatchDetailDtoResultState.confirmed => (
-        BannerTone.success,
+        AppColors.greenSoftText,
         'Tỉ số $h – $a đã được hai đội xác nhận.',
       ),
-      _ when !d.canEdit => (BannerTone.neutral, 'Chỉ đội trưởng hoặc phó đội nhập kết quả.'),
+      _ when !d.canEdit => (AppColors.textMuted, 'Chỉ đội trưởng hoặc phó đội nhập kết quả.'),
       _ => null,
     };
     if (b == null) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
-      child: StatusBanner(tone: b.$1, child: Text(b.$2)),
+      child: NoticeStrip(color: b.$1, text: b.$2),
     );
   }
 
@@ -400,7 +397,7 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen> {
         if (_rep == 0 || _fair == 0)
           const Text(
             'Chấm cả hai mục sao để gửi đánh giá.',
-            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 12, color: AppColors.textDim),
           ),
       ],
     ),
@@ -423,93 +420,21 @@ class _ScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget side(TeamBriefDto t, int score, bool isHome) => Expanded(
-      child: Column(
-        children: [
-          Text(
-            t.name,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            '$score',
-            style: const TextStyle(
-              fontSize: 52,
-              height: 1,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              fontFeatures: [FontFeature.tabularFigures()],
-            ),
-          ),
-          if (editable) ...[
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _Step('−', 'Bớt bàn ${t.name}', () => onChange(isHome, -1)),
-                const SizedBox(width: 10),
-                _Step('+', 'Thêm bàn ${t.name}', () => onChange(isHome, 1)),
-              ],
-            ),
-          ],
-        ],
-      ),
+    ScoreSide side(TeamBriefDto t, int score, bool isHome) => ScoreSide(
+      name: t.name,
+      crestColor: t.crestColor,
+      score: score,
+      editable: editable,
+      onMinus: () => onChange(isHome, -1),
+      onPlus: () => onChange(isHome, 1),
     );
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-      decoration: BoxDecoration(
-        color: AppColors.darkCard,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
-      child: Column(
-        children: [
-          Text(
-            [Fmt.slot(detail.startAt), ?detail.location].join(' · '),
-            style: const TextStyle(fontSize: 13, color: AppColors.onDarkMuted),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              side(detail.homeTeam, home, true),
-              const Padding(
-                padding: EdgeInsets.only(top: 34),
-                child: Text('–', style: TextStyle(fontSize: 32, color: AppColors.disabled)),
-              ),
-              side(detail.awayTeam, away, false),
-            ],
-          ),
-        ],
-      ),
+    return ScorePanel(
+      badge: const MiniBadge('FULL TIME'),
+      info: [Fmt.slot(detail.startAt), ?detail.location].join(' · '),
+      left: side(detail.homeTeam, home, true),
+      right: side(detail.awayTeam, away, false),
     );
   }
-}
-
-class _Step extends StatelessWidget {
-  const _Step(this.label, this.semantic, this.onTap);
-  final String label;
-  final String semantic;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: semantic,
-    excludeSemantics: true,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: const BoxDecoration(color: Color(0xFF3A3A3C), shape: BoxShape.circle),
-        alignment: Alignment.center,
-        child: Text(label, style: const TextStyle(fontSize: 22, color: Colors.white)),
-      ),
-    ),
-  );
 }
 
 class _PlayerChip extends StatelessWidget {
@@ -533,7 +458,7 @@ class _PlayerChip extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
             decoration: BoxDecoration(
-              color: on ? AppColors.primarySoft : AppColors.surface,
+              color: on ? AppColors.primarySoft : AppColors.surfaceHigh,
               borderRadius: BorderRadius.circular(AppRadius.pill),
               border: Border.all(color: on ? AppColors.primary : AppColors.pillBorder),
             ),
@@ -542,7 +467,7 @@ class _PlayerChip extends StatelessWidget {
               children: [
                 Avatar(name: player.name, url: player.avatarUrl, size: 32),
                 const SizedBox(width: 8),
-                Text(player.name, style: const TextStyle(fontSize: 14)),
+                Text(player.name, style: const TextStyle(fontSize: 14, color: AppColors.textMain)),
                 if (on) ...[
                   const SizedBox(width: 6),
                   Text(
@@ -550,7 +475,7 @@ class _PlayerChip extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primarySoftText,
+                      color: AppColors.lime,
                     ),
                   ),
                 ],
@@ -585,7 +510,7 @@ class _MvpChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected ? AppColors.goldSoft : null,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: selected ? AppColors.gold : Colors.transparent, width: 2),
+            border: Border.all(color: selected ? AppColors.trophy : AppColors.line, width: 2),
           ),
           child: Column(
             children: [
@@ -595,7 +520,7 @@ class _MvpChip extends StatelessWidget {
                 player.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 13),
+                style: const TextStyle(fontSize: 13, color: AppColors.textMain),
               ),
             ],
           ),
@@ -614,7 +539,7 @@ class _StarRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      Expanded(child: Text(label, style: const TextStyle(fontSize: 15))),
+      Expanded(child: Text(label, style: const TextStyle(fontSize: 15, color: AppColors.textMain))),
       for (var n = 1; n <= 5; n++)
         Semantics(
           button: true,
@@ -629,7 +554,7 @@ class _StarRow extends StatelessWidget {
               child: Icon(
                 Icons.star_rounded,
                 size: 28,
-                color: n <= value ? AppColors.star : AppColors.border,
+                color: n <= value ? AppColors.star : AppColors.lineStrong,
               ),
             ),
           ),
@@ -654,7 +579,7 @@ class _TagChip extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 36),
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? AppColors.greenSoft : AppColors.surface,
+          color: selected ? AppColors.greenSoft : AppColors.surfaceHigh,
           borderRadius: BorderRadius.circular(AppRadius.pill),
           border: Border.all(color: selected ? AppColors.greenSoftText : AppColors.pillBorder),
         ),
@@ -663,7 +588,7 @@ class _TagChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-            color: selected ? AppColors.greenSoftText : AppColors.text,
+            color: selected ? AppColors.greenSoftText : AppColors.textBody,
           ),
         ),
       ),

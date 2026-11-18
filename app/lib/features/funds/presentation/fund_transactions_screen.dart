@@ -72,11 +72,8 @@ class _FundTransactionsScreenState extends ConsumerState<FundTransactionsScreen>
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Giao dịch quỹ',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-        ),
+        surfaceTintColor: const Color(0x00000000),
+        title: Text('GIAO DỊCH QUỸ', style: AppText.display(24)),
       ),
       body: RefreshIndicator(
         onRefresh: _reload,
@@ -95,7 +92,7 @@ class _FundTransactionsScreenState extends ConsumerState<FundTransactionsScreen>
                   child: Column(
                     children: [
                       for (final (i, t) in _items.indexed) ...[
-                        if (i > 0) const Divider(height: 1, color: Color(0xFFF0F0F0)),
+                        if (i > 0) const Divider(height: 1, color: AppColors.divider),
                         FundTxRow(teamId: teamId, tx: t, canManage: canManage),
                       ],
                     ],
