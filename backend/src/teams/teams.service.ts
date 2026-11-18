@@ -17,7 +17,9 @@ import type {
   TeamDto,
   TeamInvitePreviewDto,
   UpdateTeamDto,
+  TeamMemberDto,
 } from './teams.dto.js';
+import type { TeamRole } from '../generated/prisma/enums.js';
 
 const INVITE_TTL_DAYS = 7;
 const CREST_COLORS = [
@@ -200,6 +202,45 @@ export class TeamsService {
     };
   }
 
+  async joinRequests(me: TeamMembership): Promise<TeamMemberDto[]> {
+    const rows = await this.prisma.teamMember.findMany({
+      where: { teamId: me.teamId, status: 'pending' },
+      include: { user: { select: { id: true, name: true, avatarUrl: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map(toMemberDto);
+  }
+
+  async resolveJoinRequest(me: TeamMembership, userId: string, accept: boolean): Promise<MembershipDto> {
+    const member = await this.prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId: me.teamId, userId } }, include: { team: true },
+    });
+    if (!member || member.status !== 'pending') {
+      throw new AppError(HttpStatus.NOT_FOUND, 'join_request_not_found', 'Không tìm thấy yêu cầu vào đội đang chờ duyệt');
+    }
+    if (!accept) {
+      await this.prisma.teamMember.delete({ where: { id: member.id } });
+      return { teamId: member.teamId, teamName: member.team.name, role: member.role, status: 'pending' };
+    }
+    const updated = await this.prisma.teamMember.update({
+      where: { id: member.id }, data: { status: 'active', joinedAt: new Date() },
+    });
+    return { teamId: updated.teamId, teamName: member.team.name, role: updated.role, status: updated.status };
+  }
+
+  async updateMemberRole(me: TeamMembership, userId: string, role: TeamRole): Promise<TeamMemberDto> {
+    if (role === 'captain') {
+      throw new AppError(HttpStatus.UNPROCESSABLE_ENTITY, 'captain_role_locked', 'Không thể đổi đội trưởng bằng API này');
+    }
+    const member = await this.prisma.teamMember.findUnique({ where: { teamId_userId: { teamId: me.teamId, userId } } });
+    if (!member || member.status !== 'active') throw new AppError(HttpStatus.NOT_FOUND, 'team_member_not_found', 'Không tìm thấy thành viên');
+    if (member.role === 'captain') throw new AppError(HttpStatus.UNPROCESSABLE_ENTITY, 'captain_role_locked', 'Không thể đổi vai trò đội trưởng');
+    const updated = await this.prisma.teamMember.update({
+      where: { id: member.id }, data: { role }, include: { user: { select: { id: true, name: true, avatarUrl: true } } },
+    });
+    return toMemberDto(updated);
+  }
+
   private async findByInvite(code: string) {
     const normalized = normalizeInviteCode(code);
     const notFound = new AppError(
@@ -221,6 +262,10 @@ export class TeamsService {
     }
     return team;
   }
+}
+
+function toMemberDto(row: { user: { id: string; name: string; avatarUrl: string | null }; role: TeamRole; status: import('../generated/prisma/enums.js').MemberStatus; joinedAt: Date | null; createdAt: Date }): TeamMemberDto {
+  return { userId: row.user.id, name: row.user.name, avatarUrl: row.user.avatarUrl, role: row.role, status: row.status, joinedAt: row.joinedAt, createdAt: row.createdAt };
 }
 
 function toTeamDto(t: {

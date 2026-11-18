@@ -140,3 +140,19 @@ export class InviteDto {
   @ApiProperty() inviteCode: string;
   @ApiProperty({ type: String, format: 'date-time' }) inviteExpiresAt: Date;
 }
+
+export class TeamMemberDto {
+  @ApiProperty({ format: 'uuid' }) userId: string;
+  @ApiProperty() name: string;
+  @ApiPropertyOptional({ type: String }) avatarUrl: string | null;
+  @ApiProperty({ enum: TeamRole, enumName: 'TeamRole' }) role: TeamRole;
+  @ApiProperty({ enum: MemberStatus, enumName: 'MemberStatus' }) status: MemberStatus;
+  @ApiPropertyOptional({ type: String, format: 'date-time' }) joinedAt: Date | null;
+  @ApiProperty({ type: String, format: 'date-time' }) createdAt: Date;
+}
+
+export class UpdateMemberRoleDto {
+  @ApiProperty({ enum: ['vice', 'treasurer', 'member'] })
+  @IsEnum(TeamRole)
+  role: TeamRole;
+}

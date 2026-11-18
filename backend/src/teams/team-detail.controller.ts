@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   CurrentMember,
@@ -6,7 +6,7 @@ import {
   TeamRoles,
   type TeamMembership,
 } from '../common/team-member.guard.js';
-import { InviteDto, TeamDetailDto, UpdateTeamDto } from './teams.dto.js';
+import { InviteDto, MembershipDto, TeamDetailDto, TeamMemberDto, UpdateMemberRoleDto, UpdateTeamDto } from './teams.dto.js';
 import { TeamsService } from './teams.service.js';
 
 @ApiTags('teams')
@@ -36,5 +36,33 @@ export class TeamDetailController {
   @ApiCreatedResponse({ type: InviteDto })
   regenerateInvite(@CurrentMember() me: TeamMembership): Promise<InviteDto> {
     return this.teams.regenerateInvite(me);
+  }
+
+  @Get('join-requests')
+  @TeamRoles('captain', 'vice')
+  @ApiOkResponse({ type: [TeamMemberDto] })
+  joinRequests(@CurrentMember() me: TeamMembership): Promise<TeamMemberDto[]> {
+    return this.teams.joinRequests(me);
+  }
+
+  @Post('join-requests/:userId/approve')
+  @TeamRoles('captain', 'vice')
+  @ApiOkResponse({ type: MembershipDto })
+  approveJoin(@CurrentMember() me: TeamMembership, @Param('userId', ParseUUIDPipe) userId: string): Promise<MembershipDto> {
+    return this.teams.resolveJoinRequest(me, userId, true);
+  }
+
+  @Post('join-requests/:userId/reject')
+  @TeamRoles('captain', 'vice')
+  @ApiOkResponse({ type: MembershipDto })
+  rejectJoin(@CurrentMember() me: TeamMembership, @Param('userId', ParseUUIDPipe) userId: string): Promise<MembershipDto> {
+    return this.teams.resolveJoinRequest(me, userId, false);
+  }
+
+  @Patch('members/:userId/role')
+  @TeamRoles('captain')
+  @ApiOkResponse({ type: TeamMemberDto })
+  updateMemberRole(@CurrentMember() me: TeamMembership, @Param('userId', ParseUUIDPipe) userId: string, @Body() dto: UpdateMemberRoleDto): Promise<TeamMemberDto> {
+    return this.teams.updateMemberRole(me, userId, dto.role);
   }
 }
