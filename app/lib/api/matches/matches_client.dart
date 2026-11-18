@@ -4,8 +4,11 @@ import 'dart:convert' as convert;
 
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
+import 'models/cast_mvp_vote_dto.dart' as models show CastMvpVoteDto;
 import 'models/honors_dto.dart' as models show HonorsDto;
 import 'models/match_detail_dto.dart' as models show MatchDetailDto;
+import 'models/mvp_vote_summary_dto.dart' as models show MvpVoteSummaryDto;
+import 'models/propose_result_dto.dart' as models show ProposeResultDto;
 import 'models/set_result_dto.dart' as models show SetResultDto;
 import 'models/set_stats_dto.dart' as models show SetStatsDto;
 import 'models/submit_review_dto.dart' as models show SubmitReviewDto;
@@ -46,6 +49,52 @@ class MatchesClient {
     final response = await _transport.request<dynamic>(
       "/v1/teams/" + Uri.encodeComponent(teamId) + "/matches/" + Uri.encodeComponent(matchId),
       options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.MatchDetailDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.MatchDetailDto> matchesReProposeResult({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String matchId,
+    required String teamId,
+    required models.ProposeResultDto body,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(matchId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" +
+          Uri.encodeComponent(teamId) +
+          "/matches/" +
+          Uri.encodeComponent(matchId) +
+          "/result/re-propose",
+      options: _options,
+      data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
     return models.MatchDetailDto.fromJson(response.data as Map<String, Object?>);
@@ -226,6 +275,91 @@ class MatchesClient {
       cancelToken: cancelToken,
     );
     return models.MatchDetailDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.MvpVoteSummaryDto> matchesMvpVotes({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String matchId,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(matchId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "GET",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" +
+          Uri.encodeComponent(teamId) +
+          "/matches/" +
+          Uri.encodeComponent(matchId) +
+          "/mvp-votes",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.MvpVoteSummaryDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.MvpVoteSummaryDto> matchesVoteMvp({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String matchId,
+    required String teamId,
+    required models.CastMvpVoteDto body,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(matchId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" +
+          Uri.encodeComponent(teamId) +
+          "/matches/" +
+          Uri.encodeComponent(matchId) +
+          "/mvp-votes",
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.MvpVoteSummaryDto.fromJson(response.data as Map<String, Object?>);
   }
 
   Future<models.TeamProfileDto> teamProfileGet({

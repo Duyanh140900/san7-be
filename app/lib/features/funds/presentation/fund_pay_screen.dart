@@ -120,9 +120,9 @@ class _FundPayScreenState extends ConsumerState<FundPayScreen> {
     ).day;
     final monthNum = int.parse(period.split('-')[1]);
     final treasurerName = treasurer?.name ?? 'Thủ quỹ';
-    final tBankBin = team?.additionalProperties['treasurerBankBin'] as String?;
-    final tAccountNo = team?.additionalProperties['treasurerAccountNo'] as String?;
-    final tAccountName = team?.additionalProperties['treasurerAccountName'] as String?;
+    final tBankBin = team?.treasurerBankBin ?? team?.additionalProperties['treasurerBankBin'] as String?;
+    final tAccountNo = team?.treasurerAccountNo ?? team?.additionalProperties['treasurerAccountNo'] as String?;
+    final tAccountName = team?.treasurerAccountName ?? team?.additionalProperties['treasurerAccountName'] as String?;
 
     return Scaffold(
       backgroundColor: AppColors.night,

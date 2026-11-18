@@ -17,6 +17,9 @@ class TeamDetailDto {
 
     /// Quỹ tháng mỗi người (VND), 0 = không thu
     required this.monthlyDue,
+    this.treasurerBankBin,
+    this.treasurerAccountNo,
+    this.treasurerAccountName,
 
     /// Sân nhà của đội
     this.homePitchId,
@@ -37,6 +40,15 @@ class TeamDetailDto {
     memberCount: _readJsonInteger(json["memberCount"]),
     myRole: TeamRole.fromJson(json["myRole"]),
     monthlyDue: _readJsonInteger(json["monthlyDue"]),
+    treasurerBankBin: json.containsKey("treasurerBankBin")
+        ? json["treasurerBankBin"] as String
+        : null,
+    treasurerAccountNo: json.containsKey("treasurerAccountNo")
+        ? json["treasurerAccountNo"] as String
+        : null,
+    treasurerAccountName: json.containsKey("treasurerAccountName")
+        ? json["treasurerAccountName"] as String
+        : null,
     homePitchId: json.containsKey("homePitchId")
         ? TeamDetailDtoHomePitchId.fromJson(json["homePitchId"] as Map<String, Object?>)
         : null,
@@ -69,6 +81,12 @@ class TeamDetailDto {
   /// Quỹ tháng mỗi người (VND), 0 = không thu
   final int monthlyDue;
 
+  final String? treasurerBankBin;
+
+  final String? treasurerAccountNo;
+
+  final String? treasurerAccountName;
+
   /// Sân nhà của đội
   final TeamDetailDtoHomePitchId? homePitchId;
 
@@ -87,6 +105,9 @@ class TeamDetailDto {
     "memberCount",
     "myRole",
     "monthlyDue",
+    "treasurerBankBin",
+    "treasurerAccountNo",
+    "treasurerAccountName",
     "homePitchId",
     "inviteCode",
     "inviteExpiresAt",
@@ -106,6 +127,9 @@ class TeamDetailDto {
     "memberCount": this.memberCount,
     "myRole": this.myRole.toJson(),
     "monthlyDue": this.monthlyDue,
+    if (this.treasurerBankBin != null) "treasurerBankBin": this.treasurerBankBin,
+    if (this.treasurerAccountNo != null) "treasurerAccountNo": this.treasurerAccountNo,
+    if (this.treasurerAccountName != null) "treasurerAccountName": this.treasurerAccountName,
     if (this.homePitchId != null) "homePitchId": this.homePitchId?.toJson(),
     if (this.inviteCode != null) "inviteCode": this.inviteCode,
     if (this.inviteExpiresAt != null)

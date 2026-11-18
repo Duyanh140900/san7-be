@@ -17,6 +17,7 @@ import 'models/team_public_profile_dto.dart' as models show TeamPublicProfileDto
 import 'models/team_safety_dto.dart' as models show TeamSafetyDto;
 import 'models/update_member_role_dto.dart' as models show UpdateMemberRoleDto;
 import 'models/update_team_dto.dart' as models show UpdateTeamDto;
+import 'models/update_treasurer_account_dto.dart' as models show UpdateTreasurerAccountDto;
 
 class TeamsClient {
   TeamsClient(this._transport);
@@ -275,6 +276,44 @@ class TeamsClient {
     );
     final response = await _transport.request<dynamic>(
       "/v1/teams/" + Uri.encodeComponent(teamId),
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.TeamDetailDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.TeamDetailDto> teamDetailUpdateTreasurerAccount({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+    required models.UpdateTreasurerAccountDto body,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "PATCH",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/treasurer-account",
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,

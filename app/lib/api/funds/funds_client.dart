@@ -4,6 +4,7 @@ import 'dart:convert' as convert;
 
 import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
 
+import 'models/claim_fund_transfer_dto.dart' as models show ClaimFundTransferDto;
 import 'models/create_fine_rule_dto.dart' as models show CreateFineRuleDto;
 import 'models/create_fund_tx_dto.dart' as models show CreateFundTxDto;
 import 'models/fine_rule_dto.dart' as models show FineRuleDto;
@@ -47,6 +48,122 @@ class FundsClient {
       cancelToken: cancelToken,
     );
     return models.FundSummaryDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.FundTxDto> fundsClaimTransfer({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String teamId,
+    required models.ClaimFundTransferDto body,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+      validateStatus: (status) => status != null && (status == 201),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" + Uri.encodeComponent(teamId) + "/funds/transfer-claims",
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return models.FundTxDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.FundTxDto> fundsApproveTransfer({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String txId,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(txId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" +
+          Uri.encodeComponent(teamId) +
+          "/funds/transfer-claims/" +
+          Uri.encodeComponent(txId) +
+          "/approve",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.FundTxDto.fromJson(response.data as Map<String, Object?>);
+  }
+
+  Future<models.FundTxDto> fundsRejectTransfer({
+    Map<String, Object?> extra = const {
+      "openapi.security": [
+        {"bearer": []},
+      ],
+      "openapi.securitySchemes": {
+        "bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+      },
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String txId,
+    required String teamId,
+  }) async {
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(teamId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    if (const {'', '.', '..'}.contains(Uri.encodeComponent(txId))) {
+      throw ArgumentError('Invalid path segment.');
+    }
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      headers: {...?options?.headers, 'Accept': "application/json"},
+      validateStatus: (status) => status != null && (status == 200),
+    );
+    final response = await _transport.request<dynamic>(
+      "/v1/teams/" +
+          Uri.encodeComponent(teamId) +
+          "/funds/transfer-claims/" +
+          Uri.encodeComponent(txId) +
+          "/reject",
+      options: _options,
+      cancelToken: cancelToken,
+    );
+    return models.FundTxDto.fromJson(response.data as Map<String, Object?>);
   }
 
   Future<models.FinesDto> fundsFines({
