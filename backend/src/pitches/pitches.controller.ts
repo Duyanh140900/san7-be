@@ -2,6 +2,8 @@ import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   PitchDetailQuery,
+  FreePitchSlotDto,
+  FreePitchSlotsQuery,
   PitchDto,
   PitchListDto,
   PitchListQuery,
@@ -19,6 +21,12 @@ export class PitchesController {
   @ApiOkResponse({ type: PitchListDto })
   list(@Query() q: PitchListQuery): Promise<PitchListDto> {
     return this.pitches.list(q);
+  }
+
+  @Get('free-slots')
+  @ApiOkResponse({ type: [FreePitchSlotDto] })
+  freeSlots(@Query() q: FreePitchSlotsQuery): Promise<FreePitchSlotDto[]> {
+    return this.pitches.freeSlots(q);
   }
 
   @Get(':pitchId')

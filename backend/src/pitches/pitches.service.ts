@@ -8,6 +8,8 @@ import { buildSlots, parseSlots } from './pitch-slots.js';
 import type {
   PitchDetailQuery,
   PitchDto,
+  FreePitchSlotDto,
+  FreePitchSlotsQuery,
   PitchListDto,
   PitchListQuery,
 } from './pitches.dto.js';
@@ -86,6 +88,25 @@ export class PitchesService {
       );
     }
     return (await this.toDtos(rows, date, now))[0];
+  }
+
+  async freeSlots(q: FreePitchSlotsQuery): Promise<FreePitchSlotDto[]> {
+    const now = new Date();
+    const from = q.from && q.from > now ? q.from : now;
+    const to = q.to ?? vnToUtc(vnDate(now), '23:59');
+    if (to <= from) throw new AppError(HttpStatus.BAD_REQUEST, 'invalid_time_range', 'Khoảng thời gian không hợp lệ');
+    const pos = this.position(q.lat, q.lng);
+    const rows = await this.query([], pos, 100);
+    const dates = [...new Set([vnDate(from), vnDate(to)])];
+    const all = await Promise.all(dates.map((date) => this.toDtos(rows, date, now)));
+    const ratingRows = await this.prisma.pitchReview.groupBy({ by: ['pitchId'], _avg: { stars: true } });
+    const ratings = new Map(ratingRows.map((row) => [row.pitchId, Number(row._avg.stars ?? 0)]));
+    return rows.flatMap((row) => {
+      const slot = all.flatMap((items) => items.find((item) => item.id === row.id)?.slots ?? [])
+        .filter((item) => item.available && item.startAt >= from && item.startAt <= to)
+        .sort((a, b) => a.startAt.getTime() - b.startAt.getTime())[0];
+      return slot ? [{ pitchId: row.id, name: row.name, distanceKm: row.distanceM === null ? undefined : Number((row.distanceM / 1000).toFixed(2)), rating: Number((ratings.get(row.id) ?? 0).toFixed(1)), slotStart: slot.startAt }] : [];
+    }).sort((a, b) => a.slotStart.getTime() - b.slotStart.getTime()).slice(0, 12);
   }
 
   private resolveDate(date: string | undefined, now: Date): string {

@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsIn,
+  IsDate,
   IsInt,
   IsNumber,
   IsOptional,
@@ -74,6 +75,23 @@ export class PitchDto {
 
 export class PitchListDto {
   @ApiProperty({ type: [PitchDto] }) items: PitchDto[];
+}
+
+export class FreePitchSlotDto {
+  @ApiProperty({ format: 'uuid' }) pitchId: string;
+  @ApiProperty() name: string;
+  @ApiPropertyOptional({ type: 'number', description: 'Khoảng cách km' }) distanceKm?: number;
+  @ApiProperty({ type: 'number', description: 'Điểm đánh giá trung bình' }) rating: number;
+  @ApiProperty({ type: String, format: 'date-time' }) slotStart: Date;
+}
+
+export class FreePitchSlotsQuery {
+  @ApiPropertyOptional({ type: 'number' }) @IsOptional() @Type(() => Number) @IsNumber() @Min(-90) @Max(90) lat?: number;
+  @ApiPropertyOptional({ type: 'number' }) @IsOptional() @Type(() => Number) @IsNumber() @Min(-180) @Max(180) lng?: number;
+  @ApiPropertyOptional({ type: String, format: 'date-time', description: 'Mặc định từ thời điểm hiện tại' })
+  @IsOptional() @Type(() => Date) @IsDate() from?: Date;
+  @ApiPropertyOptional({ type: String, format: 'date-time', description: 'Mặc định hết tối nay (giờ VN)' })
+  @IsOptional() @Type(() => Date) @IsDate() to?: Date;
 }
 
 export class PitchListQuery {
