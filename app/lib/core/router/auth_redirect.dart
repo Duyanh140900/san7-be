@@ -5,6 +5,7 @@ abstract final class Routes {
   static const welcome = '/welcome';
   static const onboardingProfile = '/onboarding/profile';
   static const onboardingTeam = '/onboarding/team';
+  static const onboardingPermissions = '/onboarding/permissions';
   static const addTeam = '/me/add-team';
   static const feed = '/feed';
   static const pitches = '/pitches';
@@ -14,6 +15,7 @@ abstract final class Routes {
   static const teamFunds = '/team/funds';
   static const teamFundNew = '/team/funds/new';
   static const teamFundsAll = '/team/funds/all';
+  static const teamFundPay = '/team/funds/pay';
   static const teamEventNew = '/team/schedule/new';
   static String teamEvent(String id) => '/team/events/$id';
   static const honors = '/honors';
@@ -50,13 +52,17 @@ String? authRedirect(AuthState auth, String location) {
       return at(Routes.onboardingProfile) ? null : Routes.onboardingProfile;
     case AuthSignedIn() when auth.needsTeam:
       // Cho phép quay lại sửa hồ sơ ở bước 2
-      if (at(Routes.onboardingTeam) || at(Routes.onboardingProfile)) {
+      if (at(Routes.onboardingTeam) ||
+          at(Routes.onboardingProfile) ||
+          at(Routes.onboardingPermissions)) {
         return null;
       }
       return Routes.onboardingTeam;
     case AuthSignedIn():
       // Chưa có đội nhưng đã bấm "Để sau": vẫn được mở lại bước vào đội từ tab Đội
       if (at(Routes.onboardingTeam) && auth.me.teams.isEmpty) return null;
+      // Bước 4 hiện một lần sau bước vào đội; bước đó tự chuyển sang Bảng tin
+      if (at(Routes.onboardingPermissions)) return null;
       final inOnboarding =
           at(Routes.splash) || at(Routes.welcome) || location.startsWith('/onboarding');
       return inOnboarding ? Routes.feed : null;

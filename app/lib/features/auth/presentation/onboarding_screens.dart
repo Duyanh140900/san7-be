@@ -1,3 +1,5 @@
+export 'permissions_step.dart';
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,12 +14,13 @@ import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/brand_mark.dart';
 import '../../../core/widgets/form_field_row.dart';
+import '../../../core/widgets/lime_button.dart';
 import '../../../core/widgets/pills.dart';
 import '../../team/data/team_repository.dart';
 import '../data/auth_repository.dart';
 import 'onboarding_scaffold.dart';
-import 'splash_screen.dart';
 
 void _toast(BuildContext context, String message, {ToastType type = ToastType.error}) {
   showToast(context, message, type: type);
@@ -94,56 +97,70 @@ class _WelcomeStepState extends ConsumerState<WelcomeStep> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return OnboardingScaffold(
       step: 1,
       child: _StepBody(
-        top: 40,
+        top: 32,
         content: [
-          _pad(const Align(alignment: Alignment.centerLeft, child: AppLogo())),
+          _pad(
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BallMark(size: 40, spin: true),
+                  SizedBox(width: 10),
+                  Text('SÂN 7', style: TextStyle(fontFamily: AppFonts.display, fontWeight: FontWeight.w800, fontStyle: FontStyle.italic, fontSize: 28, color: AppColors.lime)),
+                ],
+              ),
+            ),
+          ),
           _pad(
             Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text('Cáp kèo, đặt sân,\nquản lý đội.', style: theme.textTheme.displaySmall),
+              padding: const EdgeInsets.only(top: 16),
+              child: Text.rich(
+                TextSpan(
+                  text: 'CÁP KÈO.\nĐẶT SÂN.\n',
+                  children: [TextSpan(text: 'VÀO TRẬN.', style: AppText.display(56, color: AppColors.lime))],
+                ),
+                style: AppText.display(56, height: 0.95),
+              ),
             ),
           ),
           _pad(
             const Text(
-              'Một app cho anh em đá sân 7. Dùng tài khoản Google để vào nhanh, không cần mật khẩu.',
-              style: TextStyle(fontSize: 17, height: 1.47, color: AppColors.textSecondary),
+              'Một app cho anh em đá sân 7. Vào nhanh bằng Google, không cần mật khẩu.',
+              style: TextStyle(fontSize: 16, height: 1.5, color: AppColors.textMuted),
             ),
           ),
           const SizedBox(height: 6),
-          _pad(_GoogleButton(loading: _loading, onTap: _loading ? null : _signIn)),
           _pad(
-            Opacity(
-              opacity: 0.45,
-              child: Container(
-                height: 54,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.text,
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                ),
-                child: const Text(
-                  'Tiếp tục với Apple · bản iOS',
-                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w500),
-                ),
-              ),
+            LimeButton(
+              label: 'Tiếp tục với Google',
+              loading: _loading,
+              onPressed: _loading ? null : _signIn,
             ),
           ),
+          // Nút Apple chỉ có trên iOS, chưa có tài khoản Apple nên chưa đăng nhập được
+          if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS)
+            _pad(
+              GhostButton(
+                label: 'Tiếp tục với Apple',
+                onPressed: () => _toast(context, 'Đăng nhập Apple sẽ có ở bản sau', type: ToastType.warning),
+              ),
+            ),
           _pad(
             const Padding(
               padding: EdgeInsets.fromLTRB(4, 4, 4, 0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppIcon(AppIcons.lock, size: 18, color: AppColors.textSecondary),
+                  AppIcon(AppIcons.lock, size: 18, color: AppColors.textDim),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'App chỉ lấy tên, email và ảnh đại diện từ Google. Không đăng bài thay bạn.',
-                      style: TextStyle(fontSize: 13, height: 1.45, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 13, height: 1.45, color: AppColors.textDim),
                     ),
                   ),
                 ],
@@ -155,76 +172,19 @@ class _WelcomeStepState extends ConsumerState<WelcomeStep> {
           _pad(
             const Text.rich(
               TextSpan(
-                text: 'Khi tiếp tục, bạn đồng ý với ',
+                text: 'Tiếp tục là đồng ý với ',
                 children: [
-                  TextSpan(
-                    text: 'Điều khoản',
-                    style: TextStyle(color: AppColors.primary),
-                  ),
+                  TextSpan(text: 'Điều khoản', style: TextStyle(color: AppColors.lime)),
                   TextSpan(text: ' và '),
-                  TextSpan(
-                    text: 'Chính sách riêng tư',
-                    style: TextStyle(color: AppColors.primary),
-                  ),
+                  TextSpan(text: 'Chính sách riêng tư', style: TextStyle(color: AppColors.lime)),
                   TextSpan(text: '.'),
                 ],
               ),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, height: 1.45, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 13, height: 1.45, color: AppColors.textDim),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _GoogleButton extends StatelessWidget {
-  const _GoogleButton({required this.loading, required this.onTap});
-  final bool loading;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      shape: const StadiumBorder(side: BorderSide(color: AppColors.pillBorder)),
-      child: InkWell(
-        customBorder: const StadiumBorder(),
-        onTap: onTap,
-        child: SizedBox(
-          height: 54,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (loading)
-                const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              else
-                Container(
-                  width: 26,
-                  height: 26,
-                  decoration: const BoxDecoration(
-                    color: AppColors.background,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'G',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                ),
-              const SizedBox(width: 12),
-              const Text(
-                'Tiếp tục với Google',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: AppColors.text),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -319,7 +279,7 @@ class _ProfileStepState extends ConsumerState<ProfileStep> {
       onBack: _back,
       child: _StepBody(
         content: [
-          _pad(Text('Hồ sơ cầu thủ', style: Theme.of(context).textTheme.headlineMedium)),
+          _pad(Text('HỒ SƠ CẦU THỦ', style: AppText.display(36))),
           if (me != null) _pad(_GoogleProfileCard(me: me)),
           _pad(
             FormFieldRow(
@@ -337,16 +297,9 @@ class _ProfileStepState extends ConsumerState<ProfileStep> {
             onSelected: (v) => setState(() => _position = v),
           ),
           _pad(
-            FormFieldRow(
-              label: 'Số áo',
+            _ShirtStepper(
               controller: _shirt,
-              hint: '—',
-              textAlign: TextAlign.right,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(2),
-              ],
+              onChanged: () => setState(() {}),
             ),
           ),
           _pad(const SectionLabel('Khu vực hay đá')),
@@ -359,10 +312,7 @@ class _ProfileStepState extends ConsumerState<ProfileStep> {
         ],
         bottom: [
           _pad(
-            FilledButton(
-              onPressed: _saving ? null : _submit,
-              child: _saving ? const _ButtonSpinner() : const Text('Tiếp tục'),
-            ),
+            LimeButton(label: 'Tiếp tục', loading: _saving, onPressed: _saving ? null : _submit),
           ),
         ],
       ),
@@ -389,8 +339,9 @@ class _GoogleProfileCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.card),
+        color: AppColors.surfaceCard,
+        borderRadius: BorderRadius.circular(AppRadius.tile),
+        border: Border.all(color: AppColors.line),
       ),
       child: Row(
         children: [
@@ -401,9 +352,9 @@ class _GoogleProfileCard extends StatelessWidget {
             child: Text(
               initials(me.name),
               style: const TextStyle(
-                color: Colors.white,
+                color: AppColors.ink,
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -471,6 +422,7 @@ class _TeamStepState extends ConsumerState<TeamStep> {
   TeamLevelValue _level = TeamLevelValue.tb;
   TeamInvitePreviewDto? _preview;
   String? _previewError;
+  String? _pending;
   bool _busy = false;
   int _lookupSeq = 0;
 
@@ -513,8 +465,10 @@ class _TeamStepState extends ConsumerState<TeamStep> {
     try {
       if (_mode == _TeamMode.join) {
         final m = await teams.join(_code.text.replaceAll(' ', ''));
-        if (mounted) {
-          _toast(context, 'Đã gửi yêu cầu vào ${m.teamName}. Chờ đội trưởng duyệt.', type: ToastType.success);
+        if (m.status == MemberStatus.pending) {
+          // Yêu cầu chờ đội trưởng duyệt: ở lại màn để báo trạng thái
+          if (mounted) setState(() => _pending = m.teamName);
+          return;
         }
       } else {
         final name = _teamName.text.trim();
@@ -525,8 +479,13 @@ class _TeamStepState extends ConsumerState<TeamStep> {
         final t = await teams.create(name: name, area: _area, level: _level);
         if (mounted) _toast(context, 'Đã tạo ${t.name}. Mã mời: ${t.inviteCode}', type: ToastType.success);
       }
-      await auth.reloadMe(); // có đội → router chuyển sang Bảng tin
-      if (widget.addAnother && mounted && context.canPop()) context.pop();
+      if (widget.addAnother) {
+        await auth.reloadMe();
+        if (mounted && context.canPop()) context.pop();
+      } else {
+        // Sang bước 4 (quyền truy cập); bước đó tải lại hồ sơ rồi vào Bảng tin
+        if (mounted) context.go(Routes.onboardingPermissions);
+      }
     } on ApiError catch (e) {
       if (mounted) _toast(context, e.message);
     } finally {
@@ -536,12 +495,14 @@ class _TeamStepState extends ConsumerState<TeamStep> {
 
   Future<void> _skip() async {
     await ref.read(authControllerProvider.notifier).skipTeamStep();
-    if (mounted) context.go(Routes.feed);
+    if (!mounted) return;
+    context.go(widget.addAnother ? Routes.feed : Routes.onboardingPermissions);
   }
 
   @override
   Widget build(BuildContext context) {
     final isJoin = _mode == _TeamMode.join;
+    final pending = _pending;
     final canSubmit = !_busy && (isJoin ? _preview != null : _teamName.text.trim().length >= 2);
     final cta = isJoin ? (_preview != null ? 'Vào đội ${_preview!.name}' : 'Vào đội') : 'Tạo đội';
 
@@ -550,7 +511,7 @@ class _TeamStepState extends ConsumerState<TeamStep> {
       onBack: () => widget.addAnother ? context.pop() : context.go(Routes.onboardingProfile),
       child: _StepBody(
         content: [
-          _pad(Text('Vào đội của bạn', style: Theme.of(context).textTheme.headlineMedium)),
+          _pad(Text('VÀO ĐỘI CỦA BẠN', style: AppText.display(36))),
           _pad(
             _OptionCard(
               selected: isJoin,
@@ -592,6 +553,7 @@ class _TeamStepState extends ConsumerState<TeamStep> {
               ),
             if (_previewError != null) _pad(_HintText(_previewError!, color: AppColors.redBright)),
           ],
+          if (pending != null) _pad(_PendingCard(teamName: pending)),
           _pad(
             _OptionCard(
               selected: !isJoin,
@@ -631,26 +593,14 @@ class _TeamStepState extends ConsumerState<TeamStep> {
         ],
         bottom: [
           _pad(
-            FilledButton(
-              onPressed: canSubmit ? _submit : null,
-              child: _busy
-                  ? const _ButtonSpinner()
-                  : Text(cta, maxLines: 1, overflow: TextOverflow.ellipsis),
-            ),
+            LimeButton(label: cta, loading: _busy, onPressed: canSubmit ? _submit : null),
           ),
           if (!widget.addAnother)
           _pad(
-            SizedBox(
+            GhostButton(
+              label: _pending != null ? 'Xem Bảng tin trước' : 'Để sau, xem Bảng tin trước',
               height: 48,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: AppColors.surface,
-                  textStyle: Theme.of(context).textTheme.bodyLarge
-                      ?.copyWith(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-                onPressed: _busy ? null : _skip,
-                child: const Text('Để sau, xem Bảng tin trước'),
-              ),
+              onPressed: _busy ? null : _skip,
             ),
           ),
         ],
@@ -689,9 +639,9 @@ class _OptionCard extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            border: Border.all(color: selected ? AppColors.primary : Colors.transparent, width: 2),
+            color: AppColors.surfaceCard,
+            borderRadius: BorderRadius.circular(AppRadius.tile),
+            border: Border.all(color: selected ? AppColors.lime : AppColors.line, width: selected ? 2 : 1),
           ),
           child: Row(
             children: [
@@ -736,13 +686,110 @@ class _HintText extends StatelessWidget {
   );
 }
 
-class _ButtonSpinner extends StatelessWidget {
-  const _ButtonSpinner();
+/// Màn 28: yêu cầu vào đội đã gửi, đang chờ đội trưởng duyệt.
+class _PendingCard extends StatelessWidget {
+  const _PendingCard({required this.teamName});
+  final String teamName;
 
   @override
-  Widget build(BuildContext context) => const SizedBox(
-    width: 22,
-    height: 22,
-    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: AppColors.warnSoft,
+      borderRadius: BorderRadius.circular(AppRadius.tile),
+      border: Border.all(color: AppColors.trophy.withValues(alpha: 0.4)),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const AppIcon(AppIcons.clock, color: AppColors.trophy),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Đã gửi yêu cầu, chờ duyệt',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.trophy),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Đội trưởng $teamName sẽ duyệt yêu cầu của bạn. Có kết quả app sẽ báo ngay.',
+                style: const TextStyle(fontSize: 14, height: 1.4, color: AppColors.textBody),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// Số áo: nút − / + hai bên con số (màn 27). Vẫn dùng [controller] để lấy giá trị.
+class _ShirtStepper extends StatelessWidget {
+  const _ShirtStepper({required this.controller, required this.onChanged});
+  final TextEditingController controller;
+  final VoidCallback onChanged;
+
+  void _step(int d) {
+    final v = ((int.tryParse(controller.text) ?? 0) + d).clamp(0, 99);
+    controller.text = v == 0 ? '' : '$v';
+    onChanged();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final n = controller.text.isEmpty ? '—' : controller.text;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceCard,
+        borderRadius: BorderRadius.circular(AppRadius.tile),
+        border: Border.all(color: AppColors.line),
+      ),
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 4),
+            child: Text('Số áo', style: TextStyle(fontSize: 15, color: AppColors.textDim)),
+          ),
+          const Spacer(),
+          _StepBtn(label: '−', semantics: 'Giảm số áo', onTap: () => _step(-1)),
+          SizedBox(
+            width: 64,
+            child: Text(n, textAlign: TextAlign.center, style: AppText.score(34)),
+          ),
+          _StepBtn(label: '+', semantics: 'Tăng số áo', onTap: () => _step(1)),
+        ],
+      ),
+    );
+  }
+}
+
+class _StepBtn extends StatelessWidget {
+  const _StepBtn({required this.label, required this.semantics, required this.onTap});
+  final String label;
+  final String semantics;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: semantics,
+    excludeSemantics: true,
+    child: GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: AppSizes.tapTarget,
+        height: AppSizes.tapTarget,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceHigh,
+          borderRadius: BorderRadius.circular(AppRadius.button),
+          border: Border.all(color: AppColors.lineButton),
+        ),
+        alignment: Alignment.center,
+        child: Text(label, style: const TextStyle(fontSize: 22, color: AppColors.textMain)),
+      ),
+    ),
   );
 }

@@ -46,7 +46,7 @@ class AppLogo extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       alignment: Alignment.center,
-      child: const AppIcon(AppIcons.ball, size: 36, color: Colors.white, strokeWidth: 1.6),
+      child: const AppIcon(AppIcons.ball, size: 36, color: AppColors.ink, strokeWidth: 1.6),
     );
   }
 }
