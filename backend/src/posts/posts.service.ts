@@ -241,12 +241,16 @@ export class PostsService {
           ],
         }
       : {};
+    const myTeams = await this.prisma.teamMember.findMany({ where: { userId, status: 'active' }, select: { teamId: true } });
+    const blocked = myTeams.length ? await this.prisma.teamBlock.findMany({ where: { blockerTeamId: { in: myTeams.map((team) => team.teamId) } }, select: { blockedTeamId: true } }) : [];
+    const blockedTeamIds = blocked.map((row) => row.blockedTeamId);
     const type = q.kind ?? q.type;
     const levelOrder = ['sieu_yeu', 'yeu', 'tby', 'tb', 'tbk', 'gioi'];
     const timeRange = q.timeSlot === 'morning' ? [0, 12] : q.timeSlot === 'afternoon' ? [12, 18] : q.timeSlot === 'evening' ? [18, 24] : undefined;
     const dateRange = q.date ? { gte: new Date(`${q.date}T00:00:00+07:00`), lt: new Date(`${q.date}T00:00:00+07:00`).getTime() + 86_400_000 } : undefined;
     const where = {
         status: 'open',
+        ...(blockedTeamIds.length ? { teamId: { notIn: blockedTeamIds } } : {}),
         startAt: dateRange ? { gte: dateRange.gte, lt: new Date(dateRange.lt) } : { gt: now },
         ...(type ? { type } : {}),
         ...(q.area ? { area: q.area } : {}),

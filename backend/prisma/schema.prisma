@@ -189,6 +189,7 @@ model User {
   notificationSettings NotificationSettings?
   mediaUploads         MediaUpload[]
   teamFollows          TeamFollow[]
+  teamReportsMade      TeamReport[] @relation("TeamReportCreator")
 
   @@map("users")
 }
@@ -271,6 +272,10 @@ model Team {
   matchStats      MatchPlayerStat[]
   awayMatches     Match[]           @relation("AwayTeam")
   followers       TeamFollow[]
+  reportsMade     TeamReport[] @relation("TeamReportCreator")
+  reportsReceived TeamReport[] @relation("TeamReportTarget")
+  blocksMade      TeamBlock[] @relation("TeamBlockCreator")
+  blocksReceived  TeamBlock[] @relation("TeamBlockTarget")
 
   @@index([createdById])
   @@index([homePitchId])
@@ -289,6 +294,41 @@ model TeamFollow {
   @@id([userId, teamId])
   @@index([teamId, createdAt])
   @@map("team_follows")
+}
+
+model TeamReport {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reporterTeamId String   @map("reporter_team_id") @db.Uuid
+  reportedTeamId String   @map("reported_team_id") @db.Uuid
+  matchId        String?  @map("match_id") @db.Uuid
+  reason         String
+  description    String?
+  imageKeys      String[] @default([]) @map("image_keys")
+  createdById    String   @map("created_by") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  reporterTeam Team  @relation("TeamReportCreator", fields: [reporterTeamId], references: [id], onDelete: Cascade)
+  reportedTeam Team  @relation("TeamReportTarget", fields: [reportedTeamId], references: [id], onDelete: Cascade)
+  createdBy    User  @relation("TeamReportCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  match        Match? @relation(fields: [matchId], references: [id], onDelete: SetNull)
+
+  @@index([reportedTeamId, createdAt])
+  @@index([reporterTeamId, createdAt])
+  @@map("team_reports")
+}
+
+model TeamBlock {
+  blockerTeamId String   @map("blocker_team_id") @db.Uuid
+  blockedTeamId String   @map("blocked_team_id") @db.Uuid
+  createdById   String   @map("created_by") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  blockerTeam Team @relation("TeamBlockCreator", fields: [blockerTeamId], references: [id], onDelete: Cascade)
+  blockedTeam Team @relation("TeamBlockTarget", fields: [blockedTeamId], references: [id], onDelete: Cascade)
+
+  @@id([blockerTeamId, blockedTeamId])
+  @@index([blockedTeamId])
+  @@map("team_blocks")
 }
 
 model TeamMember {
@@ -619,6 +659,7 @@ model Match {
   reviews  TeamReview[]
   messages MatchMessage[]
   chatReads MatchChatRead[]
+  reports   TeamReport[]
 
   @@index([homeTeamId, startAt])
   @@index([awayTeamId, startAt])

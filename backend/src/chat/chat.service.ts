@@ -53,6 +53,14 @@ export class ChatService {
         'Chỉ thành viên hai đội mới xem được trao đổi của trận này',
       );
     }
+    const otherTeamId = member.teamId === match.homeTeamId ? match.awayTeamId : match.homeTeamId;
+    const blocked = await this.prisma.teamBlock.findUnique({
+      where: { blockerTeamId_blockedTeamId: { blockerTeamId: member.teamId, blockedTeamId: otherTeamId } },
+      select: { blockerTeamId: true },
+    });
+    if (blocked) {
+      throw new AppError(HttpStatus.NOT_FOUND, 'chat_not_found', 'Không tìm thấy cuộc trò chuyện');
+    }
     return { teamId: member.teamId, status: match.status };
   }
 

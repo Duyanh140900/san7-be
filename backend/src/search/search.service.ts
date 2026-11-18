@@ -6,13 +6,16 @@ import type { SearchGroupDto, SearchResponseDto, TrendingSearchDto } from './sea
 export class SearchService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async search(query: string, type: 'all' | 'teams' | 'pitches' | 'posts' | 'players' = 'all'): Promise<SearchResponseDto> {
+  async search(userId: string, query: string, type: 'all' | 'teams' | 'pitches' | 'posts' | 'players' = 'all'): Promise<SearchResponseDto> {
     const q = query.trim();
     const include = (kind: string) => type === 'all' || type === kind;
+    const memberships = await this.prisma.teamMember.findMany({ where: { userId, status: 'active' }, select: { teamId: true } });
+    const blocks = memberships.length ? await this.prisma.teamBlock.findMany({ where: { blockerTeamId: { in: memberships.map((row) => row.teamId) } }, select: { blockedTeamId: true } }) : [];
+    const hidden = blocks.map((row) => row.blockedTeamId);
     const [teams, pitches, posts, players] = await Promise.all([
-      include('teams') ? this.prisma.team.findMany({ where: { name: { contains: q, mode: 'insensitive' } }, select: { id: true, name: true, area: true, crestColor: true }, take: 10 }) : [],
+      include('teams') ? this.prisma.team.findMany({ where: { id: { notIn: hidden }, name: { contains: q, mode: 'insensitive' } }, select: { id: true, name: true, area: true, crestColor: true }, take: 10 }) : [],
       include('pitches') ? this.prisma.pitch.findMany({ where: { OR: [{ name: { contains: q, mode: 'insensitive' } }, { district: { contains: q, mode: 'insensitive' } }, { address: { contains: q, mode: 'insensitive' } }] }, select: { id: true, name: true, district: true }, take: 10 }) : [],
-      include('posts') ? this.prisma.post.findMany({ where: { status: 'open', startAt: { gt: new Date() }, OR: [{ area: { contains: q, mode: 'insensitive' } }, { pitchName: { contains: q, mode: 'insensitive' } }, { team: { name: { contains: q, mode: 'insensitive' } } }] }, select: { id: true, area: true, type: true, team: { select: { name: true } } }, take: 10, orderBy: { createdAt: 'desc' } }) : [],
+      include('posts') ? this.prisma.post.findMany({ where: { status: 'open', startAt: { gt: new Date() }, teamId: { notIn: hidden }, OR: [{ area: { contains: q, mode: 'insensitive' } }, { pitchName: { contains: q, mode: 'insensitive' } }, { team: { name: { contains: q, mode: 'insensitive' } } }] }, select: { id: true, area: true, type: true, team: { select: { name: true } } }, take: 10, orderBy: { createdAt: 'desc' } }) : [],
       include('players') ? this.prisma.user.findMany({ where: { name: { contains: q, mode: 'insensitive' } }, select: { id: true, name: true, area: true, avatarUrl: true }, take: 10 }) : [],
     ]);
     const groups: SearchGroupDto[] = [];

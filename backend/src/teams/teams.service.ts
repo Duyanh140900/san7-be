@@ -9,6 +9,7 @@ import {
 } from './invite-code.js';
 import { toMoney } from '../common/money.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
+import type { CreateTeamReportDto, TeamSafetyDto } from './team-safety.dto.js';
 import type {
   CreateTeamDto,
   InviteDto,
@@ -226,6 +227,18 @@ export class TeamsService {
     const form = matches.map((match) => { const mine = match.homeTeamId === teamId ? match.homeScore : match.awayScore; const theirs = match.homeTeamId === teamId ? match.awayScore : match.homeScore; if (mine === theirs) { draws++; return 'D'; } if ((mine ?? 0) > (theirs ?? 0)) { wins++; return 'W'; } losses++; return 'L'; });
     return { id: team.id, name: team.name, crestColor: team.crestColor, area: team.area, level: team.level, reputation: reviews.length ? Number((reviews.reduce((sum, item) => sum + item.reputation, 0) / reviews.length).toFixed(1)) : 0, reviewCount: reviews.length, onTimePercent: reviews.length ? Math.round(((tags.on_time ?? 0) / reviews.length) * 100) : 0, keepDealPercent: reviews.length ? Math.round(((tags.fair_pay ?? 0) / reviews.length) * 100) : 0, wins, draws, losses, form, reviewTags: tags, recentMatchCount: matches.length, isFollowing: Boolean(following) };
   }
+
+  async report(me: TeamMembership, dto: CreateTeamReportDto): Promise<TeamSafetyDto> {
+    if (me.teamId === dto.reportedTeamId) throw new AppError(HttpStatus.BAD_REQUEST, 'cannot_report_self', 'Không thể báo cáo đội của mình');
+    await this.prisma.teamReport.create({ data: { reporterTeamId: me.teamId, reportedTeamId: dto.reportedTeamId, matchId: dto.matchId, reason: dto.reason, description: dto.description, imageKeys: dto.imageKeys ?? [], createdById: me.userId } });
+    return { success: true };
+  }
+  async block(me: TeamMembership, blockedTeamId: string): Promise<TeamSafetyDto> {
+    if (me.teamId === blockedTeamId) throw new AppError(HttpStatus.BAD_REQUEST, 'cannot_block_self', 'Không thể chặn đội của mình');
+    await this.prisma.teamBlock.upsert({ where: { blockerTeamId_blockedTeamId: { blockerTeamId: me.teamId, blockedTeamId } }, create: { blockerTeamId: me.teamId, blockedTeamId, createdById: me.userId }, update: { createdById: me.userId } });
+    return { success: true };
+  }
+  async unblock(me: TeamMembership, blockedTeamId: string): Promise<void> { await this.prisma.teamBlock.deleteMany({ where: { blockerTeamId: me.teamId, blockedTeamId } }); }
 
   async joinRequests(me: TeamMembership): Promise<TeamMemberDto[]> {
     const rows = await this.prisma.teamMember.findMany({
