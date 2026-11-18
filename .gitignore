@@ -25,3 +25,6 @@ backups/
 *.iml
 .DS_Store
 Thumbs.db
+
+# Bản vẽ v2 tách màn (nặng, chỉ để ở máy)
+docs/design/v2/*.html

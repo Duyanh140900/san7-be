@@ -1,0 +1,123 @@
+
+## P1 00 · Nhận diện Floodlight Night
+Nhận diện Sân 7 | Logo & wordmark | Sân | 7 | Cáp kèo · Đặt sân · Quản lý đội | Floodlight Night: cảm giác bước ra sân lúc 19:00, đèn pha bật, cỏ xanh ướt sương. | Màu | Lime đèn pha | #C8FF2E | Sân đêm | #06110B | Cỏ | #11402A | Kèo nóng | #FF6B2C | Cúp vàng | #FFC83D | Đội nhà | #2F7BFF | Chữ | Vào trận! | Barlow Condensed ExtraBold Italic: tiêu đề, tỉ số, số liệu | Cần đối giao hữu tối thứ Bảy | Be Vietnam Pro: nội dung, dấu tiếng Việt rõ ràng ở mọi cỡ chữ. | 3:2 | Bộ icon · 3D cho điểm nhấn, nét cho thao tác | Bóng | Áo đấu | Còi | Khung thành | Cúp | Giày | Thẻ vàng | Thẻ đỏ | Giờ đá | Cọc tập | Sân gần | Đội hình | Phù hiệu đội · khiên | CG | MĐ | TX | HM | Chuyển động | Đèn pha quét | Bóng nảy | Nhịp live | Thẻ trồi lên
+
+## P1 01 · Bảng tin
+Bảng tin cáp kèo | Bảng tin | Đặt sân | Đội | Bảng vàng | Thứ Bảy, 14/11 · Cầu Giấy | Tối nay đá không, Hùng? | 8 | 3 | LIVE · 12 sân trống quanh bạn tối nay | Thanh Xuân Utd 3–2 FC Cầu Giấy | Hoàng Mai FC tìm thủ môn CN 8:00 | Đức Hùng dẫn đầu Vua phá lưới · 9 bàn | LIVE · 12 sân trống quanh bạn tối nay | Thanh Xuân Utd 3–2 FC Cầu Giấy | Hoàng Mai FC tìm thủ môn CN 8:00 | Đức Hùng dẫn đầu Vua phá lưới · 9 bàn | {{c.label}} | KÈO NÓNG · TÌM ĐỐI | Tự huỷ sau {{countdown}} | MĐ | FC Mỹ Đình | VS | ? | Đội bạn? | T7 22/11 · 19:00 | Sân Phúc La, Hà Đông · TB · Tỷ lệ 40–60 | Nhận kèo | TX | Thanh Xuân United | 1 giờ trước · Thanh Xuân | KẾT QUẢ | HẾT GIỜ · T7 15/11 | Thanh Xuân Utd | 3:2 | FC Cầu Giấy | Hùng ×2, Nam | MVP Đức Hùng | {{likeText}} | 12 | Chia sẻ | HM | Hoàng Mai FC | 2 giờ trước · Hoàng Mai | TUYỂN NGƯỜI | Thiếu 1 thủ môn và 1 tiền vệ cho trận Chủ nhật 8:00. Đá cố định hàng tuần, ai hợp thì vào đội luôn. | GK | CM | CN 23/11 · 8:00 | 2 vị trí còn trống | Ứng tuyển | Sân trống tối nay | Mở bản đồ | 19:00 | Hà Đông Arena | 1,2 km · 4,8 ★ | 18:30 | Sân Phúc La | 2,4 km · 4,6 ★ | 21:00 | Văn Quán | 3,1 km · 4,5 ★
+
+## P1 03 · Chi tiết kèo
+Chi tiết kèo | Sân Phúc La · cỏ mới | MĐ | FC Mỹ Đình | ★ 4,9 | · Uy tín · 12 phút trước | TÌM ĐỐI | Đã có sân, cần đối đá giao hữu sân 7 tối thứ Bảy. Đội đá vui, giữ chân là chính, anh em lịch sự. | VÉ VÀO TRẬN | 19:00 | Thứ Bảy · 22/11 · 90 phút | 7 | Trình độ | TB | Tỷ lệ | 40–60 | Thua trả | 360K | Sân bóng Phúc La | Hà Đông · cách bạn 2,4 km · đã đặt | Chỉ đường | CG | TX | HM | 3 đội đã gửi nhận kèo | Đang hot | 8 bình luận | TX | Thanh Xuân Utd | Sân Phúc La cỏ mới chưa anh? Bên em muốn 50–50. | 8 phút · Thích · Trả lời | MĐ | FC Mỹ Đình | CHỦ KÈO | Cỏ mới thay tháng trước. Tỷ lệ giữ 40–60 nhé. | 5 phút · Thích · Trả lời | Viết bình luận | Đã gửi | Nhận kèo
+
+## P1 10 · Đăng kèo mới
+Đăng kèo mới | Huỷ | Đăng kèo | Nháp | {{t.label}} | Trận đấu | CG | Đội của bạn | FC Cầu Giấy | 19:00 | T7 · 22/11 | Sân bóng Phúc La | Hà Đông · 2,4 km · | Đã đặt | Đổi | Trình độ | {{levelName}} | {{l.short}} | Kèo & tỷ lệ chia tiền sân | {{b.label}} | {{r.label}} | {{r.note}} | Thắng {{winPay}} | Thua {{losePay}} | Tính trên tiền sân 600.000đ | Tự đăng hàng tuần | {{d.label}} | {{summary}} · sửa hoặc tạm dừng trong | Kèo của tôi | Lời nhắn & ảnh | Lời nhắn | Đội đá vui, giữ chân là chính. Có áo đồng phục xanh. | BÌA | 0:24 | 3/10 | Kèo hiện trên Bảng tin của các đội trong bán kính 5 km và được gợi ý cho đội cùng trình độ. | {{postLabel}}
+
+## P1 11 · Gửi nhận kèo
+Gửi nhận kèo | Huỷ | Nhận kèo | MĐ | Kèo của FC Mỹ Đình | ★ 4,9 | · Nam Từ Liêm · TB · 40–60 | 19:00 | T7 22/11 | Đá với đội | {{t.ini}} | {{t.name}} | {{t.note}} | Số người dự kiến | Đã điểm danh 9 / 14 | − | {{people}} | người | + | Tỷ lệ chia tiền sân | {{r.label}} | {{ratioNote}} | Lời nhắn | Lời nhắn cho FC Mỹ Đình | Bên mình 9 người, đến đúng giờ. Mặc áo xanh. | Gửi nhận kèo | Đã gửi! | Đang chờ FC Mỹ Đình xác nhận. Yêu cầu tự huỷ sau | 2 giờ | nếu họ không trả lời. | Bạn đã đề xuất | {{people}} người · {{ratioShort}} · FC Cầu Giấy | Nhắn tin | Huỷ yêu cầu
+
+## P1 12 · Xác nhận đối nhận kèo
+Xác nhận đối nhận kèo | Có đội nhận kèo | Chờ bạn xác nhận · tự huỷ sau | {{countdown}} | Đã chốt kèo! | Trận đã vào lịch đội, điểm danh đã mở, kèo được gỡ khỏi Bảng tin. FC Mỹ Đình đã được báo. | Đã từ chối FC Mỹ Đình. Kèo vẫn hiện trên Bảng tin cho đội khác nhận. | Hoàn tác | MĐ | FC Mỹ Đình | Nam Từ Liêm · TB · 16 thành viên | 38 | Trận đã đá | 4,9 | Uy tín | 96% | Đúng giờ | Đã gặp 2 lần · | Thắng 1 | · | Thua 1 | Xem hồ sơ | “Bên mình 9 người, đến đúng giờ. Mặc áo đỏ, đồng ý tỷ lệ 40–60 nhé.” | Kèo của bạn | Thời gian | T7 22/11 · 19:00 | Sân | Phúc La · đã đặt | Trình độ · tỷ lệ | TB · 40 – 60 | Tiền sân | 240K / 360K | TX | HM | 2 đội khác cũng muốn nhận | So sánh | Chấp nhận kèo | Nhắn tin | Từ chối | Xem lịch đội
+
+## P1 13 · So sánh đội nhận kèo
+So sánh đội nhận kèo | So sánh 3 đội | Kèo T7 22/11 · 19:00 · Phúc La · 40–60 | {{s.label}} | {{topLabel}} | {{t.ini}} | {{t.name}} | {{r.label}} | {{r.v0}} | {{r.v1}} | {{r.v2}} | {{t.pickLabel}} | ● | Tốt nhất ở tiêu chí đó | Lời nhắn | {{t.ini}} | {{t.name}} | {{t.msg}} | Khi bạn chọn một đội, các đội còn lại được báo kèo đã có đối và tự được gợi ý kèo khác phù hợp.
+
+## P1 14 · Kèo của tôi & lịch đăng
+Kèo của tôi | Kèo của tôi | {{t.label}} | TÌM ĐỐI | 3 đội muốn nhận | Giao hữu sân 7 tối thứ Bảy | T7 22/11 · 19:00 · Phúc La · TB · 40–60 | MĐ | TX | HM | So sánh & chọn đội | TUYỂN NGƯỜI | Chưa có ai | Tìm 1 tiền vệ cho trận CN | CN 23/11 · 08:00 · hết hạn sau 2 ngày | Chưa ai ứng tuyển. Chia sẻ bài đăng để nhiều người thấy hơn. | TÌM ĐỐI | {{runLabel}} | Giao hữu sân 7 tối thứ Bảy | Phúc La · TB · Tỷ lệ 40–60 · đăng lúc 09:00 | T2 | T3 | T4 | T5 | T6 | T7 | CN | Đã đăng 3 / 8 lần | Đến 13/12 | {{u.when}} | LẦN TỚI | {{u.btn}} | Sửa | {{runBtn}} | Xoá | TUYỂN NGƯỜI | Đã tạm dừng | Tìm thủ môn đá Chủ nhật | Mỗi CN · 07:00 · còn 5 lần | Khi đã có đội nhận kèo cho một ngày, lần đăng của ngày đó tự bỏ qua để không bị trùng. | MĐ | vs FC Mỹ Đình | T7 22/11 · 19:00 · Hà Đông Arena | ĐÃ CHỐT | TX | vs Thanh Xuân Utd | T7 15/11 · Đã đá | 2–3 | HM | vs Hoàng Mai FC | T4 12/11 · Đã đá | 4–1
+
+## P1 15 · Thông báo
+Thông báo | Thông báo | {{readLabel}} | {{f.label}} | MĐ | FC Mỹ Đình | muốn nhận kèo của đội bạn | Vừa xong · T7 22/11 · 19:00 · Phúc La | Tự huỷ sau 1 giờ 45 phút | Xem & xác nhận | {{n.header}} | {{n.text}} | {{n.meta}}
+
+## P1 26 · Danh sách tin nhắn
+Tin nhắn | Tin nhắn | {{unreadTotal}} chưa đọc | Tìm cuộc trò chuyện | Đang hoạt động | MĐ | Mỹ Đình | VN | Văn Nam | TX | Thanh Xuân | QT | Quang Tuấn | HM | Hoàng Mai | {{t.label}} | {{t.n}} | {{c.header}} | {{c.ini}} | {{c.name}} | {{c.tag}} | đang nhập | {{c.preview}} | {{c.time}} | {{c.n}} | Chưa có cuộc trò chuyện | Nhắn cho đội đối từ một kèo để bắt đầu.
+
+## P1 16 · Nhắn tin giữa 2 đội
+Nhắn tin với FC Mỹ Đình | MĐ | FC Mỹ Đình | Tiến Linh · đội trưởng · đang hoạt động | Kèo T7 22/11 · 19:00 | Phúc La · 40–60 | {{pinLabel}} | Hôm nay 09:14 | {{m.text}} | {{seen}} | {{q.label}} | Nhập tin nhắn
+
+## P1 17 · Hồ sơ đội khác
+Hồ sơ FC Mỹ Đình | MĐ | {{followLabel}} | MĐ | FC Mỹ Đình | Nam Từ Liêm · TB · 16 thành viên · từ 2022 | 4,9 | Uy tín · 31 lượt | 96% | Đúng giờ | 98% | Giữ kèo | Thành tích · 38 trận | 21T · 6H · 11B | Phong độ | T | T | H | B | T | Đối thủ nhận xét | Đúng giờ | 31 | Đá đẹp | 24 | Trả tiền sòng phẳng | 22 | Vui vẻ | 20 | Thanh Xuân Utd | ★★★★★ | Đá fair, đến sớm, chuyển tiền sân ngay sau trận. | FC Cầu Giấy | ★★★★ | ★ | Đá hơi rát hiệp 2 nhưng vui vẻ. | Trận gần đây | HM | vs Hoàng Mai FC | 08/11 | 4–2 | CG | vs FC Cầu Giấy | 25/10 | 1–3 | TX | vs Thanh Xuân Utd | 18/10 | 2–2 | Nhắn tin | Mời đá kèo
+
+## P1 18 · Danh sách cảm xúc
+Danh sách cảm xúc | Cảm xúc | Thanh Xuân Utd 3–2 FC Cầu Giấy | {{t.label}} | {{p.ini}} | {{p.name}} | {{p.team}} | BẠN | Xem đội | {{footer}}
+
+## P1 04 · Bản đồ đặt sân
+Bản đồ đặt sân | {{p.label}} | Tìm sân | Hôm nay | 19:00 – 20:30 | Sân 7 | Có đèn | Dưới 1 km | {{free}} | {{name}} | {{info}} | Cỏ mới | Đèn LED | Gửi xe | {{s.t}} | Xem sân & đặt · {{price}} | Bảng tin | Đặt sân | Đội | Bảng vàng
+
+## P1 05 · Chi tiết sân & chọn giờ
+Chi tiết sân và chọn giờ | 1 / 8 ảnh | Hà Đông Arena | ★ 4,8 | 230 đánh giá | · Văn Quán, Hà Đông | 1,2 km · khoảng 6 phút đi xe máy · | Chỉ đường | Cỏ mới | Đèn LED | Gửi xe | Nước | Thay đồ | Chọn ngày | {{d.dow}} | {{d.num}} | Khung giờ | 90 phút / trận | {{s.time}} | {{s.note}} | Chọn sân số | {{p.label}} | {{summary}} | {{price}} | Đặt sân
+
+## P1 19 · Xác nhận đặt sân & cọc
+Xác nhận đặt sân và cọc | Xác nhận đặt sân | Đang giữ sân cho bạn · còn | {{hold}} | Hà Đông Arena · Sân 2 | T7 22/11 · 19:00 – 20:30 | Đặt cho FC Cầu Giấy | Thêm dịch vụ | Nước suối | Thùng 24 chai · 94.000đ | − | {{water}} | + | Thuê áo bib | 14 áo · 60.000đ | MĐ | Chia tiền với đội đối | FC Mỹ Đình · theo kèo 40 – 60 | Tiền sân | 600.000đ | Dịch vụ | {{extra}} | Phần đội bạn | (tạm tính 50%) | −{{share}} | Đặt cọc bây giờ (30%) | {{deposit}} | Còn lại {{rest}} trả tại sân. Huỷ miễn phí trước 19:00 T6 21/11. | Thanh toán cọc bằng | {{m.name}} | {{m.note}} | Thanh toán cọc {{deposit}}
+
+## P1 36 · Chuyển khoản QR & kết quả
+Chuyển khoản cọc sân | Chuyển khoản cọc | Hà Đông Arena · Sân 2 · T7 22/11 19:00 | Số tiền cọc | 104.000đ | {{stLabel}} | 7 | Mở app ngân hàng → Quét QR. Số tiền và nội dung đã điền sẵn. | Chưa nhận được tiền. Kiểm tra lại nội dung chuyển khoản | SC7Q2K | rồi bấm thử lại; giao dịch đôi khi trễ 1–2 phút. | Chủ tài khoản | HA DONG ARENA | Số tài khoản | 0123 4567 89 | {{c1l}} | Nội dung | SC7Q2K | {{c2l}} | Giữ sân còn | {{hold}} | {{checkLabel}} | Đổi phương thức | Xem vé vào sân
+
+## P1 06 · Đặt sân thành công
+Đặt sân thành công | Vào! | Đã đặt sân! | Đã cọc 104.000đ · đã báo 14 thành viên và mở điểm danh | HÀ ĐÔNG ARENA | Sân số 2 | Phường Văn Quán, Hà Đông | ĐÃ XÁC NHẬN | Ngày | T7, 22/11 | Giờ | 19:00–20:30 | Trả tại sân | 243.000đ | Mã đặt sân | SC-7Q2K | Đưa mã này cho quầy khi đến nhận sân | Chỉ đường | Lịch đội | Chia sẻ | Đổi giờ | Xong | Huỷ đặt sân · miễn phí đến 19:00 T6
+
+## P1 31 · Lịch sử đặt sân
+Lịch sử đặt sân | Lịch sử đặt sân | Năm 2026 | 12 | lần đặt | 18h | trên sân | 3,9tr | phần đội trả | Hay đặt nhất: | Hà Đông Arena | · 7 lần | {{t.label}} | Sân {{b.pitch}} | {{b.venue}} | {{b.status}} | {{b.when}} | {{b.detail}} | Mã | {{b.code}} | · {{b.money}} | {{a.label}}
+
+## P1 32 · Đánh giá sân
+Đánh giá sân | Đánh giá sân | Hà Đông Arena | 4,8 | ★★★★★ | {{total}} đánh giá | 5 | 4 | 3 | 2 | 1 | 4,9 | Mặt cỏ | 4,8 | Đèn chiếu sáng | 4,5 | Phòng thay đồ | 4,7 | Chủ sân, giá cả | Trận T7 15/11 · sân 2 | {{starText}} | {{t.label}} | Nhận xét về sân | {{sendLabel}} | Đánh giá mới nhất | Đức Hùng (bạn) | Vừa xong · FC Cầu Giấy | {{myStars}} | {{myTags}} | TL | Tiến Linh | 2 ngày trước · FC Mỹ Đình | ★★★★★ | Cỏ mới, đèn sáng đều cả 4 góc. Chủ sân giữ giờ chuẩn, có nước lạnh bán tại chỗ. | MK | Minh Khôi | 1 tuần trước · Thanh Xuân Utd | ★★★★ | ★ | Sân đẹp nhưng phòng thay đồ hơi chật lúc đông.
+
+## P2 Mục lục · Phần 2
+Sân 7 · Mục lục phần 2 | Floodlight Night · Mobile app | Sân 7 · Phần 2 | Vào app, quản lý đội & tiện ích. Cáp kèo, tin nhắn và đặt sân nằm ở | Phần 1 | . | Vào app | 02 | Chào mừng & đăng nhập | 27 | Hồ sơ cầu thủ | 28 | Vào đội / tạo đội | 37 | Quyền truy cập | Tiện ích | 29 | Tìm kiếm | 30 | Bộ lọc kèo | 33 | Hồ sơ cầu thủ khác | 38 | Báo cáo / chặn đội | 34 | Trạng thái hệ thống | Đội | 07 | Đội bóng | 20 | Lịch & điểm danh | 21 | Thành viên & mời | 22 | Quỹ đội | 23 | Thêm thu / chi / phạt | 40 | Thành viên đóng quỹ | 24 | Cá nhân & cài đặt | Sau trận & Bảng vàng | 09 | Kết quả trận | 35 | Xác nhận kết quả + ghi bàn | 39 | Bình chọn MVP | 08 | Bảng vàng & sổ phạt | Nút dẫn sang màn ở Phần 1 (Bảng tin, Đặt sân, Tin nhắn…) sẽ quay về trang này khi bấm Play.
+
+## P2 02 · Chào mừng & đăng nhập
+Chào mừng đến Sân 7 | Sân 7 | Cáp kèo. | Đặt sân. | Vào trận. | Một app cho anh em đá sân 7. Vào nhanh bằng Google, không cần mật khẩu. | BẠN HAY ĐÁ VỊ TRÍ NÀO? | {{p.label}} | Tiếp tục với Google | Tiếp tục với Apple | App chỉ lấy tên, email và ảnh đại diện. Tiếp tục là đồng ý với | Điều khoản | và | Chính sách riêng tư | .
+
+## P2 27 · Onboarding 2 · Hồ sơ cầu thủ
+Hồ sơ cầu thủ | Bước 2 / 4 | Bỏ qua | Hồ sơ cầu thủ | Tên hiển thị | Ảnh và tên lấy từ Google | Vị trí sở trường · chạm vào sân | {{posName}} | {{z.code}} | {{z.label}} | {{num}} | Số áo | − | {{num}} | + | {{f.label}} | Khu vực hay đá · chọn nhiều | {{a.label}} | Tiếp tục
+
+## P2 28 · Onboarding 3 · Vào đội / tạo đội
+Vào đội hoặc tạo đội | Bước 3 / 4 | Vào đội của bạn | Tham gia đội | Mã mời hoặc quét QR | Tạo đội mới | Bạn là đội trưởng | Nhập mã mời | Mã mời vào đội | CG | FC Cầu Giấy | Sân 7 · 18 thành viên · TB | Nhập đủ 7 ký tự, ví dụ CG7-2486. Hỏi đội trưởng nếu chưa có mã. | {{ini}} | Tên đội | Màu áo đội | Trình độ đội | {{l.label}} | {{cta}} | Để sau, xem Bảng tin trước
+
+## P2 37 · Onboarding 4 · Quyền truy cập
+Cho phép vị trí và thông báo | Bước cuối · sắp vào sân | Để app tìm kèo | giúp bạn | Hai quyền dưới đây giúp gợi ý sân, kèo gần bạn và nhắc lịch đá. Bạn đổi lại được trong Cài đặt bất cứ lúc nào. | Vị trí | Sân trống & kèo trong bán kính 5 km, chỉ đường tới sân | {{locLabel}} | Thông báo | Có đội nhận kèo, nhắc điểm danh, nhắc đóng quỹ, kết quả trận | {{notiLabel}} | Vị trí chỉ dùng khi bạn mở app, không chia sẻ cho đội khác. Đội đối chỉ thấy khu vực, không thấy vị trí chính xác. | {{cta}} | Để sau
+
+## P2 07 · Đội bóng
+Đội bóng FC Cầu Giấy | CG | CG | FC Cầu Giấy | Sân 7 · Từ 2021 · 18 thành viên | BẠN LÀ ĐỘI TRƯỞNG | Tổng quan | Thành viên | Lịch | Quỹ | 60% | Tỉ lệ thắng | MÙA 2026 · 42 TRẬN | Thắng | 25 | Hoà | 7 | Thua | 10 | T | T | B | H | T | TRẬN TỚI · CÒN 8 NGÀY | T7 22/11 · 19:00 | CG | Cầu Giấy | VS | Hà Đông Arena · Sân 2 | MĐ | Mỹ Đình | Điểm danh | {{goN}} / 14 đi | Tôi tham gia | Vắng | Đội hình ra sân | 2-3-1 | 9 | Đ.Hùng | 7 | T.Linh | 8 | V.Nam | 11 | M.Tú | 4 | P.Lâm | 5 | H.Kiên | 1 | Q.Tuấn | Quỹ đội | 4.250.000đ | 6 người chưa đóng | Bảng tin | Đặt sân | Đội | Bảng vàng
+
+## P2 20 · Lịch & điểm danh
+Lịch và điểm danh | CG | FC Cầu Giấy | Lịch đội | Tổng quan | Thành viên | Lịch | Quỹ | TRẬN TỚI · ĐÃ ĐẶT SÂN | 40–60 | vs FC Mỹ Đình | T7 22/11 · 19:00 – 20:30 · Hà Đông Arena, sân 2 | {{cdD}} | NGÀY | {{cdH}} | GIỜ | {{cdM}} | PHÚT | {{cdS}} | GIÂY | Bạn có đi không? | {{o.n}} | {{o.label}} | Điểm danh | Cần tối thiểu 9 người · {{pendingN}} người chưa trả lời | {{nudgeLabel}} | {{m.ini}} | {{m.name}} | {{m.role}} | {{m.status}} | Sắp tới | CN | 30 | Đá nội bộ, chia 2 đội | 07:00 · Sân Phúc La | 11 đi | T4 | 3 | Chưa có đối | 19:00 · kèo đang tự đăng theo lịch | Xem kèo | Bảng tin | Đặt sân | Đội | Bảng vàng
+
+## P2 21 · Thành viên & mời
+Thành viên và mời | CG | FC Cầu Giấy · {{count}} người | Thành viên | Tổng quan | Thành viên | Lịch | Quỹ | MÃ MỜI VÀO ĐỘI | CG7-2486 | Hết hạn sau 7 ngày · | Tạo mã mới | {{copyLabel}} | Chia sẻ link | Chờ duyệt · {{pendingN}} | {{p.ini}} | {{p.name}} | {{p.note}} | ✕ | Duyệt | {{toast}} | ĐH | Đức Hùng (bạn) | Tiền đạo · số 9 · 42 trận | Đội trưởng | VN | Văn Nam | Tiền vệ · số 8 · 40 trận | {{roleLabel}} | Phân quyền cho Văn Nam | {{r.label}} | Thủ quỹ: thêm thu chi, nhắc đóng quỹ. Phó đội: đăng kèo, đặt sân. | QT | Quang Tuấn | Thủ môn · số 1 · 38 trận | Phó đội | PL | Phú Lâm | Hậu vệ · số 4 · 31 trận | Thành viên | Bảng tin | Đặt sân | Đội | Bảng vàng
+
+## P2 22 · Quỹ đội
+Quỹ đội | CG | FC Cầu Giấy | Quỹ đội | Tổng quan | Thành viên | Lịch | Quỹ | đ | SỐ DƯ HIỆN TẠI | {{balance}} | Thu tháng 11 | +2.800.000đ | Chi tháng 11 | −1.950.000đ | T6 | T7 | T8 | T9 | T10 | T11 | Thêm khoản | {{remindLabel}} | 12/18 | Quỹ tháng 11 · 200K/người | Hạn 30/11 · 6 người chưa đóng | PL | MT | HK | +3 | Giao dịch gần đây | Tất cả | Tiền sân · Hà Đông Arena | 15/11 · chia đôi với Thanh Xuân | −300.000đ | Đóng quỹ · Quang Tuấn | 14/11 · chuyển khoản | +200.000đ | Tiền phạt · Minh Tú đi muộn | 13/11 · từ sổ phạt | +50.000đ | Nước uống, băng cổ chân | 12/11 · Văn Nam chi | −180.000đ | Bảng tin | Đặt sân | Đội | Bảng vàng
+
+## P2 23 · Thêm thu / chi / phạt
+Thêm thu, chi, phạt | Huỷ | Thêm khoản | Lưu | {{t.label}} | {{amountLabel}} | {{sign}}{{amount}} | {{catLabel}} | {{c.label}} | {{peopleLabel}} | {{p.ini}} | {{p.name}} | {{k.label}}
+
+## P2 40 · Thành viên đóng quỹ
+Đóng quỹ đội | Đóng quỹ đội | FC Cầu Giấy · thủ quỹ Văn Nam | Khoản cần đóng | Quỹ tháng 11 | 200.000đ | Phạt đi muộn 05/11 | 50.000đ | Tổng chuyển | {{total}} | Hạn 30/11 · còn 12 ngày | CHUYỂN CHO THỦ QUỸ | VĂN NAM | STK 9876 5432 10 | CG7 QUY T11 HUNG | {{cpLabel}} | đ | Trạng thái | {{t.title}} | {{t.sub}} | VN | QT | +10 | {{paidN}} / 18 người đã đóng tháng này | Tôi đã chuyển {{total}} | Xem quỹ đội
+
+## P2 09 · Kết quả trận
+Kết quả trận | Để sau | Kết quả trận | T7 22/11 · Hà Đông Arena | FULL TIME | CG | Cầu Giấy | {{home}} | : | {{away}} | MĐ | Mỹ Đình | − | + | − | + | Ghi bàn | {{home}} bàn của Cầu Giấy | ĐH | Đức Hùng | VN | Văn Nam | + Thêm người ghi bàn | Cầu thủ hay nhất | {{p.ini}} | {{p.name}} | Đánh giá FC Mỹ Đình | {{t.label}} | FC Mỹ Đình sẽ xác nhận tỉ số. Khi khớp, thành tích, vua phá lưới và điểm uy tín tự cập nhật; phần tiền sân của đội ({{fee}}) được trừ vào quỹ. | Gửi kết quả
+
+## P2 35 · Xác nhận kết quả đội đối gửi
+Xác nhận kết quả trận | {{title}} | T7 15/11 · Hà Đông Arena | Bước 2 / 2 | Thanh Xuân Utd | đã gửi tỉ số. Tự xác nhận sau | {{countdown}} | nếu bạn không phản hồi. | {{okText}} | Đã gửi đề xuất tỉ số {{home}}–{{away}}. Thanh Xuân Utd có 24 giờ để đồng ý; nếu không, ban quản trị sẽ xem ảnh và quyết định. | {{scoreLabel}} | TX | Thanh Xuân | {{home}} | : | {{away}} | CG | Cầu Giấy | − | + | − | + | Ai ghi bàn cho Cầu Giấy? | Cập nhật Vua phá lưới và hồ sơ cầu thủ | {{sum}}/{{need}} | {{p.ini}} | {{p.name}} | {{p.role}} | − | {{p.goals}} | + | {{hint}} | Đội đối khai | Ghi bàn Thanh Xuân | Minh Khôi ×2, Quốc Anh | Ghi bàn Cầu Giấy | 2 bàn · bạn nhập tên | Tiền sân theo kèo | Bạn trả 360K (thua 60%) | Ảnh bảng tỉ số | Có vấn đề khác với đội này? Báo cáo | Đúng, xác nhận 3–2 | Sai tỉ số, đề xuất lại | Gửi đề xuất {{home}}–{{away}} | Huỷ | {{saveLabel}} | Bỏ qua, nhập sau | Xem Bảng vàng
+
+## P2 39 · Bình chọn MVP sau trận
+Bình chọn MVP | Đóng sau {{countdown}} | Ai hay nhất? | Cầu Giấy | 3–1 | Mỹ Đình · T7 22/11 | {{votedText}} | {{hint}} | {{c.ini}} | {{c.name}} | {{c.stat}} | {{c.pct}} | {{c.n}} phiếu | Đổi phiếu | {{cta}}
+
+## P2 08 · Bảng vàng
+Bảng vàng | Bảng tin | Đặt sân | Đội | Bảng vàng | FC Cầu Giấy · Tháng 11 | Bảng vàng | Vinh danh | Sổ phạt | CẦU THỦ CỦA THÁNG | 9 | TIỀN ĐẠO | Đức Hùng | 9 | Bàn thắng | 4 | Kiến tạo | 3 | MVP | Vua phá lưới | Tháng 11 | TL | Tiến Linh | 2 | 7 bàn | ĐH | Đức Hùng | 1 | 9 bàn | VN | Văn Nam | 3 | 6 bàn | Danh hiệu đội | Vô địch Cúp Phường 2025 | 10 | 10 trận bất bại | Đội fair-play quý 3 | Tổng phạt tháng | 350.000đ | Chưa nộp | 150.000đ | Sổ phạt | Ghi phạt | {{f.name}} | {{f.reason}} | {{f.amount}} | {{f.status}} | Tiền phạt tự cộng vào quỹ đội khi đánh dấu đã nộp.
+
+## P2 24 · Cá nhân & cài đặt
+Cá nhân và cài đặt | Sửa hồ sơ | 9 | Đức Hùng | Tiền đạo · số 9 · chân phải | CẦU THỦ CỦA THÁNG 11 | 42 | Trận | 31 | Bàn | 12 | Kiến tạo | 6 | MVP | Đội của tôi | CG | FC Cầu Giấy | Đội trưởng | CB | Cầu Giấy B | Thành viên | Tạo hoặc tham gia đội khác | Hoạt động | Kèo của tôi | 2 đang mở | Lịch sử đặt sân | 12 lần | Quỹ của tôi | Chưa đóng T11 | Danh hiệu | 3 | Thông báo | {{t.label}} | {{t.note}} | Khu vực mặc định | Cầu Giấy, bán kính 5 km | Đăng xuất
+
+## P2 29 · Tìm kiếm
+Tìm kiếm | Tìm kiếm đội, sân, kèo, cầu thủ | Huỷ | {{t.label}} | {{t.n}} | Tìm gần đây | {{r.label}} | Đang hot quanh bạn | 1 | Kèo tối thứ Bảy Hà Đông | 24 kèo | 2 | Sân có đèn dưới 1 km | 12 sân | 3 | Tuyển thủ môn cuối tuần | 8 bài | {{x.header}} | {{x.ini}} | {{x.title}} | {{x.sub}} | {{x.tag}} | Không thấy “{{q}}” | Thử tên đội, tên sân hoặc khu vực khác.
+
+## P2 30 · Bộ lọc kèo
+Bộ lọc kèo | Lọc kèo | Đặt lại | Loại bài | {{t.label}} | Khoảng cách | ≤ {{km}} km | Khoảng cách tối đa | 1 km | 15 km | Ngày đá | {{d.label}} | Khung giờ | {{s.label}} | {{s.time}} | Trình độ · chọn khoảng | {{lvRange}} | {{l.label}} | Kèo & tỷ lệ | {{b.label}} | Chỉ đội uy tín từ 4,5 ★ | Ẩn đội hay huỷ kèo | Xem | {{count}} | kèo phù hợp
+
+## P2 33 · Hồ sơ cầu thủ
+Hồ sơ cầu thủ Tiến Linh | 7 | TL | Tiến Linh | Tiền đạo · số 7 · chân trái | FC Mỹ Đình · đội trưởng | 38 | Trận | 27 | Bàn | 9 | Kiến tạo | 5 | MVP | Chỉ số do đồng đội chấm | So với tôi | Tốc độ 85 | Sút 90 | Chuyền 70 | Rê bóng 80 | Phòng ngự 40 | Thể lực 75 | Tiến Linh | Bạn (Đức Hùng) | Phong độ & danh hiệu | T | T | H | B | T | 5 trận gần nhất | Á quân Vua phá lưới T11 | Hat-trick vs Hoàng Mai | 100% đúng giờ 3 tháng | Đối đầu với bạn | 1 | Bạn thắng | 0 | Hoà | 1 | Bạn thua | Lần gần nhất: 25/10 · FC Cầu Giấy 3–1 FC Mỹ Đình | Nhắn tin | Mời đá kèo
+
+## P2 38 · Báo cáo / chặn đội
+Báo cáo đội | Báo cáo đội | MĐ | FC Mỹ Đình | Báo cáo được giữ kín, đội bị báo không biết ai gửi | Chuyện gì đã xảy ra? | {{r.label}} | {{r.note}} | Trận liên quan | {{m.label}} | Mô tả chi tiết | Ảnh, tin nhắn | Chặn đội này | Không thấy kèo, tin nhắn của nhau nữa | {{ctaLabel}} | Đã nhận báo cáo | Ban quản trị sẽ xem trong 24 giờ. Nếu đúng, điểm uy tín của đội bị trừ và kèo của họ ít được gợi ý hơn. | Đã chặn FC Mỹ Đình | Về Bảng tin
+
+## P2 34 · Trạng thái hệ thống
+Trạng thái hệ thống | Đang ngoại tuyến · dữ liệu có thể đã cũ | {{t.label}} | Mất điện sân rồi! | Không có kết nối mạng. Kiểm tra Wi-Fi hoặc 4G rồi thử lại. Kèo và lịch đã tải vẫn xem được. | {{retryLabel}} | Thẻ đỏ cho hệ thống! | Có lỗi khi tải dữ liệu. Đội kỹ thuật đã được báo. Bạn thử lại sau ít phút nhé. | Mã lỗi 500 · 14:32 | Báo lỗi | {{retryLabel}} | Sân đang vắng | Chưa có kèo nào khớp bộ lọc trong 5 km. Mở rộng khu vực hoặc tự đăng kèo đầu tiên. | Sửa bộ lọc | Đăng kèo | Đang tìm kèo quanh bạn…
