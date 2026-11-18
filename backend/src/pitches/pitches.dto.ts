@@ -3,10 +3,12 @@ import { Type } from 'class-transformer';
 import {
   IsIn,
   IsDate,
+  IsArray,
   IsInt,
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Matches,
   Max,
   MaxLength,
@@ -92,6 +94,29 @@ export class FreePitchSlotsQuery {
   @IsOptional() @Type(() => Date) @IsDate() from?: Date;
   @ApiPropertyOptional({ type: String, format: 'date-time', description: 'Mặc định hết tối nay (giờ VN)' })
   @IsOptional() @Type(() => Date) @IsDate() to?: Date;
+}
+
+export class CreatePitchReviewDto {
+  @ApiProperty() @IsInt() @Min(1) @Max(5) stars: number;
+  @ApiProperty() @IsInt() @Min(1) @Max(5) turf: number;
+  @ApiProperty() @IsInt() @Min(1) @Max(5) lighting: number;
+  @ApiProperty() @IsInt() @Min(1) @Max(5) lockerRoom: number;
+  @ApiProperty() @IsInt() @Min(1) @Max(5) ownerPrice: number;
+  @ApiPropertyOptional({ type: [String] }) @IsOptional() @IsArray() @IsString({ each: true }) @MaxLength(30, { each: true }) tags?: string[];
+  @ApiPropertyOptional({ maxLength: 500 }) @IsOptional() @Trim() @IsString() @MaxLength(500) comment?: string;
+  @ApiPropertyOptional({ format: 'uuid' }) @IsOptional() @IsUUID() bookingId?: string;
+}
+
+export class PitchReviewDto {
+  @ApiProperty({ format: 'uuid' }) id: string;
+  @ApiProperty() stars: number;
+  @ApiProperty() turf: number;
+  @ApiProperty() lighting: number;
+  @ApiProperty() lockerRoom: number;
+  @ApiProperty() ownerPrice: number;
+  @ApiProperty({ type: [String] }) tags: string[];
+  @ApiPropertyOptional({ type: String }) comment: string | null;
+  @ApiProperty({ type: String, format: 'date-time' }) createdAt: Date;
 }
 
 export class PitchListQuery {

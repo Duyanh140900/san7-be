@@ -10,6 +10,8 @@ import type {
   PitchDto,
   FreePitchSlotDto,
   FreePitchSlotsQuery,
+  CreatePitchReviewDto,
+  PitchReviewDto,
   PitchListDto,
   PitchListQuery,
 } from './pitches.dto.js';
@@ -107,6 +109,20 @@ export class PitchesService {
         .sort((a, b) => a.startAt.getTime() - b.startAt.getTime())[0];
       return slot ? [{ pitchId: row.id, name: row.name, distanceKm: row.distanceM === null ? undefined : Number((row.distanceM / 1000).toFixed(2)), rating: Number((ratings.get(row.id) ?? 0).toFixed(1)), slotStart: slot.startAt }] : [];
     }).sort((a, b) => a.slotStart.getTime() - b.slotStart.getTime()).slice(0, 12);
+  }
+
+  async listReviews(pitchId: string): Promise<PitchReviewDto[]> {
+    return this.prisma.pitchReview.findMany({ where: { pitchId }, orderBy: { createdAt: 'desc' }, take: 50 });
+  }
+
+  async createReview(userId: string, pitchId: string, dto: CreatePitchReviewDto): Promise<PitchReviewDto> {
+    const pitch = await this.prisma.pitch.findUnique({ where: { id: pitchId }, select: { id: true } });
+    if (!pitch) throw new AppError(HttpStatus.NOT_FOUND, 'pitch_not_found', 'Không tìm thấy sân');
+    if (dto.bookingId && !await this.prisma.booking.findFirst({ where: { id: dto.bookingId, pitchId, createdById: userId }, select: { id: true } })) throw new AppError(HttpStatus.FORBIDDEN, 'booking_not_owned', 'Bạn không thể đánh giá lượt đặt này');
+    const data = { ...dto, tags: dto.tags ?? [], comment: dto.comment ?? null };
+    if (dto.bookingId) return this.prisma.pitchReview.upsert({ where: { pitchId_userId_bookingId: { pitchId, userId, bookingId: dto.bookingId } }, create: { pitchId, userId, ...data }, update: data });
+    const existing = await this.prisma.pitchReview.findFirst({ where: { pitchId, userId, bookingId: null }, select: { id: true } });
+    return existing ? this.prisma.pitchReview.update({ where: { id: existing.id }, data }) : this.prisma.pitchReview.create({ data: { pitchId, userId, ...data } });
   }
 
   private resolveDate(date: string | undefined, now: Date): string {
