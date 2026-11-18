@@ -18,7 +18,7 @@ import '../data/account_repository.dart';
 import '../data/me_repository.dart';
 import '../me_providers.dart';
 
-/// Màn 23 · Cá nhân & cài đặt.
+/// Màn 24 · Cá nhân & cài đặt.
 class MeScreen extends ConsumerWidget {
   const MeScreen({super.key});
 
@@ -67,7 +67,7 @@ class MeScreen extends ConsumerWidget {
                   MeGroup(
                     children: [
                       MeRow(
-                        leading: const ActivityIcon(AppIcons.chatBox, AppColors.primary),
+                        leading: const ActivityIcon(AppIcons.chatBox, AppColors.lime),
                         title: 'Kèo của tôi',
                         value: openPosts == null ? null : '$openPosts đang mở',
                         onTap: () => context.push(Routes.myPosts),
@@ -78,12 +78,12 @@ class MeScreen extends ConsumerWidget {
                         onTap: () => context.push(Routes.bookingHistory),
                       ),
                       MeRow(
-                        leading: const ActivityIcon(AppIcons.wallet, AppColors.activityOrange),
+                        leading: const ActivityIcon(AppIcons.wallet, AppColors.hot),
                         title: 'Quỹ của tôi',
                         onTap: () => context.go(Routes.teamFunds),
                       ),
                       MeRow(
-                        leading: const ActivityIcon(AppIcons.trophy, AppColors.activityGold),
+                        leading: const ActivityIcon(AppIcons.trophy, AppColors.trophy),
                         title: 'Danh hiệu',
                         onTap: () => context.go(Routes.honors),
                       ),
@@ -97,7 +97,7 @@ class MeScreen extends ConsumerWidget {
                   MeGroup(
                     children: [
                       MeRow(
-                        title: 'Khu vực',
+                        title: 'Khu vực mặc định',
                         value: me.area ?? 'Chưa chọn',
                         onTap: () => context.push(Routes.editProfile),
                       ),
@@ -192,15 +192,15 @@ class _Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      Avatar(name: me.name, url: me.avatarUrl, size: 76),
+      Avatar(name: me.name, url: me.avatarUrl, size: 76, border: AppColors.lime),
       const SizedBox(width: 16),
       Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              me.name,
-              style: Theme.of(context).textTheme.headlineSmall,
+              me.name.toUpperCase(),
+              style: AppText.display(30),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -228,7 +228,7 @@ class ActivityIcon extends StatelessWidget {
     height: 30,
     decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
     alignment: Alignment.center,
-    child: AppIcon(icon, size: 18, color: AppColors.surface),
+    child: AppIcon(icon, size: 18, color: AppColors.ink),
   );
 }
 
@@ -252,10 +252,7 @@ class _Stats extends StatelessWidget {
             Expanded(
               child: Column(
                 children: [
-                  Text(
-                    '${v.toInt()}',
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                  ),
+                  Text('${v.toInt()}', style: AppText.display(30, color: AppColors.lime)),
                   const SizedBox(height: 2),
                   Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                 ],
@@ -275,8 +272,9 @@ class MeGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(AppRadius.group),
+      color: AppColors.surfaceCard,
+      borderRadius: BorderRadius.circular(AppRadius.tile),
+      border: Border.all(color: AppColors.line),
     ),
     clipBehavior: Clip.antiAlias,
     child: Column(
