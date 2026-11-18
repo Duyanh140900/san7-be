@@ -71,6 +71,17 @@ export class BookingsController {
     return this.bookings.confirm(me, bookingId);
   }
 
+  @Post(':bookingId/deposit-claim')
+  @TeamRoles('captain', 'vice')
+  @HttpCode(200)
+  @ApiOkResponse({ type: BookingDto })
+  claimDeposit(
+    @CurrentMember() me: TeamMembership,
+    @Param('bookingId', ParseUUIDPipe) bookingId: string,
+  ): Promise<BookingDto> {
+    return this.bookings.claimDeposit(me, bookingId);
+  }
+
   @Post(':bookingId/cancel')
   @TeamRoles('captain', 'vice')
   @HttpCode(200)

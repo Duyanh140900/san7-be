@@ -107,6 +107,7 @@ enum NotificationCategory {
 
 enum BookingStatus {
   held
+  deposit_claimed
   confirmed
   cancelled
 }
@@ -176,6 +177,7 @@ model User {
   bookingsMade         Booking[]
   matchStats           MatchPlayerStat[]
   reviewsMade          TeamReview[]
+  pitchReviews         PitchReview[]
   requestsSent         MatchRequest[]
   postApplications     PostApplication[]
   notifications        Notification[]
@@ -678,12 +680,16 @@ model Pitch {
   priceEstimated Boolean                           @default(false) @map("price_estimated")
   amenities   String[]
   phone       String?
+  bankBin     String?                              @map("bank_bin")
+  accountNo   String?                              @map("account_no")
+  accountName String?                              @map("account_name")
   openingHours String?                             @map("opening_hours")
   createdAt   DateTime                             @default(now()) @map("created_at") @db.Timestamptz(6)
 
   bookings Booking[]
   posts    Post[]
   homeTeams Team[] @relation("TeamHomePitch")
+  reviews   PitchReview[]
 
   @@index([location], type: Gist)
   @@index([district])
@@ -706,6 +712,9 @@ model Booking {
   price       BigInt
   /// tiền cọc (VND), 0 ở bản trả tại sân
   deposit     BigInt        @default(0)
+  transferCode String?      @unique @map("transfer_code")
+  services    Json          @default("[]")
+  extraAmount BigInt        @default(0) @map("extra_amount")
   note        String?
   /// hết hạn giữ chỗ (chỉ khi held)
   heldUntil   DateTime?     @map("held_until") @db.Timestamptz(6)
@@ -721,12 +730,39 @@ model Booking {
   createdBy User   @relation(fields: [createdById], references: [id])
   event     Event?
   post      Post?
+  pitchReviews PitchReview[]
 
   @@index([teamId, startAt])
   @@index([pitchId, startAt])
   @@index([createdById])
   @@index([status, heldUntil])
   @@map("bookings")
+}
+
+/// Đánh giá sân theo trải nghiệm thực tế của người đặt sân.
+model PitchReview {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  pitchId     String   @map("pitch_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  bookingId   String?  @map("booking_id") @db.Uuid
+  stars       Int      @db.SmallInt
+  turf        Int      @db.SmallInt
+  lighting    Int      @db.SmallInt
+  lockerRoom  Int      @map("locker_room") @db.SmallInt
+  ownerPrice  Int      @map("owner_price") @db.SmallInt
+  tags        String[] @default([])
+  comment     String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  pitch   Pitch    @relation(fields: [pitchId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@unique([pitchId, userId, bookingId])
+  @@index([pitchId, createdAt])
+  @@index([userId])
+  @@map("pitch_reviews")
 }
 
 /// Thành tích của một cầu thủ trong một trận (do đội của cầu thủ nhập).

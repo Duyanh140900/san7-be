@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDate,
+  IsArray,
   IsIn,
   IsInt,
   IsOptional,
@@ -34,6 +35,10 @@ export class CreateBookingDto {
   @IsString()
   @MaxLength(200)
   note?: string;
+
+  @ApiPropertyOptional({ type: [String], enum: ['water', 'bib'] })
+  @IsOptional() @IsArray() @IsIn(['water', 'bib'], { each: true })
+  services?: ('water' | 'bib')[];
 }
 
 export class RescheduleBookingDto {
@@ -70,6 +75,9 @@ export class BookingPitchDto {
   @ApiProperty() address: string;
   @ApiProperty({ type: 'number' }) lat: number;
   @ApiProperty({ type: 'number' }) lng: number;
+  @ApiPropertyOptional({ type: String }) bankBin?: string | null;
+  @ApiPropertyOptional({ type: String }) accountNo?: string | null;
+  @ApiPropertyOptional({ type: String }) accountName?: string | null;
 }
 
 export class BookingDto {
@@ -93,6 +101,9 @@ export class BookingDto {
     description: 'Tiền cọc (VND), 0 ở bản trả tại sân',
   })
   deposit: number;
+  @ApiPropertyOptional({ type: String }) transferCode?: string | null;
+  @ApiProperty({ type: [String] }) services: string[];
+  @ApiProperty({ type: 'integer' }) extraAmount: number;
   @ApiPropertyOptional({ type: String }) note?: string | null;
   @ApiPropertyOptional({
     type: String,

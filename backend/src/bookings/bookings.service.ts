@@ -31,7 +31,7 @@ const MAX_AHEAD_MS = 30 * 86_400_000;
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 
 const bookingInclude = {
-  pitch: { select: { id: true, name: true, district: true, address: true } },
+  pitch: { select: { id: true, name: true, district: true, address: true, bankBin: true, accountNo: true, accountName: true } },
   post: { select: { id: true, status: true } },
   event: { select: { id: true } },
 } as const satisfies Prisma.BookingInclude;
@@ -44,6 +44,7 @@ export function newBookingCode(): string {
     s += CODE_ALPHABET[randomInt(CODE_ALPHABET.length)];
   return `SC-${s}`;
 }
+const servicePrices = { water: 20_000, bib: 50_000 } as const;
 
 const slotKeyOf = (pitchId: string, courtNo: number, startAt: Date) =>
   `${pitchId}:${courtNo}:${startAt.toISOString()}`;
@@ -51,7 +52,11 @@ const slotKeyOf = (pitchId: string, courtNo: number, startAt: Date) =>
 /** Điều kiện lượt đặt đang chiếm chỗ: đã xác nhận hoặc đang giữ chưa hết hạn. */
 const active = (now: Date) =>
   ({
-    OR: [{ status: 'confirmed' }, { status: 'held', heldUntil: { gt: now } }],
+    OR: [
+      { status: 'confirmed' },
+      { status: 'held', heldUntil: { gt: now } },
+      { status: 'deposit_claimed', heldUntil: { gt: now } },
+    ],
   }) as const satisfies Prisma.BookingWhereInput;
 
 /** Nhả một lượt giữ chỗ đã hết hạn. Dùng chung cho worker. */
@@ -102,6 +107,8 @@ export class BookingsService {
     });
     if (!pitch) throw this.pitchNotFound();
     const price = this.priceOf(pitch.slots, dto.startAt, now);
+    const services = [...new Set(dto.services ?? [])];
+    const extraAmount = services.reduce((total, service) => total + servicePrices[service], 0);
     const endAt = new Date(dto.startAt.getTime() + pitch.slotMinutes * 60_000);
 
     const created = await this.withCodeRetry((code) =>
@@ -145,6 +152,10 @@ export class BookingsService {
             endAt,
             status: 'held',
             price: BigInt(price),
+            deposit: BigInt(Math.ceil((price + extraAmount) * 0.3)),
+            transferCode: code.replace('SC-', 'SC7'),
+            services,
+            extraAmount: BigInt(extraAmount),
             note: dto.note || null,
             heldUntil: new Date(now.getTime() + HOLD_MS),
             slotKey: slotKeyOf(pitch.id, courtNo, dto.startAt),
@@ -206,6 +217,20 @@ export class BookingsService {
     this.realtime.toTeam(me.teamId, 'events.changed', {});
     await this.notifications.dispatch(result.notes);
     return (await this.toDtos([result.booking]))[0];
+  }
+
+  async claimDeposit(me: TeamMembership, bookingId: string): Promise<BookingDto> {
+    const now = new Date();
+    const booking = await this.prisma.$transaction(async (tx) => {
+      const b = await this.findOwn(tx, me.teamId, bookingId);
+      if (b.status === 'deposit_claimed') return b;
+      if (b.status !== 'held' || !b.heldUntil || b.heldUntil <= now) {
+        throw this.conflict('hold_expired', 'Lượt giữ chỗ đã hết hạn hoặc không thể yêu cầu cọc');
+      }
+      await tx.booking.update({ where: { id: b.id }, data: { status: 'deposit_claimed' } });
+      return this.reload(tx, b.id);
+    });
+    return (await this.toDtos([booking]))[0];
   }
 
   /** Huỷ giữ chỗ hoặc lượt đặt. Không huỷ được khi đã gắn với kèo. */
@@ -474,6 +499,9 @@ export class BookingsService {
       endAt: r.endAt,
       price: toMoney(r.price),
       deposit: toMoney(r.deposit),
+      transferCode: r.transferCode,
+      services: Array.isArray(r.services) ? r.services.filter((service): service is string => typeof service === 'string') : [],
+      extraAmount: toMoney(r.extraAmount),
       note: r.note,
       heldUntil: r.heldUntil,
       postId: r.post?.id ?? null,
