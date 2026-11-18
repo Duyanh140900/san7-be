@@ -185,6 +185,42 @@
         ]
       }
     },
+    "/v1/me/bookings/summary": {
+      "get": {
+        "operationId": "Users_bookingSummary",
+        "parameters": [
+          {
+            "name": "year",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 2026,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/v1/me/notification-settings": {
       "get": {
         "operationId": "Users_getNotificationSettings",
@@ -796,6 +832,32 @@
         ]
       }
     },
+    "/v1/inbox": {
+      "get": {
+        "operationId": "Inbox_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InboxDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "chat"
+        ]
+      }
+    },
     "/v1/teams": {
       "post": {
         "operationId": "Teams_create",
@@ -891,6 +953,95 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/profile": {
+      "get": {
+        "operationId": "Teams_profile",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamPublicProfileDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/follow": {
+      "post": {
+        "operationId": "Teams_follow",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      },
+      "delete": {
+        "operationId": "Teams_unfollow",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -1188,6 +1339,131 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/reports": {
+      "post": {
+        "operationId": "TeamSafety_report",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamReportDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamSafetyDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/blocks/{blockedTeamId}": {
+      "post": {
+        "operationId": "TeamSafety_block",
+        "parameters": [
+          {
+            "name": "blockedTeamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamSafetyDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      },
+      "delete": {
+        "operationId": "TeamSafety_unblock",
+        "parameters": [
+          {
+            "name": "blockedTeamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -2227,6 +2503,80 @@
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/PostType"
+            }
+          },
+          {
+            "name": "kind",
+            "required": false,
+            "in": "query",
+            "description": "Tên mới của type trên màn lọc v2",
+            "schema": {
+              "$ref": "#/components/schemas/PostType"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "description": "Ngày đá theo giờ Việt Nam",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "name": "timeSlot",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "morning",
+                "afternoon",
+                "evening"
+              ]
+            }
+          },
+          {
+            "name": "levelMin",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/TeamLevel"
+            }
+          },
+          {
+            "name": "levelMax",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/TeamLevel"
+            }
+          },
+          {
+            "name": "ratioType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/PostDeal"
+            }
+          },
+          {
+            "name": "minRating",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 5,
+              "type": "number"
+            }
+          },
+          {
+            "name": "hideCancellers",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -3271,6 +3621,87 @@
         ]
       }
     },
+    "/v1/pitches/{pitchId}/reviews": {
+      "get": {
+        "operationId": "Pitches_reviews",
+        "parameters": [
+          {
+            "name": "pitchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PitchReviewDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pitches"
+        ]
+      },
+      "post": {
+        "operationId": "Pitches_createReview",
+        "parameters": [
+          {
+            "name": "pitchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePitchReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchReviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
     "/v1/teams/{teamId}/bookings": {
       "post": {
         "operationId": "Bookings_hold",
@@ -3425,6 +3856,50 @@
     "/v1/teams/{teamId}/bookings/{bookingId}/confirm": {
       "post": {
         "operationId": "Bookings_confirm",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/bookings/{bookingId}/deposit-claim": {
+      "post": {
+        "operationId": "Bookings_claimDeposit",
         "parameters": [
           {
             "name": "bookingId",
@@ -4239,6 +4714,28 @@
           "refreshToken"
         ]
       },
+      "BookingSummaryDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number"
+          },
+          "hours": {
+            "type": "number"
+          },
+          "teamPaid": {
+            "type": "integer"
+          },
+          "topPitch": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "count",
+          "hours",
+          "teamPaid"
+        ]
+      },
       "UpdateMeDto": {
         "type": "object",
         "properties": {
@@ -4735,6 +5232,61 @@
           "lastReadAt"
         ]
       },
+      "InboxConversationDto": {
+        "type": "object",
+        "properties": {
+          "matchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamName": {
+            "type": "string"
+          },
+          "crestColor": {
+            "type": "string"
+          },
+          "lastMessage": {
+            "$ref": "#/components/schemas/MessageDto"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "unreadCount": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "matchId",
+          "teamId",
+          "teamName",
+          "crestColor",
+          "updatedAt",
+          "unreadCount"
+        ]
+      },
+      "InboxDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InboxConversationDto"
+            }
+          },
+          "unreadTotal": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "unreadTotal"
+        ]
+      },
       "CreateTeamDto": {
         "type": "object",
         "properties": {
@@ -4885,6 +5437,85 @@
           "teamName",
           "role",
           "status"
+        ]
+      },
+      "TeamPublicProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "crestColor": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamLevel"
+              }
+            ]
+          },
+          "reputation": {
+            "type": "number"
+          },
+          "reviewCount": {
+            "type": "integer"
+          },
+          "onTimePercent": {
+            "type": "number"
+          },
+          "keepDealPercent": {
+            "type": "number"
+          },
+          "wins": {
+            "type": "integer"
+          },
+          "draws": {
+            "type": "integer"
+          },
+          "losses": {
+            "type": "integer"
+          },
+          "form": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reviewTags": {
+            "type": "object"
+          },
+          "recentMatchCount": {
+            "type": "integer"
+          },
+          "isFollowing": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "crestColor",
+          "area",
+          "level",
+          "reputation",
+          "reviewCount",
+          "onTimePercent",
+          "keepDealPercent",
+          "wins",
+          "draws",
+          "losses",
+          "form",
+          "reviewTags",
+          "recentMatchCount",
+          "isFollowing"
         ]
       },
       "TeamDetailDto": {
@@ -5063,6 +5694,49 @@
         },
         "required": [
           "role"
+        ]
+      },
+      "CreateTeamReportDto": {
+        "type": "object",
+        "properties": {
+          "reportedTeamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "imageKeys": {
+            "maxItems": 4,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "reportedTeamId",
+          "reason"
+        ]
+      },
+      "TeamSafetyDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
         ]
       },
       "MemberDto": {
@@ -6029,6 +6703,15 @@
           "pass_pitch"
         ]
       },
+      "PostDeal": {
+        "type": "string",
+        "enum": [
+          "split",
+          "loser_pays",
+          "drinks",
+          "friendly"
+        ]
+      },
       "FeedPageDto": {
         "type": "object",
         "properties": {
@@ -6045,13 +6728,18 @@
               ]
             }
           },
+          "total": {
+            "type": "integer",
+            "description": "Tổng kèo phù hợp bộ lọc trước phân trang"
+          },
           "nextCursor": {
             "type": "string",
             "description": "Truyền lại để lấy trang sau"
           }
         },
         "required": [
-          "items"
+          "items",
+          "total"
         ]
       },
       "TeamBriefDto": {
@@ -6085,15 +6773,6 @@
           "crestColor",
           "area",
           "level"
-        ]
-      },
-      "PostDeal": {
-        "type": "string",
-        "enum": [
-          "split",
-          "loser_pays",
-          "drinks",
-          "friendly"
         ]
       },
       "PostMediaDto": {
@@ -7098,6 +7777,94 @@
           "slotStart"
         ]
       },
+      "PitchReviewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stars": {
+            "type": "number"
+          },
+          "turf": {
+            "type": "number"
+          },
+          "lighting": {
+            "type": "number"
+          },
+          "lockerRoom": {
+            "type": "number"
+          },
+          "ownerPrice": {
+            "type": "number"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "comment": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "stars",
+          "turf",
+          "lighting",
+          "lockerRoom",
+          "ownerPrice",
+          "tags",
+          "createdAt"
+        ]
+      },
+      "CreatePitchReviewDto": {
+        "type": "object",
+        "properties": {
+          "stars": {
+            "type": "number"
+          },
+          "turf": {
+            "type": "number"
+          },
+          "lighting": {
+            "type": "number"
+          },
+          "lockerRoom": {
+            "type": "number"
+          },
+          "ownerPrice": {
+            "type": "number"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "bookingId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "stars",
+          "turf",
+          "lighting",
+          "lockerRoom",
+          "ownerPrice"
+        ]
+      },
       "CreateBookingDto": {
         "type": "object",
         "properties": {
@@ -7114,6 +7881,16 @@
             "type": "string",
             "maxLength": 200,
             "description": "Ghi chú cho chủ sân"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "water",
+                "bib"
+              ]
+            }
           }
         },
         "required": [
@@ -7151,6 +7928,15 @@
           },
           "lng": {
             "type": "number"
+          },
+          "bankBin": {
+            "type": "string"
+          },
+          "accountNo": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
           }
         },
         "required": [
@@ -7207,6 +7993,18 @@
             "type": "integer",
             "description": "Tiền cọc (VND), 0 ở bản trả tại sân"
           },
+          "transferCode": {
+            "type": "string"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "extraAmount": {
+            "type": "integer"
+          },
           "note": {
             "type": "string"
           },
@@ -7245,6 +8043,8 @@
           "endAt",
           "price",
           "deposit",
+          "services",
+          "extraAmount",
           "canChange",
           "createdAt"
         ]
