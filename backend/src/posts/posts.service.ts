@@ -241,14 +241,22 @@ export class PostsService {
           ],
         }
       : {};
-    const rows = await this.prisma.post.findMany({
-      where: {
+    const type = q.kind ?? q.type;
+    const levelOrder = ['sieu_yeu', 'yeu', 'tby', 'tb', 'tbk', 'gioi'];
+    const timeRange = q.timeSlot === 'morning' ? [0, 12] : q.timeSlot === 'afternoon' ? [12, 18] : q.timeSlot === 'evening' ? [18, 24] : undefined;
+    const dateRange = q.date ? { gte: new Date(`${q.date}T00:00:00+07:00`), lt: new Date(`${q.date}T00:00:00+07:00`).getTime() + 86_400_000 } : undefined;
+    const where = {
         status: 'open',
-        startAt: { gt: now },
-        ...(q.type ? { type: q.type } : {}),
+        startAt: dateRange ? { gte: dateRange.gte, lt: new Date(dateRange.lt) } : { gt: now },
+        ...(type ? { type } : {}),
         ...(q.area ? { area: q.area } : {}),
+        ...(q.ratioType ? { deal: q.ratioType } : {}),
+        ...(q.levelMin || q.levelMax ? { level: { in: levelOrder.slice(q.levelMin ? levelOrder.indexOf(q.levelMin) : 0, (q.levelMax ? levelOrder.indexOf(q.levelMax) : levelOrder.length - 1) + 1) } } : {}),
+        ...(q.minRating ? { team: { reviewsReceived: { some: { reputation: { gte: Math.ceil(q.minRating) } } } } } : {}),
         AND: [postSearch, afterCursor],
-      },
+      } as Prisma.PostWhereInput;
+    const [rows, total] = await Promise.all([this.prisma.post.findMany({
+      where,
       include: {
         ...postInclude(now),
         applications: {
@@ -258,7 +266,8 @@ export class PostsService {
       },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
-    });
+    }), this.prisma.post.count({ where: { ...where, AND: [postSearch] } })]);
+    const timeFilteredRows = timeRange ? rows.filter((post) => { const hour = post.startAt.getUTCHours() + 7; return hour >= timeRange[0] && hour < timeRange[1]; }) : rows;
     const resultSearch = search
       ? {
           OR: [
@@ -307,7 +316,7 @@ export class PostsService {
       take: limit + 1,
     });
     const feedRows: { item: FeedItemDto; at: Date; id: string }[] = [
-      ...rows.map((post) => ({
+      ...timeFilteredRows.map((post) => ({
         item: {
           ...this.toPostDto(post),
           myApplicationStatus: post.applications[0]?.status,
@@ -341,6 +350,7 @@ export class PostsService {
         feedRows.length > limit
           ? encodeFeedCursor({ at: page[page.length - 1].at, id: page[page.length - 1].id })
           : undefined,
+      total,
     };
   }
 
@@ -357,6 +367,7 @@ export class PostsService {
     return {
       items: items.map((post) => this.toPostDto(post)),
       nextCursor: rows.length > limit ? items.at(-1)?.id : undefined,
+      total: items.length,
     };
   }
 

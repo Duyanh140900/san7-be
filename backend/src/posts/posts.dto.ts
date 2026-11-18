@@ -160,6 +160,48 @@ export class FeedQuery {
   @IsEnum(PostType)
   type?: PostType;
 
+  @ApiPropertyOptional({ enum: PostType, enumName: 'PostType', description: 'Tên mới của type trên màn lọc v2' })
+  @IsOptional()
+  @IsEnum(PostType)
+  kind?: PostType;
+
+  @ApiPropertyOptional({ type: String, format: 'date', description: 'Ngày đá theo giờ Việt Nam' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  date?: string;
+
+  @ApiPropertyOptional({ enum: ['morning', 'afternoon', 'evening'] })
+  @IsOptional()
+  @IsEnum(['morning', 'afternoon', 'evening'])
+  timeSlot?: 'morning' | 'afternoon' | 'evening';
+
+  @ApiPropertyOptional({ enum: TeamLevel, enumName: 'TeamLevel' })
+  @IsOptional()
+  @IsEnum(TeamLevel)
+  levelMin?: TeamLevel;
+
+  @ApiPropertyOptional({ enum: TeamLevel, enumName: 'TeamLevel' })
+  @IsOptional()
+  @IsEnum(TeamLevel)
+  levelMax?: TeamLevel;
+
+  @ApiPropertyOptional({ enum: PostDeal, enumName: 'PostDeal' })
+  @IsOptional()
+  @IsEnum(PostDeal)
+  ratioType?: PostDeal;
+
+  @ApiPropertyOptional({ type: Number, minimum: 1, maximum: 5 })
+  @IsOptional()
+  @Type(() => Number)
+  @Min(1)
+  @Max(5)
+  minRating?: number;
+
+  @ApiPropertyOptional({ type: 'boolean' })
+  @IsOptional()
+  hideCancellers?: boolean;
+
   @ApiPropertyOptional({ maxLength: 50, example: 'Cầu Giấy' })
   @IsOptional()
   @Trim()
@@ -335,6 +377,8 @@ export class FeedPageDto {
     },
   })
   items: FeedItemDto[];
+  @ApiProperty({ type: 'integer', description: 'Tổng kèo phù hợp bộ lọc trước phân trang' })
+  total: number;
   @ApiPropertyOptional({
     type: String,
     description: 'Truyền lại để lấy trang sau',
