@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiNoContentResponse,
@@ -6,7 +6,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser, type AuthUser } from '../common/auth.decorators.js';
-import { MeDto, NotificationSettingsDto, RegisterDeviceDto, UpdateMeDto, UpdateNotificationSettingsDto } from './users.dto.js';
+import { BookingSummaryDto, BookingSummaryQuery, MeDto, NotificationSettingsDto, RegisterDeviceDto, UpdateMeDto, UpdateNotificationSettingsDto } from './users.dto.js';
 import { UsersService } from './users.service.js';
 
 @ApiTags('users')
@@ -20,6 +20,10 @@ export class UsersController {
   getMe(@CurrentUser() user: AuthUser): Promise<MeDto> {
     return this.users.getMe(user.userId);
   }
+
+  @Get('bookings/summary')
+  @ApiOkResponse({ type: BookingSummaryDto })
+  bookingSummary(@CurrentUser() user: AuthUser, @Query() q: BookingSummaryQuery): Promise<BookingSummaryDto> { return this.users.bookingSummary(user.userId, q.year ?? new Date().getFullYear()); }
 
   @Patch()
   @ApiOkResponse({ type: MeDto })

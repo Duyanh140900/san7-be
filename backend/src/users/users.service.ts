@@ -4,6 +4,7 @@ import { MediaService } from '../media/media.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { RealtimeService } from '../realtime/realtime.service.js';
 import type { MeDto, NotificationSettingsDto, RegisterDeviceDto, UpdateMeDto, UpdateNotificationSettingsDto } from './users.dto.js';
+import type { BookingSummaryDto } from './users.dto.js';
 
 @Injectable()
 export class UsersService {
@@ -51,6 +52,17 @@ export class UsersService {
         status: m.status,
       })),
     };
+  }
+
+  async bookingSummary(userId: string, year: number): Promise<BookingSummaryDto> {
+    const from = new Date(Date.UTC(year, 0, 1));
+    const to = new Date(Date.UTC(year + 1, 0, 1));
+    const bookings = await this.prisma.booking.findMany({ where: { createdById: userId, status: { in: ['confirmed', 'deposit_claimed'] }, startAt: { gte: from, lt: to } }, include: { pitch: { select: { name: true } } } });
+    const counts = new Map<string, number>();
+    let hours = 0; let teamPaid = 0;
+    for (const booking of bookings) { hours += (booking.endAt.getTime() - booking.startAt.getTime()) / 3_600_000; teamPaid += Number(booking.price) + Number(booking.extraAmount); counts.set(booking.pitch.name, (counts.get(booking.pitch.name) ?? 0) + 1); }
+    const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+    return { count: bookings.length, hours: Number(hours.toFixed(1)), teamPaid, topPitch: top ? { name: top[0], count: top[1] } : null };
   }
 
   async getNotificationSettings(userId: string): Promise<NotificationSettingsDto> {

@@ -1,4 +1,5 @@
 import { Trim } from '../common/trim.js';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
@@ -18,6 +19,16 @@ import {
   TeamLevel,
   TeamRole,
 } from '../generated/prisma/enums.js';
+
+export class BookingSummaryQuery {
+  @ApiPropertyOptional({ type: 'integer', example: 2026 }) @IsOptional() @Type(() => Number) @IsInt() @Min(2020) @Max(2100) year?: number;
+}
+export class BookingSummaryDto {
+  @ApiProperty() count: number;
+  @ApiProperty() hours: number;
+  @ApiProperty({ type: 'integer' }) teamPaid: number;
+  @ApiPropertyOptional({ type: Object }) topPitch: { name: string; count: number } | null;
+}
 
 export class MyTeamDto {
   @ApiProperty({ format: 'uuid' }) teamId: string;
