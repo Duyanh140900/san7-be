@@ -54,12 +54,29 @@ export class UsersService {
     };
   }
 
-  async publicPlayer(id: string): Promise<PublicPlayerDto> {
+  async publicPlayer(id: string, viewerId?: string): Promise<PublicPlayerDto> {
     const user = await this.prisma.user.findUnique({ where: { id }, include: { memberships: { where: { status: 'active' }, include: { team: { select: { id: true, name: true, crestColor: true } } }, take: 1 }, matchStats: { where: { match: { status: 'finished' } }, include: { match: { select: { id: true, startAt: true } } }, orderBy: { match: { startAt: 'desc' }, }, take: 5 } } });
     if (!user) throw new AppError(HttpStatus.NOT_FOUND, 'player_not_found', 'Không tìm thấy cầu thủ');
     const aggregate = await this.prisma.matchPlayerStat.aggregate({ where: { userId: id, match: { status: 'finished' } }, _sum: { goals: true, assists: true }, _count: { _all: true } });
     const mvps = await this.prisma.matchPlayerStat.count({ where: { userId: id, mvp: true, match: { status: 'finished' } } });
-    return { id: user.id, name: user.name, avatarUrl: user.avatarUrl, position: user.position, shirtNumber: user.shirtNumber, team: user.memberships[0]?.team ?? null, stats: { goals: aggregate._sum.goals ?? 0, assists: aggregate._sum.assists ?? 0, matches: aggregate._count._all, mvps }, recentMatches: user.matchStats.map(s => ({ matchId: s.matchId, startAt: s.match.startAt, goals: s.goals, assists: s.assists, mvp: s.mvp })) };
+    const headToHead = viewerId && viewerId !== id ? await this.headToHead(id, viewerId) : null;
+    return { id: user.id, name: user.name, avatarUrl: user.avatarUrl, position: user.position, shirtNumber: user.shirtNumber, team: user.memberships[0]?.team ?? null, stats: { goals: aggregate._sum.goals ?? 0, assists: aggregate._sum.assists ?? 0, matches: aggregate._count._all, mvps }, recentMatches: user.matchStats.map(s => ({ matchId: s.matchId, startAt: s.match.startAt, goals: s.goals, assists: s.assists, mvp: s.mvp })), headToHead };
+  }
+
+  private async headToHead(playerId: string, viewerId: string): Promise<{ played: number; wins: number; draws: number; losses: number }> {
+    const rows = await this.prisma.matchPlayerStat.findMany({
+      where: { userId: playerId, match: { status: 'finished' } },
+      select: { teamId: true, match: { select: { homeTeamId: true, awayTeamId: true, homeScore: true, awayScore: true, stats: { where: { userId: viewerId }, select: { teamId: true } } } } },
+    });
+    let wins = 0; let draws = 0; let losses = 0;
+    for (const row of rows) {
+      const viewer = row.match.stats[0];
+      if (!viewer || viewer.teamId === row.teamId || row.match.homeScore === null || row.match.awayScore === null) continue;
+      const mine = row.match.homeTeamId === row.teamId ? row.match.homeScore : row.match.awayScore;
+      const theirs = row.match.homeTeamId === row.teamId ? row.match.awayScore : row.match.homeScore;
+      if (mine === theirs) draws++; else if (mine > theirs) wins++; else losses++;
+    }
+    return { played: wins + draws + losses, wins, draws, losses };
   }
 
   async bookingSummary(userId: string, year: number): Promise<BookingSummaryDto> {

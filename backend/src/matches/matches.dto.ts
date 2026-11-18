@@ -36,6 +36,24 @@ export class SetResultDto {
   awayScore: number;
 }
 
+export class CastMvpVoteDto {
+  @ApiProperty({ format: 'uuid' })
+  @IsUUID()
+  candidateUserId: string;
+}
+
+export class MvpVoteCandidateDto {
+  @ApiProperty({ format: 'uuid' }) userId: string;
+  @ApiProperty() votes: number;
+}
+
+export class MvpVoteSummaryDto {
+  @ApiProperty() open: boolean;
+  @ApiPropertyOptional({ format: 'uuid' }) myVoteUserId?: string | null;
+  @ApiPropertyOptional({ format: 'uuid' }) winnerUserId?: string | null;
+  @ApiProperty({ type: [MvpVoteCandidateDto] }) candidates: MvpVoteCandidateDto[];
+}
+
 export class PlayerStatInput {
   @ApiProperty({ format: 'uuid' })
   @IsUUID()
@@ -52,6 +70,12 @@ export class PlayerStatInput {
   @Min(0)
   @Max(30)
   assists: number;
+}
+
+export class ProposeResultDto extends SetResultDto {
+  @ApiProperty({ type: [PlayerStatInput] })
+  @IsArray() @ArrayMaxSize(30) @ValidateNested({ each: true }) @Type(() => PlayerStatInput)
+  players: PlayerStatInput[];
 }
 
 export class SetStatsDto {

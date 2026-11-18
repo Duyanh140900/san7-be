@@ -5,6 +5,7 @@ import { toMoney } from '../common/money.js';
 import { monthRange } from '../matches/match-rules.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
 import type { FundType } from '../generated/prisma/enums.js';
+import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { RealtimeService } from '../realtime/realtime.service.js';
 import type {
@@ -57,6 +58,8 @@ type TxRow = {
   period: string | null;
   note: string | null;
   paid: boolean;
+  paymentStatus: 'approved' | 'pending' | 'rejected';
+  transferCode: string | null;
   createdAt: Date;
   receiptKey: string | null;
   member: { id: string; name: string; avatarUrl: string | null } | null;
@@ -84,6 +87,8 @@ function toTxDto(t: TxRow): FundTxDto {
       ? `/v1/media/receipts/${t.receiptKey.slice('public/'.length, -'.webp'.length)}`
       : null,
     paid: t.paid,
+    paymentStatus: t.paymentStatus,
+    transferCode: t.transferCode,
     createdBy: {
       userId: t.createdBy.id,
       name: t.createdBy.name,
@@ -364,6 +369,45 @@ export class FundsService {
         data: { fundBalance: { increment: t.amount } },
       });
       return t;
+    });
+    this.changed(me.teamId);
+    return toTxDto(row);
+  }
+
+  async claimTransfer(me: TeamMembership, dto: import('./funds.dto.js').ClaimFundTransferDto): Promise<FundTxDto> {
+    const amount = BigInt(dto.amount);
+    try {
+      const row = await this.prisma.fundTransaction.create({
+        data: {
+          teamId: me.teamId,
+          type: 'income', amount, category: 'Đóng quỹ chuyển khoản',
+          memberId: me.userId, note: dto.note ?? null, transferCode: dto.transferCode,
+          paid: false, paymentStatus: 'pending', createdById: me.userId,
+        }, include: txInclude,
+      });
+      this.changed(me.teamId);
+      return toTxDto(row);
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        throw new AppError(HttpStatus.CONFLICT, 'transfer_code_exists', 'Mã chuyển khoản đã được sử dụng');
+      }
+      throw e;
+    }
+  }
+
+  async resolveTransfer(me: TeamMembership, txId: string, approve: boolean): Promise<FundTxDto> {
+    const row = await this.prisma.$transaction(async (tx) => {
+      const current = await tx.fundTransaction.findFirst({ where: { id: txId, teamId: me.teamId, paymentStatus: 'pending' } });
+      if (!current) throw new AppError(HttpStatus.NOT_FOUND, 'pending_transfer_not_found', 'Không tìm thấy yêu cầu đóng quỹ đang chờ');
+      const updated = await tx.fundTransaction.update({
+        where: { id: txId },
+        data: approve
+          ? { paymentStatus: 'approved', paid: true, paidAt: new Date() }
+          : { paymentStatus: 'rejected', paid: false },
+        include: txInclude,
+      });
+      if (approve) await tx.team.update({ where: { id: me.teamId }, data: { fundBalance: { increment: current.amount } } });
+      return updated;
     });
     this.changed(me.teamId);
     return toTxDto(row);

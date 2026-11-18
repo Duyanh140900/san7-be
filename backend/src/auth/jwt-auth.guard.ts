@@ -7,7 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
-import { IS_PUBLIC_KEY, type AuthUser } from '../common/auth.decorators.js';
+import { IS_OPTIONAL_AUTH_KEY, IS_PUBLIC_KEY, type AuthUser } from '../common/auth.decorators.js';
 import { AppError } from '../common/errors.js';
 
 /** Guard toàn cục: mọi endpoint cần access token, trừ khi gắn @Public(). */
@@ -29,6 +29,8 @@ export class JwtAuthGuard implements CanActivate {
 
     const req = ctx.switchToHttp().getRequest<Request & { user?: AuthUser }>();
     const [scheme, token] = (req.headers.authorization ?? '').split(' ');
+    const optional = this.reflector.getAllAndOverride<boolean>(IS_OPTIONAL_AUTH_KEY, [ctx.getHandler(), ctx.getClass()]);
+    if (optional && (scheme !== 'Bearer' || !token)) return true;
     if (scheme !== 'Bearer' || !token) {
       throw new AppError(
         HttpStatus.UNAUTHORIZED,
@@ -44,6 +46,7 @@ export class JwtAuthGuard implements CanActivate {
       req.user = { userId: payload.sub };
       return true;
     } catch {
+      if (optional) return true;
       throw new AppError(
         HttpStatus.UNAUTHORIZED,
         'token_expired',

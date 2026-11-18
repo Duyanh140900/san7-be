@@ -99,10 +99,25 @@ export class TeamsService {
       memberCount,
       myRole: me.role,
       monthlyDue: toMoney(team.monthlyDue),
+      treasurerBankBin: team.treasurerBankBin,
+      treasurerAccountNo: team.treasurerAccountNo,
+      treasurerAccountName: team.treasurerAccountName,
       homePitchId: team.homePitchId,
       inviteCode: canInvite ? team.inviteCode : undefined,
       inviteExpiresAt: canInvite ? team.inviteExpiresAt : undefined,
     };
+  }
+
+  async updateTreasurerAccount(me: TeamMembership, dto: import('./teams.dto.js').UpdateTreasurerAccountDto): Promise<TeamDetailDto> {
+    await this.prisma.team.update({
+      where: { id: me.teamId },
+      data: {
+        treasurerBankBin: dto.treasurerBankBin,
+        treasurerAccountNo: dto.treasurerAccountNo,
+        treasurerAccountName: dto.treasurerAccountName,
+      },
+    });
+    return this.detail(me);
   }
 
   async update(me: TeamMembership, dto: UpdateTeamDto): Promise<TeamDetailDto> {

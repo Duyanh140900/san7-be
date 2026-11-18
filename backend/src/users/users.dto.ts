@@ -128,4 +128,5 @@ export class PublicPlayerDto {
   @ApiPropertyOptional({ type: Object }) team: { id: string; name: string; crestColor: string } | null;
   @ApiProperty({ type: PlayerStatsDto }) stats: PlayerStatsDto;
   @ApiProperty({ type: [Object] }) recentMatches: { matchId: string; startAt: Date; goals: number; assists: number; mvp: boolean }[];
+  @ApiPropertyOptional({ type: Object }) headToHead?: { played: number; wins: number; draws: number; losses: number } | null;
 }

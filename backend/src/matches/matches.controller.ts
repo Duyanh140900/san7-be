@@ -17,6 +17,9 @@ import {
 } from '../common/team-member.guard.js';
 import {
   MatchDetailDto,
+  CastMvpVoteDto,
+  MvpVoteSummaryDto,
+  ProposeResultDto,
   SetResultDto,
   SetStatsDto,
   SubmitReviewDto,
@@ -37,6 +40,13 @@ export class MatchesController {
     @Param('matchId', ParseUUIDPipe) matchId: string,
   ): Promise<MatchDetailDto> {
     return this.matches.detail(me, matchId);
+  }
+
+  @Post(':matchId/result/re-propose')
+  @TeamRoles('captain', 'vice')
+  @ApiOkResponse({ type: MatchDetailDto })
+  reProposeResult(@CurrentMember() me: TeamMembership, @Param('matchId', ParseUUIDPipe) matchId: string, @Body() dto: ProposeResultDto): Promise<MatchDetailDto> {
+    return this.matches.reProposeResult(me, matchId, dto);
   }
 
   @Put(':matchId/result')
@@ -81,5 +91,18 @@ export class MatchesController {
     @Body() dto: SubmitReviewDto,
   ): Promise<MatchDetailDto> {
     return this.matches.review(me, matchId, dto);
+  }
+
+  @Get(':matchId/mvp-votes')
+  @ApiOkResponse({ type: MvpVoteSummaryDto })
+  mvpVotes(@CurrentMember() me: TeamMembership, @Param('matchId', ParseUUIDPipe) matchId: string): Promise<MvpVoteSummaryDto> {
+    return this.matches.mvpVotes(me, matchId);
+  }
+
+  @Post(':matchId/mvp-votes')
+  @HttpCode(200)
+  @ApiOkResponse({ type: MvpVoteSummaryDto })
+  voteMvp(@CurrentMember() me: TeamMembership, @Param('matchId', ParseUUIDPipe) matchId: string, @Body() dto: CastMvpVoteDto): Promise<MvpVoteSummaryDto> {
+    return this.matches.voteMvp(me, matchId, dto);
   }
 }

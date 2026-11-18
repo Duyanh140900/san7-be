@@ -25,6 +25,7 @@ import {
   CreateFineRuleDto,
   CreateFundTxDto,
   FineRuleDto,
+  ClaimFundTransferDto,
   FundSummaryDto,
   FundTxDto,
   FinesDto,
@@ -45,6 +46,28 @@ export class FundsController {
   @ApiOkResponse({ type: FundSummaryDto })
   summary(@CurrentMember() me: TeamMembership): Promise<FundSummaryDto> {
     return this.funds.summary(me);
+  }
+
+  @Post('transfer-claims')
+  @ApiCreatedResponse({ type: FundTxDto })
+  claimTransfer(@CurrentMember() me: TeamMembership, @Body() dto: ClaimFundTransferDto): Promise<FundTxDto> {
+    return this.funds.claimTransfer(me, dto);
+  }
+
+  @Post('transfer-claims/:txId/approve')
+  @HttpCode(200)
+  @TeamRoles('captain', 'treasurer')
+  @ApiOkResponse({ type: FundTxDto })
+  approveTransfer(@CurrentMember() me: TeamMembership, @Param('txId', ParseUUIDPipe) txId: string): Promise<FundTxDto> {
+    return this.funds.resolveTransfer(me, txId, true);
+  }
+
+  @Post('transfer-claims/:txId/reject')
+  @HttpCode(200)
+  @TeamRoles('captain', 'treasurer')
+  @ApiOkResponse({ type: FundTxDto })
+  rejectTransfer(@CurrentMember() me: TeamMembership, @Param('txId', ParseUUIDPipe) txId: string): Promise<FundTxDto> {
+    return this.funds.resolveTransfer(me, txId, false);
   }
 
   @Get('fines')

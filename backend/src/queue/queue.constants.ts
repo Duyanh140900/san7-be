@@ -10,6 +10,8 @@ export const Jobs = {
   bookingExpire: 'booking.expire',
   /** Nhắc nhập kết quả sau giờ kết thúc trận: data { matchId } */
   matchPromptResult: 'match.prompt_result',
+  /** Tự xác nhận đề xuất tỉ số nếu đối thủ không phản hồi sau 24 giờ. */
+  matchResultAutoConfirm: 'match.result_auto_confirm',
   /** Gửi FCM cho các thông báo: data { notificationIds } */
   pushSend: 'push.send',
   /** Công bố lịch đăng kèo: data { scheduleId } */

@@ -310,6 +310,36 @@
         ]
       }
     },
+    "/v1/players/{id}": {
+      "get": {
+        "operationId": "Players_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicPlayerDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "players"
+        ]
+      }
+    },
     "/v1/media/uploads": {
       "post": {
         "operationId": "Media_createUpload",
@@ -1108,6 +1138,52 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UpdateTeamDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/treasurer-account": {
+      "patch": {
+        "operationId": "TeamDetail_updateTreasurerAccount",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTreasurerAccountDto"
               }
             }
           }
@@ -2010,6 +2086,140 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/FundSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "funds"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/funds/transfer-claims": {
+      "post": {
+        "operationId": "Funds_claimTransfer",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimFundTransferDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundTxDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "funds"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/funds/transfer-claims/{txId}/approve": {
+      "post": {
+        "operationId": "Funds_approveTransfer",
+        "parameters": [
+          {
+            "name": "txId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundTxDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "funds"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/funds/transfer-claims/{txId}/reject": {
+      "post": {
+        "operationId": "Funds_rejectTransfer",
+        "parameters": [
+          {
+            "name": "txId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundTxDto"
                 }
               }
             }
@@ -4083,6 +4293,60 @@
         ]
       }
     },
+    "/v1/teams/{teamId}/matches/{matchId}/result/re-propose": {
+      "post": {
+        "operationId": "Matches_reProposeResult",
+        "parameters": [
+          {
+            "name": "matchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposeResultDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      }
+    },
     "/v1/teams/{teamId}/matches/{matchId}/result": {
       "put": {
         "operationId": "Matches_setResult",
@@ -4274,6 +4538,102 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MatchDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      }
+    },
+    "/v1/teams/{teamId}/matches/{matchId}/mvp-votes": {
+      "get": {
+        "operationId": "Matches_mvpVotes",
+        "parameters": [
+          {
+            "name": "matchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MvpVoteSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "matches"
+        ]
+      },
+      "post": {
+        "operationId": "Matches_voteMvp",
+        "parameters": [
+          {
+            "name": "matchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CastMvpVoteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MvpVoteSummaryDto"
                 }
               }
             }
@@ -4826,6 +5186,52 @@
         "required": [
           "fcmToken",
           "platform"
+        ]
+      },
+      "PublicPlayerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string"
+          },
+          "position": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              }
+            ]
+          },
+          "shirtNumber": {
+            "type": "integer"
+          },
+          "team": {
+            "type": "object"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/PlayerStatsDto"
+          },
+          "recentMatches": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "headToHead": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "stats",
+          "recentMatches"
         ]
       },
       "MediaPurpose": {
@@ -5559,6 +5965,15 @@
             "type": "integer",
             "description": "Quỹ tháng mỗi người (VND), 0 = không thu"
           },
+          "treasurerBankBin": {
+            "type": "string"
+          },
+          "treasurerAccountNo": {
+            "type": "string"
+          },
+          "treasurerAccountName": {
+            "type": "string"
+          },
           "homePitchId": {
             "type": "object",
             "format": "uuid",
@@ -5619,6 +6034,31 @@
             "nullable": true
           }
         }
+      },
+      "UpdateTreasurerAccountDto": {
+        "type": "object",
+        "properties": {
+          "treasurerBankBin": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "970436"
+          },
+          "treasurerAccountNo": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "0123456789"
+          },
+          "treasurerAccountName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "NGUYEN VAN A"
+          }
+        },
+        "required": [
+          "treasurerBankBin",
+          "treasurerAccountNo",
+          "treasurerAccountName"
+        ]
       },
       "InviteDto": {
         "type": "object",
@@ -6269,6 +6709,17 @@
           "paid": {
             "type": "boolean"
           },
+          "paymentStatus": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "pending",
+              "rejected"
+            ]
+          },
+          "transferCode": {
+            "type": "string"
+          },
           "createdBy": {
             "$ref": "#/components/schemas/PersonRefDto"
           },
@@ -6283,6 +6734,7 @@
           "amount",
           "category",
           "paid",
+          "paymentStatus",
           "createdBy",
           "createdAt"
         ]
@@ -6327,6 +6779,29 @@
           "monthExpense",
           "unpaidFines",
           "recent"
+        ]
+      },
+      "ClaimFundTransferDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000000
+          },
+          "transferCode": {
+            "type": "string",
+            "maxLength": 40,
+            "example": "SAN7-QT-20261118-AB12"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "amount",
+          "transferCode"
         ]
       },
       "FinesDto": {
@@ -8253,25 +8728,6 @@
           "roster"
         ]
       },
-      "SetResultDto": {
-        "type": "object",
-        "properties": {
-          "homeScore": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 99
-          },
-          "awayScore": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 99
-          }
-        },
-        "required": [
-          "homeScore",
-          "awayScore"
-        ]
-      },
       "PlayerStatInput": {
         "type": "object",
         "properties": {
@@ -8294,6 +8750,51 @@
           "userId",
           "goals",
           "assists"
+        ]
+      },
+      "ProposeResultDto": {
+        "type": "object",
+        "properties": {
+          "homeScore": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          },
+          "awayScore": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          },
+          "players": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlayerStatInput"
+            }
+          }
+        },
+        "required": [
+          "homeScore",
+          "awayScore",
+          "players"
+        ]
+      },
+      "SetResultDto": {
+        "type": "object",
+        "properties": {
+          "homeScore": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          },
+          "awayScore": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          }
+        },
+        "required": [
+          "homeScore",
+          "awayScore"
         ]
       },
       "SetStatsDto": {
@@ -8353,6 +8854,60 @@
           "reputation",
           "fairplay",
           "tags"
+        ]
+      },
+      "MvpVoteCandidateDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "votes": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "userId",
+          "votes"
+        ]
+      },
+      "MvpVoteSummaryDto": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "boolean"
+          },
+          "myVoteUserId": {
+            "type": "object",
+            "format": "uuid"
+          },
+          "winnerUserId": {
+            "type": "object",
+            "format": "uuid"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MvpVoteCandidateDto"
+            }
+          }
+        },
+        "required": [
+          "open",
+          "candidates"
+        ]
+      },
+      "CastMvpVoteDto": {
+        "type": "object",
+        "properties": {
+          "candidateUserId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "candidateUserId"
         ]
       },
       "TeamRecordDto": {

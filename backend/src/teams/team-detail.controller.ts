@@ -6,7 +6,7 @@ import {
   TeamRoles,
   type TeamMembership,
 } from '../common/team-member.guard.js';
-import { InviteDto, MembershipDto, TeamDetailDto, TeamMemberDto, UpdateMemberRoleDto, UpdateTeamDto } from './teams.dto.js';
+import { InviteDto, MembershipDto, TeamDetailDto, TeamMemberDto, UpdateMemberRoleDto, UpdateTeamDto, UpdateTreasurerAccountDto } from './teams.dto.js';
 import { TeamsService } from './teams.service.js';
 
 @ApiTags('teams')
@@ -29,6 +29,16 @@ export class TeamDetailController {
     @Body() dto: UpdateTeamDto,
   ): Promise<TeamDetailDto> {
     return this.teams.update(me, dto);
+  }
+
+  @Patch('treasurer-account')
+  @TeamRoles('captain', 'treasurer')
+  @ApiOkResponse({ type: TeamDetailDto })
+  updateTreasurerAccount(
+    @CurrentMember() me: TeamMembership,
+    @Body() dto: UpdateTreasurerAccountDto,
+  ): Promise<TeamDetailDto> {
+    return this.teams.updateTreasurerAccount(me, dto);
   }
 
   @Post('invite')

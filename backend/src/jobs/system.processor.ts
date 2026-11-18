@@ -61,6 +61,20 @@ export class SystemProcessor extends WorkerHost {
         }
         return { prompted: notes.length };
       }
+      case Jobs.matchResultAutoConfirm: {
+        const { matchId } = job.data as { matchId: string };
+        const now = new Date();
+        const { count } = await this.prisma.match.updateMany({
+          where: {
+            id: matchId,
+            confirmedAt: null,
+            reportedByTeamId: { not: null },
+            resultAutoConfirmAt: { lte: now },
+          },
+          data: { confirmedAt: now, status: 'finished' },
+        });
+        return { confirmed: count === 1 };
+      }
       case Jobs.pushSend: {
         const { notificationIds } = job.data as { notificationIds: string[] };
         return { sent: await this.push.sendNotifications(notificationIds) };

@@ -90,12 +90,29 @@ export class TeamDetailDto {
     description: 'Quỹ tháng mỗi người (VND), 0 = không thu',
   })
   monthlyDue: number;
+  @ApiPropertyOptional({ type: String }) treasurerBankBin?: string | null;
+  @ApiPropertyOptional({ type: String }) treasurerAccountNo?: string | null;
+  @ApiPropertyOptional({ type: String }) treasurerAccountName?: string | null;
   @ApiPropertyOptional({ format: 'uuid', description: 'Sân nhà của đội' })
   homePitchId?: string | null;
   @ApiPropertyOptional({ description: 'Chỉ đội trưởng/đội phó thấy' })
   inviteCode?: string;
   @ApiPropertyOptional({ type: String, format: 'date-time' })
   inviteExpiresAt?: Date | null;
+}
+
+export class UpdateTreasurerAccountDto {
+  @ApiProperty({ maxLength: 20, example: '970436' })
+  @Trim() @IsString() @Length(3, 20)
+  treasurerBankBin: string;
+
+  @ApiProperty({ maxLength: 30, example: '0123456789' })
+  @Trim() @IsString() @Length(4, 30)
+  treasurerAccountNo: string;
+
+  @ApiProperty({ maxLength: 100, example: 'NGUYEN VAN A' })
+  @Trim() @IsString() @Length(2, 100)
+  treasurerAccountName: string;
 }
 
 export class UpdateTeamDto {

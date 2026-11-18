@@ -110,6 +110,9 @@ async function createTeams(
         level: LEVELS[index % LEVELS.length],
         inviteCode: nextInviteCode(index),
         monthlyDue: BigInt(100_000),
+        treasurerBankBin: '970436',
+        treasurerAccountNo: `1000${String(index + 1).padStart(6, '0')}`,
+        treasurerAccountName: captain.name.toUpperCase(),
         homePitchId,
         createdById: captain.id,
         members: {
@@ -217,6 +220,13 @@ async function createFinishedMatches(prisma: PrismaClient, teams: DemoTeam[], pi
         goals: playerIndex < homeGoals.length ? homeGoals[playerIndex] : awayGoals[playerIndex - homeGoals.length],
         assists: faker.number.int({ min: 0, max: 2 }),
         mvp: userId === mvpId,
+      })),
+    });
+    await prisma.mvpVote.createMany({
+      data: allPlayers.slice(0, 3).map((voterId) => ({
+        matchId: match.id,
+        voterId,
+        candidateUserId: mvpId,
       })),
     });
     await prisma.matchMessage.createMany({

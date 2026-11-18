@@ -146,8 +146,24 @@ export class FundTxDto {
   @ApiPropertyOptional({ type: String }) note?: string | null;
   @ApiPropertyOptional({ type: String }) receiptUrl?: string | null;
   @ApiProperty() paid: boolean;
+  @ApiProperty({ enum: ['approved', 'pending', 'rejected'] }) paymentStatus: string;
+  @ApiPropertyOptional({ type: String }) transferCode?: string | null;
   @ApiProperty({ type: PersonRefDto }) createdBy: PersonRefDto;
   @ApiProperty({ type: String, format: 'date-time' }) createdAt: Date;
+}
+
+export class ClaimFundTransferDto {
+  @ApiProperty({ type: 'integer', minimum: 1, maximum: MAX_AMOUNT })
+  @IsInt() @Min(1) @Max(MAX_AMOUNT)
+  amount: number;
+
+  @ApiProperty({ maxLength: 40, example: 'SAN7-QT-20261118-AB12' })
+  @Trim() @IsString() @Length(4, 40)
+  transferCode: string;
+
+  @ApiPropertyOptional({ maxLength: 200 })
+  @IsOptional() @Trim() @IsString() @MaxLength(200)
+  note?: string;
 }
 
 export class FinesDto {

@@ -1,4 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import type { Queue } from 'bullmq';
 import { AppError } from '../common/errors.js';
 import { toMoney } from '../common/money.js';
 import type { TeamMembership } from '../common/team-member.guard.js';
@@ -12,11 +14,15 @@ import { NotificationsService } from '../notifications/notifications.service.js'
 import { teamBriefSelect } from '../posts/post-mapper.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { RealtimeService } from '../realtime/realtime.service.js';
+import { Jobs, SYSTEM_QUEUE } from '../queue/queue.constants.js';
 import { exceedsScore, matchFees, resultStateOf } from './match-rules.js';
 import type {
   MatchDetailDto,
   MatchPlayerDto,
   SetResultDto,
+  ProposeResultDto,
+  CastMvpVoteDto,
+  MvpVoteSummaryDto,
   SetStatsDto,
   SubmitReviewDto,
 } from './matches.dto.js';
@@ -48,6 +54,7 @@ export class MatchesService {
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
     private readonly realtime: RealtimeService,
+    @InjectQueue(SYSTEM_QUEUE) private readonly queue: Queue,
   ) {}
 
   async detail(me: TeamMembership, matchId: string): Promise<MatchDetailDto> {
@@ -84,6 +91,7 @@ export class MatchesService {
           reportedByTeamId: me.teamId,
           reportedAt: now,
           confirmedAt: null,
+          resultAutoConfirmAt: new Date(now.getTime() + 24 * 3_600_000),
         },
       });
       // Tỉ số nhỏ đi: số bàn/kiến tạo đã ghi vượt tỉ số mới thì xoá để khỏi mâu thuẫn
@@ -104,7 +112,37 @@ export class MatchesService {
       );
       return { notes, fundTeams: [] };
     });
-    return this.finish(me, matchId, fx);
+    const result = await this.finish(me, matchId, fx);
+    if (result.resultState !== 'confirmed') await this.scheduleResultAutoConfirm(matchId);
+    return result;
+  }
+
+  /** Đội không đồng ý tỉ số gửi lại tỉ số kèm danh sách ghi bàn/kiến tạo; đối thủ có 24 giờ phản hồi. */
+  async reProposeResult(me: TeamMembership, matchId: string, dto: ProposeResultDto): Promise<MatchDetailDto> {
+    await this.setResult(me, matchId, dto);
+    return this.setStats(me, matchId, { players: dto.players });
+  }
+
+  async mvpVotes(me: TeamMembership, matchId: string): Promise<MvpVoteSummaryDto> {
+    await this.finalizeMvpIfClosed(matchId);
+    return this.mvpVoteSummary(me, matchId);
+  }
+
+  async voteMvp(me: TeamMembership, matchId: string, dto: CastMvpVoteDto): Promise<MvpVoteSummaryDto> {
+    const match = await this.findOwn(this.prisma, me.teamId, matchId);
+    const closesAt = new Date(match.endAt.getTime() + 24 * 3_600_000);
+    if (match.status !== 'finished' || new Date() >= closesAt) {
+      await this.finalizeMvpIfClosed(matchId);
+      throw this.conflict('mvp_vote_closed', 'Bình chọn MVP đã đóng');
+    }
+    const candidate = await this.prisma.matchPlayerStat.findUnique({ where: { matchId_userId: { matchId, userId: dto.candidateUserId } }, select: { userId: true } });
+    if (!candidate) throw this.bad('mvp_candidate_not_found', 'Cầu thủ không thuộc danh sách trận');
+    await this.prisma.mvpVote.upsert({
+      where: { matchId_voterId: { matchId, voterId: me.userId } },
+      create: { matchId, voterId: me.userId, candidateUserId: dto.candidateUserId },
+      update: { candidateUserId: dto.candidateUserId, createdAt: new Date() },
+    });
+    return this.mvpVoteSummary(me, matchId);
   }
 
   /** Đội không nhập tỉ số xác nhận: chốt kết quả, trừ tiền sân vào quỹ hai đội. */
@@ -258,6 +296,43 @@ export class MatchesService {
       update: { ...data, createdById: me.userId },
     });
     return this.detail(me, matchId);
+  }
+
+  private async mvpVoteSummary(me: TeamMembership, matchId: string): Promise<MvpVoteSummaryDto> {
+    const match = await this.findOwn(this.prisma, me.teamId, matchId);
+    const [votes, mine, winner] = await Promise.all([
+      this.prisma.mvpVote.groupBy({ by: ['candidateUserId'], where: { matchId }, _count: { _all: true }, orderBy: { _count: { candidateUserId: 'desc' } } }),
+      this.prisma.mvpVote.findUnique({ where: { matchId_voterId: { matchId, voterId: me.userId } }, select: { candidateUserId: true } }),
+      this.prisma.matchPlayerStat.findFirst({ where: { matchId, mvp: true }, select: { userId: true } }),
+    ]);
+    return {
+      open: match.status === 'finished' && new Date() < new Date(match.endAt.getTime() + 24 * 3_600_000),
+      myVoteUserId: mine?.candidateUserId ?? null,
+      winnerUserId: winner?.userId ?? null,
+      candidates: votes.map((vote) => ({ userId: vote.candidateUserId, votes: vote._count._all })),
+    };
+  }
+
+  private async finalizeMvpIfClosed(matchId: string, now = new Date()): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await this.lock(tx, matchId);
+      const match = await tx.match.findUniqueOrThrow({ where: { id: matchId }, select: { status: true, endAt: true } });
+      if (match.status !== 'finished' || now < new Date(match.endAt.getTime() + 24 * 3_600_000)) return;
+      const votes = await tx.mvpVote.groupBy({ by: ['candidateUserId'], where: { matchId }, _count: { _all: true }, orderBy: [{ _count: { candidateUserId: 'desc' } }, { candidateUserId: 'asc' }], take: 1 });
+      if (!votes[0]) return;
+      await tx.matchPlayerStat.updateMany({ where: { matchId }, data: { mvp: false } });
+      await tx.matchPlayerStat.update({ where: { matchId_userId: { matchId, userId: votes[0].candidateUserId } }, data: { mvp: true } });
+    });
+  }
+
+  private async scheduleResultAutoConfirm(matchId: string): Promise<void> {
+    const match = await this.prisma.match.findUnique({ where: { id: matchId }, select: { resultAutoConfirmAt: true } });
+    if (!match?.resultAutoConfirmAt) return;
+    await this.queue.add(Jobs.matchResultAutoConfirm, { matchId }, {
+      jobId: `match-result-auto-confirm-${matchId}`,
+      delay: Math.max(0, match.resultAutoConfirmAt.getTime() - Date.now()),
+      removeOnComplete: true, removeOnFail: 100,
+    });
   }
 
   // ---------- nội bộ ----------

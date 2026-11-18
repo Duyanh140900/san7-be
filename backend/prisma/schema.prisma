@@ -59,6 +59,12 @@ enum FundType {
   fine
 }
 
+enum FundPaymentStatus {
+  approved
+  pending
+  rejected
+}
+
 enum PostType {
   find_opponent
   recruit
@@ -190,6 +196,8 @@ model User {
   mediaUploads         MediaUpload[]
   teamFollows          TeamFollow[]
   teamReportsMade      TeamReport[] @relation("TeamReportCreator")
+  mvpVotesCast         MvpVote[] @relation("MvpVoter")
+  mvpVotesReceived     MvpVote[] @relation("MvpCandidate")
 
   @@map("users")
 }
@@ -252,6 +260,9 @@ model Team {
   monthlyDue      BigInt    @default(0) @map("monthly_due")
   /// số dư quỹ (VND), cập nhật trong transaction mỗi khi thêm/xoá khoản
   fundBalance     BigInt    @default(0) @map("fund_balance")
+  treasurerBankBin String?  @map("treasurer_bank_bin")
+  treasurerAccountNo String? @map("treasurer_account_no")
+  treasurerAccountName String? @map("treasurer_account_name")
   createdById     String    @map("created_by") @db.Uuid
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -417,6 +428,8 @@ model FundTransaction {
   /// Khoá object ảnh biên lai đã finalize; chỉ có cho giao dịch quỹ của đúng đội.
   receiptKey  String?   @map("receipt_key")
   paid        Boolean   @default(true)
+  paymentStatus FundPaymentStatus @default(approved) @map("payment_status")
+  transferCode String?   @unique @map("transfer_code")
   /// thời điểm tiền thực vào/ra quỹ (null = phạt chưa nộp); dùng cho thống kê theo tháng
   paidAt      DateTime? @map("paid_at") @db.Timestamptz(6)
   createdById String    @map("created_by") @db.Uuid
@@ -430,6 +443,7 @@ model FundTransaction {
   @@index([teamId, createdAt])
   @@index([teamId, period])
   @@index([teamId, paidAt])
+  @@index([teamId, paymentStatus, createdAt])
   @@index([memberId])
   @@index([eventId])
   @@index([createdById])
@@ -649,6 +663,7 @@ model Match {
   reportedByTeamId String?     @map("reported_by_team_id") @db.Uuid
   reportedAt       DateTime?   @map("reported_at") @db.Timestamptz(6)
   confirmedAt      DateTime?   @map("confirmed_at") @db.Timestamptz(6)
+  resultAutoConfirmAt DateTime? @map("result_auto_confirm_at") @db.Timestamptz(6)
   createdAt        DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
 
   post     Post?             @relation(fields: [postId], references: [id], onDelete: SetNull)
@@ -660,9 +675,11 @@ model Match {
   messages MatchMessage[]
   chatReads MatchChatRead[]
   reports   TeamReport[]
+  mvpVotes  MvpVote[]
 
   @@index([homeTeamId, startAt])
   @@index([awayTeamId, startAt])
+  @@index([resultAutoConfirmAt])
   @@map("matches")
 }
 
@@ -842,6 +859,21 @@ model MatchPlayerStat {
   @@index([userId])
   @@index([teamId])
   @@map("match_player_stats")
+}
+
+model MvpVote {
+  matchId         String   @map("match_id") @db.Uuid
+  voterId         String   @map("voter_id") @db.Uuid
+  candidateUserId String   @map("candidate_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  match     Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  voter     User  @relation("MvpVoter", fields: [voterId], references: [id], onDelete: Cascade)
+  candidate User  @relation("MvpCandidate", fields: [candidateUserId], references: [id], onDelete: Cascade)
+
+  @@id([matchId, voterId])
+  @@index([matchId, candidateUserId])
+  @@map("mvp_votes")
 }
 
 /// Đánh giá đội đối thủ sau trận (mỗi đội một đánh giá cho mỗi trận).
