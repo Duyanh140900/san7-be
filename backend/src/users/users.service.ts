@@ -4,7 +4,7 @@ import { MediaService } from '../media/media.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { RealtimeService } from '../realtime/realtime.service.js';
 import type { MeDto, NotificationSettingsDto, RegisterDeviceDto, UpdateMeDto, UpdateNotificationSettingsDto } from './users.dto.js';
-import type { BookingSummaryDto } from './users.dto.js';
+import type { BookingSummaryDto, PublicPlayerDto } from './users.dto.js';
 
 @Injectable()
 export class UsersService {
@@ -52,6 +52,14 @@ export class UsersService {
         status: m.status,
       })),
     };
+  }
+
+  async publicPlayer(id: string): Promise<PublicPlayerDto> {
+    const user = await this.prisma.user.findUnique({ where: { id }, include: { memberships: { where: { status: 'active' }, include: { team: { select: { id: true, name: true, crestColor: true } } }, take: 1 }, matchStats: { where: { match: { status: 'finished' } }, include: { match: { select: { id: true, startAt: true } } }, orderBy: { match: { startAt: 'desc' }, }, take: 5 } } });
+    if (!user) throw new AppError(HttpStatus.NOT_FOUND, 'player_not_found', 'Không tìm thấy cầu thủ');
+    const aggregate = await this.prisma.matchPlayerStat.aggregate({ where: { userId: id, match: { status: 'finished' } }, _sum: { goals: true, assists: true }, _count: { _all: true } });
+    const mvps = await this.prisma.matchPlayerStat.count({ where: { userId: id, mvp: true, match: { status: 'finished' } } });
+    return { id: user.id, name: user.name, avatarUrl: user.avatarUrl, position: user.position, shirtNumber: user.shirtNumber, team: user.memberships[0]?.team ?? null, stats: { goals: aggregate._sum.goals ?? 0, assists: aggregate._sum.assists ?? 0, matches: aggregate._count._all, mvps }, recentMatches: user.matchStats.map(s => ({ matchId: s.matchId, startAt: s.match.startAt, goals: s.goals, assists: s.assists, mvp: s.mvp })) };
   }
 
   async bookingSummary(userId: string, year: number): Promise<BookingSummaryDto> {

@@ -118,3 +118,14 @@ export class RegisterDeviceDto {
   @IsEnum(Platform)
   platform: Platform;
 }
+
+export class PublicPlayerDto {
+  @ApiProperty({ format: 'uuid' }) id: string;
+  @ApiProperty() name: string;
+  @ApiPropertyOptional({ type: String }) avatarUrl: string | null;
+  @ApiPropertyOptional({ enum: Position, enumName: 'Position' }) position: Position | null;
+  @ApiPropertyOptional({ type: 'integer' }) shirtNumber: number | null;
+  @ApiPropertyOptional({ type: Object }) team: { id: string; name: string; crestColor: string } | null;
+  @ApiProperty({ type: PlayerStatsDto }) stats: PlayerStatsDto;
+  @ApiProperty({ type: [Object] }) recentMatches: { matchId: string; startAt: Date; goals: number; assists: number; mvp: boolean }[];
+}
