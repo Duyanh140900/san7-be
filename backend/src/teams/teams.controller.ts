@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -12,6 +12,7 @@ import {
   MembershipDto,
   TeamDto,
   TeamInvitePreviewDto,
+  TeamPublicProfileDto,
 } from './teams.dto.js';
 import { TeamsService } from './teams.service.js';
 
@@ -44,4 +45,16 @@ export class TeamsController {
   ): Promise<MembershipDto> {
     return this.teams.join(user.userId, dto.code);
   }
+
+  @Get(':teamId/profile')
+  @ApiOkResponse({ type: TeamPublicProfileDto })
+  profile(@CurrentUser() user: AuthUser, @Param('teamId', ParseUUIDPipe) teamId: string): Promise<TeamPublicProfileDto> { return this.teams.publicProfile(user.userId, teamId); }
+
+  @Post(':teamId/follow')
+  @HttpCode(204)
+  async follow(@CurrentUser() user: AuthUser, @Param('teamId', ParseUUIDPipe) teamId: string): Promise<void> { await this.teams.follow(user.userId, teamId); }
+
+  @Delete(':teamId/follow')
+  @HttpCode(204)
+  async unfollow(@CurrentUser() user: AuthUser, @Param('teamId', ParseUUIDPipe) teamId: string): Promise<void> { await this.teams.unfollow(user.userId, teamId); }
 }

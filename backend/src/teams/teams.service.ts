@@ -16,6 +16,7 @@ import type {
   TeamDetailDto,
   TeamDto,
   TeamInvitePreviewDto,
+  TeamPublicProfileDto,
   UpdateTeamDto,
   TeamMemberDto,
 } from './teams.dto.js';
@@ -200,6 +201,30 @@ export class TeamsService {
       role: member.role,
       status: member.status,
     };
+  }
+
+  async follow(userId: string, teamId: string): Promise<void> {
+    await this.prisma.team.findUniqueOrThrow({ where: { id: teamId }, select: { id: true } });
+    await this.prisma.teamFollow.upsert({ where: { userId_teamId: { userId, teamId } }, create: { userId, teamId }, update: {} });
+  }
+
+  async unfollow(userId: string, teamId: string): Promise<void> {
+    await this.prisma.teamFollow.deleteMany({ where: { userId, teamId } });
+  }
+
+  async publicProfile(userId: string, teamId: string): Promise<TeamPublicProfileDto> {
+    const [team, reviews, matches, following] = await Promise.all([
+      this.prisma.team.findUnique({ where: { id: teamId } }),
+      this.prisma.teamReview.findMany({ where: { toTeamId: teamId }, select: { reputation: true, tags: true } }),
+      this.prisma.match.findMany({ where: { status: 'finished', OR: [{ homeTeamId: teamId }, { awayTeamId: teamId }] }, select: { homeTeamId: true, homeScore: true, awayScore: true, startAt: true }, orderBy: { startAt: 'desc' }, take: 5 }),
+      this.prisma.teamFollow.findUnique({ where: { userId_teamId: { userId, teamId } } }),
+    ]);
+    if (!team) throw new AppError(HttpStatus.NOT_FOUND, 'team_not_found', 'Không tìm thấy đội');
+    const tags: Record<string, number> = {};
+    for (const review of reviews) for (const tag of review.tags) tags[tag] = (tags[tag] ?? 0) + 1;
+    let wins = 0; let draws = 0; let losses = 0;
+    const form = matches.map((match) => { const mine = match.homeTeamId === teamId ? match.homeScore : match.awayScore; const theirs = match.homeTeamId === teamId ? match.awayScore : match.homeScore; if (mine === theirs) { draws++; return 'D'; } if ((mine ?? 0) > (theirs ?? 0)) { wins++; return 'W'; } losses++; return 'L'; });
+    return { id: team.id, name: team.name, crestColor: team.crestColor, area: team.area, level: team.level, reputation: reviews.length ? Number((reviews.reduce((sum, item) => sum + item.reputation, 0) / reviews.length).toFixed(1)) : 0, reviewCount: reviews.length, onTimePercent: reviews.length ? Math.round(((tags.on_time ?? 0) / reviews.length) * 100) : 0, keepDealPercent: reviews.length ? Math.round(((tags.fair_pay ?? 0) / reviews.length) * 100) : 0, wins, draws, losses, form, reviewTags: tags, recentMatchCount: matches.length, isFollowing: Boolean(following) };
   }
 
   async joinRequests(me: TeamMembership): Promise<TeamMemberDto[]> {

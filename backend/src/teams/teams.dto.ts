@@ -141,6 +141,25 @@ export class InviteDto {
   @ApiProperty({ type: String, format: 'date-time' }) inviteExpiresAt: Date;
 }
 
+export class TeamPublicProfileDto {
+  @ApiProperty({ format: 'uuid' }) id: string;
+  @ApiProperty() name: string;
+  @ApiProperty() crestColor: string;
+  @ApiProperty() area: string;
+  @ApiProperty({ enum: TeamLevel, enumName: 'TeamLevel' }) level: TeamLevel;
+  @ApiProperty({ type: Number }) reputation: number;
+  @ApiProperty({ type: 'integer' }) reviewCount: number;
+  @ApiProperty({ type: Number }) onTimePercent: number;
+  @ApiProperty({ type: Number }) keepDealPercent: number;
+  @ApiProperty({ type: 'integer' }) wins: number;
+  @ApiProperty({ type: 'integer' }) draws: number;
+  @ApiProperty({ type: 'integer' }) losses: number;
+  @ApiProperty({ type: [String] }) form: string[];
+  @ApiProperty({ type: Object }) reviewTags: Record<string, number>;
+  @ApiProperty({ type: 'integer' }) recentMatchCount: number;
+  @ApiProperty() isFollowing: boolean;
+}
+
 export class TeamMemberDto {
   @ApiProperty({ format: 'uuid' }) userId: string;
   @ApiProperty() name: string;

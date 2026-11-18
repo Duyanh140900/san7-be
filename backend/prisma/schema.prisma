@@ -188,6 +188,7 @@ model User {
   postSchedules        PostSchedule[]
   notificationSettings NotificationSettings?
   mediaUploads         MediaUpload[]
+  teamFollows          TeamFollow[]
 
   @@map("users")
 }
@@ -269,10 +270,25 @@ model Team {
   reviewsReceived TeamReview[]      @relation("ReviewTo")
   matchStats      MatchPlayerStat[]
   awayMatches     Match[]           @relation("AwayTeam")
+  followers       TeamFollow[]
 
   @@index([createdById])
   @@index([homePitchId])
   @@map("teams")
+}
+
+/// Theo dõi một đội để ưu tiên nhận thông tin trong ứng dụng.
+model TeamFollow {
+  userId    String   @map("user_id") @db.Uuid
+  teamId    String   @map("team_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([userId, teamId])
+  @@index([teamId, createdAt])
+  @@map("team_follows")
 }
 
 model TeamMember {
