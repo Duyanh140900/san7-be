@@ -11,15 +11,30 @@ import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/screen_header.dart';
+import '../../../core/widgets/countdown.dart';
+import '../../../core/widgets/lime_button.dart';
+import '../../../core/widgets/status_chip.dart';
 import '../../../core/widgets/team_crest.dart';
+import '../../../core/widgets/ticket_card.dart';
 import '../../chat/presentation/chat_launcher.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
 import 'application_widgets.dart';
-import 'post_widgets.dart';
 import 'community_widgets.dart';
+import 'post_widgets.dart';
 
-/// Màn 14 · Chi tiết kèo. Bình luận, cảm xúc, ảnh/video có ở M5.
+const _weekdaysLong = [
+  'Thứ Hai',
+  'Thứ Ba',
+  'Thứ Tư',
+  'Thứ Năm',
+  'Thứ Sáu',
+  'Thứ Bảy',
+  'Chủ nhật',
+];
+
+/// Màn 03 · Chi tiết kèo v2 "Floodlight Night".
 class PostDetailScreen extends ConsumerWidget {
   const PostDetailScreen({super.key, required this.postId});
   final String postId;
@@ -28,16 +43,16 @@ class PostDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final post = ref.watch(postDetailProvider(postId));
     return Scaffold(
+      backgroundColor: AppColors.night,
       body: SafeArea(
         child: Column(
           children: [
-            const DetailHeader(backLabel: 'Quay lại'),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () => ref.refresh(postDetailProvider(postId).future),
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                  padding: EdgeInsets.zero,
                   children: [
                     AsyncView(
                       value: post,
@@ -71,73 +86,231 @@ class _Body extends ConsumerWidget {
     final split = post.deal == PostDeal.split
         ? feeSplit(post.pitchPrice, post.ratioWin, post.ratioLose)
         : null;
-    final info = postInfo(post);
-    if (split != null) info.add(('Thua trả', Fmt.money(split.lose)));
-    if (post.deal case final d? when post.deal != PostDeal.split) {
-      info.add(('Kèo', Labels.deal(d)!));
-    }
+
+    final isUpcoming = post.startAt.isAfter(DateTime.now()) && post.status.isOpen;
+    final singleMedia = post.media.isNotEmpty ? post.media.first.url : null;
+
+    final dateLine =
+        '${_weekdaysLong[post.startAt.weekday - 1]} · ${post.startAt.day}/${post.startAt.month} · 90 phút';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PostTeamHeader(
-                post: post,
-                onTeamTap: () => context.push(Routes.teamProfile(post.team.id)),
+        // Top Banner / Media Header
+        Stack(
+          children: [
+            Container(
+              height: 220,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceDeep,
+                image: singleMedia != null
+                    ? DecorationImage(
+                        image: NetworkImage(singleMedia),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
-              if (post.body != null) ...[
-                const SizedBox(height: 12),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.night.withValues(alpha: 0.4),
+                      AppColors.night.withValues(alpha: 0.1),
+                      AppColors.night,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 12,
+              left: 16,
+              right: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SquareIconButton(
+                    tooltip: 'Quay lại',
+                    onPressed: () => context.canPop() ? context.pop() : context.go(Routes.feed),
+                    child: const AppIcon(AppIcons.back, size: 22, color: AppColors.textMain),
+                  ),
+                  Row(
+                    children: [
+                      SquareIconButton(
+                        tooltip: 'Chia sẻ',
+                        onPressed: () => showToast(context, 'Đã sao chép liên kết kèo'),
+                        child: const Icon(Icons.share_outlined, size: 20, color: AppColors.textMain),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (post.pitchName != null)
+              Positioned(
+                bottom: 12,
+                left: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.night.withValues(alpha: 0.75),
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
+                  child: Text(
+                    post.pitchName!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMain,
+                    ),
+                  ),
+                ),
+              ),
+            if (isUpcoming)
+              Positioned(
+                bottom: 12,
+                right: 16,
+                child: CountdownPill(target: post.startAt),
+              ),
+          ],
+        ),
+
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Team Row
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => context.push(Routes.teamProfile(post.team.id)),
+                    child: TeamCrest(name: post.team.name, color: post.team.crestColor, width: 44),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => context.push(Routes.teamProfile(post.team.id)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            post.team.name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textMain,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              const Text('★ 4,9', style: TextStyle(color: AppColors.trophy, fontSize: 13, fontWeight: FontWeight.w700)),
+                              const SizedBox(width: 4),
+                              Text(
+                                '· Uy tín · ${Fmt.ago(post.createdAt)}',
+                                style: const TextStyle(fontSize: 13, color: AppColors.textDim),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  StatusChip(
+                    post.type == PostType.recruit
+                        ? StatusKind.recruit
+                        : StatusKind.findOpponent,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              // Post Body
+              if (post.body != null && post.body!.isNotEmpty) ...[
                 Text(
                   post.body!,
-                  style: const TextStyle(fontSize: 16, height: 1.45),
+                  style: const TextStyle(fontSize: 15, height: 1.55, color: AppColors.textBody),
                 ),
+                const SizedBox(height: 16),
               ],
-              if (post.media.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                PostMediaStrip(media: post.media),
-              ],
-              const SizedBox(height: 12),
-              InfoGrid(info),
+
+              // TicketCard "VÉ VÀO TRẬN"
+              TicketCard(
+                time: Fmt.time(post.startAt),
+                dateLine: dateLine,
+                stats: [
+                  (label: 'Trình độ', value: Labels.level(post.level)),
+                  (
+                    label: 'Tỷ lệ',
+                    value: Labels.ratio(post.ratioWin, post.ratioLose, post.deal) ?? '50–50'
+                  ),
+                  (
+                    label: 'Thua trả',
+                    value: split != null
+                        ? Fmt.money(split.lose)
+                        : (post.pitchPrice != null ? Fmt.money(post.pitchPrice!) : '—')
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              // Sân bóng card
               if (post.pitchName != null) ...[
-                const SizedBox(height: 12),
                 _PitchRow(
                   name: post.pitchName!,
                   area: post.area,
                   lat: detail.venueLat?.toDouble(),
                   lng: detail.venueLng?.toDouble(),
                 ),
+                const SizedBox(height: 14),
               ],
-              if (detail.lineup.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                LineupSection(lineup: detail.lineup),
-              ],
-              if (detail.requestTeams.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    TeamAvatarStack(
-                      teams: [
-                        for (final t in detail.requestTeams)
-                          (name: t.name, color: t.crestColor),
-                      ],
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        '${post.requestCount} đội đã gửi nhận kèo',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
+
+              // Đội nhận kèo list preview
+              if (post.requestCount > 0) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceCard,
+                    borderRadius: BorderRadius.circular(AppRadius.tile),
+                    border: Border.all(color: AppColors.line),
+                  ),
+                  child: Row(
+                    children: [
+                      Row(
+                        children: [
+                          for (final t in detail.requestTeams.take(3)) ...[
+                            TeamCrest(name: t.name, color: t.crestColor, width: 28),
+                            const SizedBox(width: 4),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${post.requestCount} đội đã gửi nhận kèo',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textMain,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      if (detail.canManage)
+                        TextButton(
+                          onPressed: () => context.push(Routes.postCompare(post.team.id, post.id)),
+                          child: const Text('So sánh'),
+                        ),
+                    ],
+                  ),
                 ),
+                const SizedBox(height: 14),
               ],
-              const SizedBox(height: 12),
+
+              // Comments & Reactions
               PostCommunityBar(
                 postId: post.id,
                 canManageComments: detail.canManage,
@@ -146,7 +319,9 @@ class _Body extends ConsumerWidget {
                 const SizedBox(height: 16),
                 ApplicationsSection(postId: post.id),
               ],
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+
+              // Actions
               ..._actions(context, ref, canRequest),
             ],
           ),
@@ -156,7 +331,6 @@ class _Body extends ConsumerWidget {
   }
 
   List<Widget> _actions(BuildContext context, WidgetRef ref, bool canRequest) {
-    // Đội đăng kèo
     if (detail.canManage) {
       if (post.status == PostStatus.matched) {
         return const [
@@ -173,28 +347,25 @@ class _Body extends ConsumerWidget {
         ];
       }
       return [
-        FilledButton(
+        LimeButton(
+          label: post.requestCount == 0
+              ? 'Chưa có đội nhận kèo'
+              : 'Xem & chọn đối (${post.requestCount} đội)',
           onPressed: post.requestCount == 0
               ? null
               : () => context.push(Routes.postCompare(post.team.id, post.id)),
-          child: Text(
-            post.requestCount == 0
-                ? 'Chưa có đội nhận kèo'
-                : 'Xem & chọn đối (${post.requestCount} đội)',
-          ),
+          expand: true,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         SoftButton(
           label: 'Đóng kèo',
-          color: AppColors.red,
+          color: AppColors.card,
           onPressed: () => _close(context, ref),
         ),
       ];
     }
 
-    // Đội tôi đã gửi yêu cầu
     final mine = detail.myRequest;
-    // Yêu cầu cũ đã kết thúc mà kèo vẫn mở: cho gửi lại
     final finished =
         mine != null &&
         !mine.status.isPending &&
@@ -217,17 +388,18 @@ class _Body extends ConsumerWidget {
                 : '${mine.teamName}: ${Labels.requestStatus(mine.status)}.',
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         SoftButton(
           label: 'Xem yêu cầu',
           onPressed: () => context.push(Routes.request(mine.teamId, mine.id)),
         ),
         if (mine.status == RequestStatus.accepted) ...[
-          const SizedBox(height: 8),
-          SoftButton(
+          const SizedBox(height: 10),
+          LimeButton(
             label: 'Nhắn tin',
             onPressed: () =>
                 openChatForRequest(context, ref, teamId: mine.teamId, requestId: mine.id),
+            expand: true,
           ),
         ],
       ];
@@ -235,11 +407,10 @@ class _Body extends ConsumerWidget {
 
     if (canRequest) {
       return [
-        FilledButton(
+        LimeButton(
+          label: post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo',
           onPressed: () => context.push(Routes.postRequest(post.id)),
-          child: Text(
-            post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo',
-          ),
+          expand: true,
         ),
       ];
     }
@@ -254,9 +425,10 @@ class _Body extends ConsumerWidget {
         ];
       }
       return [
-        FilledButton(
+        LimeButton(
+          label: 'Ứng tuyển',
           onPressed: () => applyToPost(context, ref, post),
-          child: const Text('Ứng tuyển'),
+          expand: true,
         ),
       ];
     }
@@ -286,7 +458,7 @@ class _Body extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.card),
             child: const Text('Đóng kèo'),
           ),
         ],
@@ -314,10 +486,11 @@ class _PitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     decoration: BoxDecoration(
-      border: Border.all(color: AppColors.divider),
-      borderRadius: BorderRadius.circular(12),
+      color: AppColors.surfaceCard,
+      borderRadius: BorderRadius.circular(AppRadius.tile),
+      border: Border.all(color: AppColors.line),
     ),
     child: Row(
       children: [
@@ -325,11 +498,11 @@ class _PitchRow extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: AppColors.pitch,
-            borderRadius: BorderRadius.circular(10),
+            color: AppColors.surfaceHigh,
+            borderRadius: BorderRadius.circular(12),
           ),
           alignment: Alignment.center,
-          child: const AppIcon(AppIcons.pin, color: Colors.white),
+          child: const AppIcon(AppIcons.pin, color: AppColors.lime, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -340,21 +513,26 @@ class _PitchRow extends StatelessWidget {
                 name,
                 style: const TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textMain,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 area,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: AppColors.textDim,
                 ),
               ),
             ],
           ),
         ),
         TextButton(
-          style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
+          style: TextButton.styleFrom(
+            minimumSize: const Size(44, 44),
+            foregroundColor: AppColors.lime,
+          ),
           onPressed: () => _directions(context),
           child: const Text('Chỉ đường'),
         ),
@@ -362,7 +540,6 @@ class _PitchRow extends StatelessWidget {
     ),
   );
 
-  /// Có toạ độ sân (`venueLat`/`venueLng`) thì chỉ đường theo toạ độ, không thì tìm theo tên sân.
   Future<void> _directions(BuildContext context) async {
     final uri = Uri.https('www.google.com', '/maps/search/', {
       'api': '1',

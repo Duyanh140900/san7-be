@@ -10,6 +10,8 @@ import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/countdown.dart';
+import '../../../core/widgets/lime_button.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../posts_providers.dart';
 import 'application_widgets.dart';
@@ -75,7 +77,7 @@ List<(String, String)> postInfo(PostDto p, {bool short = false}) {
   ];
 }
 
-/// Lưới 2 cột nền xám: nhãn nhỏ phía trên, giá trị đậm phía dưới.
+/// Lưới 2 cột nền tối: nhãn nhỏ phía trên, giá trị đậm phía dưới.
 class InfoGrid extends StatelessWidget {
   const InfoGrid(this.items, {super.key});
   final List<(String, String)> items;
@@ -87,12 +89,16 @@ class InfoGrid extends StatelessWidget {
       children: [
         Text(
           kv.$1,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: const TextStyle(fontSize: 12, color: AppColors.textDim),
         ),
         const SizedBox(height: 2),
         Text(
           kv.$2,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textMain,
+          ),
         ),
       ],
     );
@@ -100,8 +106,8 @@ class InfoGrid extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.surfaceHigh,
+        borderRadius: BorderRadius.circular(AppRadius.button),
       ),
       child: Column(
         children: [
@@ -126,7 +132,7 @@ class InfoGrid extends StatelessWidget {
   }
 }
 
-/// Đầu thẻ kèo: avatar đội · tên · thời gian đăng + khu vực · nhãn loại.
+/// Đầu thẻ kèo: avatar khiên đội · tên · thời gian đăng + khu vực · nhãn loại.
 class PostTeamHeader extends StatelessWidget {
   const PostTeamHeader({super.key, required this.post, this.onTeamTap});
   final PostDto post;
@@ -140,7 +146,7 @@ class PostTeamHeader extends StatelessWidget {
     behavior: HitTestBehavior.opaque,
     child: Row(
       children: [
-        TeamAvatar(name: post.team.name, color: post.team.crestColor),
+        TeamCrest(name: post.team.name, color: post.team.crestColor, width: 44),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -149,8 +155,9 @@ class PostTeamHeader extends StatelessWidget {
               Text(
                 post.team.name,
                 style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textMain,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -159,7 +166,7 @@ class PostTeamHeader extends StatelessWidget {
                 '${Fmt.ago(post.createdAt)} · ${post.area}',
                 style: const TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: AppColors.textDim,
                 ),
               ),
             ],
@@ -187,6 +194,8 @@ class PostCard extends ConsumerWidget {
     final canManageComments = ref
         .watch(managedTeamsProvider)
         .any((team) => team.teamId == post.team.id);
+    final isUpcoming = post.startAt.isAfter(DateTime.now()) && post.status.isOpen;
+
     return GestureDetector(
       onTap: open,
       behavior: HitTestBehavior.opaque,
@@ -194,12 +203,23 @@ class PostCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PostTeamHeader(post: post),
+            PostTeamHeader(
+              post: post,
+              onTeamTap: () => context.push(Routes.teamProfile(post.team.id)),
+            ),
+            if (isUpcoming) ...[
+              const SizedBox(height: 10),
+              CountdownPill(target: post.startAt),
+            ],
             if (post.body != null) ...[
               const SizedBox(height: 12),
               Text(
                 post.body!,
-                style: const TextStyle(fontSize: 16, height: 1.45),
+                style: const TextStyle(
+                  fontSize: 15,
+                  height: 1.45,
+                  color: AppColors.textMain,
+                ),
               ),
             ],
             if (post.media.isNotEmpty) ...[
@@ -240,7 +260,7 @@ class PostCard extends ConsumerWidget {
               canManageComments: canManageComments,
               compact: true,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -252,42 +272,27 @@ class PostCard extends ConsumerWidget {
                         : '',
                     style: const TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: AppColors.textDim,
                     ),
                   ),
                 ),
                 if (_requestable && canRequest)
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, 40),
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      textStyle: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  LimeButton(
+                    label: post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo',
                     onPressed: () => context.push(Routes.postRequest(post.id)),
-                    child: Text(
-                      post.type == PostType.passPitch ? 'Nhận sân' : 'Nhận kèo',
-                    ),
+                    height: AppSizes.tapTarget,
                   )
                 else if (post.type == PostType.recruit && !canManageComments)
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, 44),
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                    ),
+                  LimeButton(
+                    label: post.myApplicationStatus == null
+                        ? 'Ứng tuyển'
+                        : applicationStatusLabel(post.myApplicationStatus!),
                     onPressed: post.myApplicationStatus != null
                         ? null
                         : () async {
                             if (await applyToPost(context, ref, post)) ref.invalidate(feedProvider);
                           },
-                    child: Text(
-                      post.myApplicationStatus == null
-                          ? 'Ứng tuyển'
-                          : applicationStatusLabel(post.myApplicationStatus!),
-                    ),
+                    height: AppSizes.tapTarget,
                   )
                 else
                   LinkButton('Xem chi tiết', onTap: open),
@@ -301,6 +306,8 @@ class PostCard extends ConsumerWidget {
 }
 
 /// Dải trạng thái màu (vàng: chờ, xanh: đã chốt, xám: khác) như màn 9, 13.
+enum BannerTone { waiting, success, neutral }
+
 class StatusBanner extends StatelessWidget {
   const StatusBanner({
     super.key,
@@ -322,9 +329,9 @@ class StatusBanner extends StatelessWidget {
         null,
       ),
       BannerTone.neutral => (
-        AppColors.background,
-        AppColors.text,
-        AppColors.border,
+        AppColors.surfaceHigh,
+        AppColors.textMain,
+        AppColors.line,
       ),
     };
     return Container(
@@ -332,7 +339,7 @@ class StatusBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(AppRadius.group),
+        borderRadius: BorderRadius.circular(AppRadius.tile),
         border: border == null ? null : Border.all(color: border),
       ),
       child: DefaultTextStyle.merge(
@@ -352,9 +359,46 @@ class StatusBanner extends StatelessWidget {
   }
 }
 
-enum BannerTone { waiting, success, neutral }
+/// Nút mềm toàn chiều ngang (nền mờ, chữ đậm).
+class SoftButton extends StatelessWidget {
+  const SoftButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.color,
+  });
+  final String label;
+  final VoidCallback? onPressed;
+  final Color? color;
 
-/// Thanh nút cố định đáy màn (nền trắng mờ, viền trên).
+  @override
+  Widget build(BuildContext context) {
+    final fg = color ?? AppColors.lime;
+    return Material(
+      color: fg.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(AppRadius.button),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(AppRadius.button),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: AppSizes.tapTarget),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: fg,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Thanh thao tác ghim dưới cùng (ví dụ: màn 4, 13).
 class BottomActionBar extends StatelessWidget {
   const BottomActionBar({super.key, required this.children});
   final List<Widget> children;
@@ -367,97 +411,74 @@ class BottomActionBar extends StatelessWidget {
       16,
       12 + MediaQuery.paddingOf(context).bottom,
     ),
-    decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha: 0.96),
-      border: const Border(top: BorderSide(color: AppColors.border)),
+    decoration: const BoxDecoration(
+      color: AppColors.surfaceCard,
+      border: Border(top: BorderSide(color: AppColors.line)),
     ),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final (i, c) in children.indexed) ...[
-          if (i > 0) const SizedBox(height: 8),
-          c,
-        ],
-      ],
+      children: children,
     ),
   );
 }
 
-/// Nút viên thuốc phụ nền xám (Nhắn tin / Từ chối / Huỷ yêu cầu).
-class SoftButton extends StatelessWidget {
-  const SoftButton({
-    super.key,
-    required this.label,
-    required this.onPressed,
-    this.color,
-  });
-  final String label;
-  final VoidCallback? onPressed;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) => TextButton(
-    style: TextButton.styleFrom(
-      backgroundColor: AppColors.background,
-      foregroundColor: color ?? AppColors.primary,
-      minimumSize: const Size.fromHeight(46),
-      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-    ),
-    onPressed: onPressed,
-    child: Text(label),
-  );
-}
-
-/// Đầu trang chi tiết: nút quay lại + tiêu đề giữa.
+/// Tiêu đề trang chi tiết: mũi tên quay lại + tiêu đề giữa + tuỳ chọn bên phải.
 class DetailHeader extends StatelessWidget {
   const DetailHeader({
     super.key,
-    required this.backLabel,
     this.title,
+    this.backLabel = 'Bảng tin',
     this.trailing,
   });
-  final String backLabel;
   final String? title;
+  final String backLabel;
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(8, 4, 16, 6),
-    child: Row(
-      children: [
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
+      child: Row(
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
             child: TextButton.icon(
               onPressed: () =>
                   context.canPop() ? context.pop() : context.go(Routes.feed),
               icon: const AppIcon(
                 AppIcons.back,
                 size: 24,
-                color: AppColors.primary,
+                color: AppColors.textMain,
               ),
-              label: Text(backLabel, style: const TextStyle(fontSize: 17)),
+              label: Text(
+                backLabel,
+                style: const TextStyle(fontSize: 16, color: AppColors.textMain),
+              ),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.only(right: 8),
               ),
             ),
           ),
-        ),
-        if (title != null)
-          Text(
-            title!,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-          ),
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: trailing ?? const SizedBox(),
-          ),
-        ),
-      ],
-    ),
-  );
+          if (title != null)
+            Expanded(
+              child: Text(
+                title!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textMain,
+                ),
+              ),
+            )
+          else
+            const Spacer(),
+          ?trailing,
+        ],
+      ),
+    );
+  }
 }
 
 /// Hộp thoại nhập tỷ lệ đội thắng trả (%); đội thua trả phần còn lại. Trả null nếu huỷ.
@@ -518,7 +539,7 @@ class PostMediaStrip extends StatelessWidget {
         itemCount: media.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, i) => ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.group),
+          borderRadius: BorderRadius.circular(AppRadius.button),
           child: AspectRatio(
             aspectRatio: single ? 16 / 10 : 1,
             child: Image.network(
@@ -527,14 +548,14 @@ class PostMediaStrip extends StatelessWidget {
               semanticLabel: 'Ảnh kèo ${i + 1}',
               loadingBuilder: (_, child, progress) => progress == null
                   ? child
-                  : const ColoredBox(color: AppColors.surface),
+                  : const ColoredBox(color: AppColors.surfaceHigh),
               errorBuilder: (_, _, _) => const ColoredBox(
-                color: AppColors.surface,
+                color: AppColors.surfaceHigh,
                 child: Center(
                   child: AppIcon(
                     AppIcons.image,
                     size: 28,
-                    color: AppColors.disabled,
+                    color: AppColors.textDim,
                   ),
                 ),
               ),

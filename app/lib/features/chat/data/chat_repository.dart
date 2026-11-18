@@ -9,6 +9,9 @@ class ChatRepository {
   ChatRepository(this._api);
   final San7Api _api;
 
+  /// Hộp thư / danh sách cuộc trò chuyện (`GET /v1/inbox`).
+  Future<InboxDto> inbox() => apiCall(() => _api.chat.inboxList());
+
   /// Đánh dấu đã xem tới tin mới nhất (`POST /v1/matches/:id/chat/read`).
   Future<void> markRead(String matchId) =>
       apiCall(() => _api.chat.chatReadRead(matchId: matchId));
@@ -27,4 +30,8 @@ class ChatRepository {
 
 final chatRepositoryProvider = Provider<ChatRepository>(
   (ref) => ChatRepository(ref.watch(apiProvider)),
+);
+
+final inboxProvider = FutureProvider.autoDispose<InboxDto>(
+  (ref) => ref.watch(chatRepositoryProvider).inbox(),
 );

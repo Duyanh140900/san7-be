@@ -5,12 +5,14 @@ import '../../../api/exports.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/pills.dart';
+import '../../../core/widgets/screen_header.dart';
+import '../../../core/widgets/system_state.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
 import 'community_widgets.dart';
-import 'post_widgets.dart';
 
-/// Màn 24 · Danh sách cảm xúc, có tab theo năm loại cảm xúc.
+/// Màn 18 · Danh sách cảm xúc theo bài viết v2.
 class ReactionsScreen extends ConsumerStatefulWidget {
   const ReactionsScreen({super.key, required this.postId});
   final String postId;
@@ -106,6 +108,7 @@ class _ReactionsScreenState extends ConsumerState<ReactionsScreen> {
   @override
   Widget build(BuildContext context) {
     final summary = ref.watch(postReactionsProvider(widget.postId)).value;
+    final totalReactions = summary?.counts.fold(0, (sum, item) => sum + item.count);
     int count(ReactionKindValue kind) {
       final Iterable<ReactionCountDto> counts =
           summary?.counts.where((item) => item.kind == reactionOf(kind)) ??
@@ -114,56 +117,57 @@ class _ReactionsScreenState extends ConsumerState<ReactionsScreen> {
     }
 
     return Scaffold(
+      backgroundColor: AppColors.night,
       body: SafeArea(
         child: Column(
           children: [
-            const DetailHeader(backLabel: 'Quay lại', title: 'Cảm xúc'),
+            const ScreenHeader(title: 'Cảm xúc'),
             SizedBox(
               height: AppSizes.tapTarget,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  _ReactionTab(
-                    label: 'Tất cả',
+                  FilterPill(
+                    label: 'Tất cả ${totalReactions != null ? '($totalReactions)' : ''}',
                     selected: _selected == null,
                     onTap: () {
                       setState(() => _selected = null);
                       _load();
                     },
                   ),
-                  for (final kind in ReactionKindValue.values)
-                    _ReactionTab(
-                      label:
-                          '${reactionEmoji(reactionOf(kind))} ${count(kind)}',
+                  for (final kind in ReactionKindValue.values) ...[
+                    const SizedBox(width: 8),
+                    FilterPill(
+                      label: '${reactionEmoji(reactionOf(kind))} ${count(kind)}',
                       selected: _selected == kind,
                       onTap: () {
                         setState(() => _selected = kind);
                         _load();
                       },
                     ),
+                  ],
                 ],
               ),
             ),
-            const Divider(height: 1, color: AppColors.divider),
+            const SizedBox(height: 8),
+            const Divider(height: 1, color: AppColors.line),
             Expanded(
               child: _loading
-                  ? const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const Center(child: LoadingState(compact: true))
                   : _items.isEmpty
                   ? const Center(
-                      child: Text(
-                        'Chưa có cảm xúc nào',
-                        style: TextStyle(color: AppColors.textSecondary),
+                      child: EmptyState(
+                        title: 'Chưa có cảm xúc nào',
+                        message: 'Thả cảm xúc đầu tiên cho bài viết.',
+                        compact: true,
                       ),
                     )
                   : ListView.separated(
                       controller: _scroll,
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                       itemCount: _items.length + (_loadingMore ? 1 : 0),
-                      separatorBuilder: (_, _) =>
-                          const Divider(color: AppColors.divider),
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
                       itemBuilder: (_, index) {
                         if (index == _items.length) {
                           return const Padding(
@@ -174,16 +178,32 @@ class _ReactionsScreenState extends ConsumerState<ReactionsScreen> {
                           );
                         }
                         final item = _items[index];
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: Avatar(name: item.name, url: item.avatarUrl),
-                          title: Text(
-                            item.name,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceCard,
+                            borderRadius: BorderRadius.circular(AppRadius.button),
+                            border: Border.all(color: AppColors.line),
                           ),
-                          trailing: Text(
-                            reactionEmoji(item.kind),
-                            style: const TextStyle(fontSize: 20),
+                          child: Row(
+                            children: [
+                              Avatar(name: item.name, url: item.avatarUrl, size: 40),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  item.name,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textMain,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                reactionEmoji(item.kind),
+                                style: const TextStyle(fontSize: 22),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -194,42 +214,4 @@ class _ReactionsScreenState extends ConsumerState<ReactionsScreen> {
       ),
     );
   }
-}
-
-class _ReactionTab extends StatelessWidget {
-  const _ReactionTab({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 8),
-    child: InkWell(
-      borderRadius: BorderRadius.circular(AppRadius.pill),
-      onTap: onTap,
-      child: Container(
-        constraints: const BoxConstraints(minHeight: AppSizes.tapTarget),
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primarySoft : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(
-            color: selected ? AppColors.primary : AppColors.pillBorder,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? AppColors.primary : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    ),
-  );
 }
