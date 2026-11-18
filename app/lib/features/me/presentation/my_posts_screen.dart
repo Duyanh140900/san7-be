@@ -10,6 +10,7 @@ import '../../../core/labels.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/system_state.dart';
 import '../../posts/presentation/post_widgets.dart';
 import '../me_providers.dart';
 import 'post_schedules_tab.dart';
@@ -47,7 +48,7 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
                 button: true,
                 label: 'Đăng kèo mới',
                 child: Material(
-                  color: AppColors.surface,
+                  color: AppColors.lime,
                   shape: const CircleBorder(),
                   child: InkWell(
                     customBorder: const CircleBorder(),
@@ -56,7 +57,7 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
                       width: AppSizes.tapTarget,
                       height: AppSizes.tapTarget,
                       child: Center(
-                        child: AppIcon(AppIcons.plus, size: 22, color: AppColors.primary),
+                        child: AppIcon(AppIcons.plus, size: 22, color: AppColors.ink),
                       ),
                     ),
                   ),
@@ -67,7 +68,7 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Kèo của tôi', style: Theme.of(context).textTheme.displaySmall),
+                child: Text('KÈO CỦA TÔI', style: AppText.display(34)),
               ),
             ),
             Padding(
@@ -119,9 +120,12 @@ class _PostList extends StatelessWidget {
           onRetry: onRefresh,
           data: (page) => page.items.isEmpty
               ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 48),
-                  child: Center(
-                    child: Text(empty, style: const TextStyle(color: AppColors.textSecondary)),
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: EmptyState(
+                    message: empty,
+                    primaryLabel: 'Đăng kèo',
+                    onPrimary: () => context.push(Routes.postNew),
+                    compact: true,
                   ),
                 )
               : Column(
@@ -164,7 +168,7 @@ class _MyPostCard extends StatelessWidget {
             children: [
               PostTypeBadge(post.type),
               if (post.requestCount > 0)
-                Tag('${post.requestCount} đội muốn nhận', bg: AppColors.primary, fg: AppColors.surface)
+                Tag('${post.requestCount} đội muốn nhận', bg: AppColors.lime, fg: AppColors.ink)
               else
                 const Text(
                   'Chưa có ai',

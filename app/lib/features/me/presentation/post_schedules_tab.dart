@@ -8,6 +8,7 @@ import '../../../core/labels.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/status_chip.dart';
 import '../../posts/posts_providers.dart';
 import '../../posts/presentation/post_widgets.dart';
 import '../data/me_repository.dart';
@@ -306,10 +307,25 @@ class _ScheduleCardState extends State<ScheduleCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              StatusChip(
+                post.type == PostType.recruit ? StatusKind.recruit : StatusKind.findOpponent,
+                label: paused != null ? 'ĐÃ TẠM DỪNG' : Labels.postType(post.type).toUpperCase(),
+              ),
+              const Spacer(),
+              Text('LẦN TỚI', style: AppText.label.copyWith(color: AppColors.textDim)),
+            ],
+          ),
+          const SizedBox(height: 8),
           Text(
             'Tự đăng ${Fmt.slot(s.scheduledAt)}${s.repeatWeekly ? ' · lặp hằng tuần' : ''}',
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
+          if (s.repeatWeekly) ...[
+            const SizedBox(height: 8),
+            _WeekdayDots(weekday: s.scheduledAt.toLocal().weekday % 7),
+          ],
           if (paused != null) ...[
             const SizedBox(height: 4),
             Text(
@@ -379,4 +395,41 @@ class _ScheduleCardState extends State<ScheduleCard> {
       ),
     );
   }
+}
+
+/// Dải T2..CN, tô lime ngày đăng lặp (bản vẽ màn 14).
+class _WeekdayDots extends StatelessWidget {
+  const _WeekdayDots({required this.weekday});
+
+  /// 0 = Chủ nhật … 6 = Thứ bảy
+  final int weekday;
+
+  static const _names = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      for (var i = 0; i < 7; i++) ...[
+        Expanded(
+          child: Container(
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: (i + 1) % 7 == weekday ? AppColors.lime : AppColors.surfaceHigh,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              _names[i],
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: (i + 1) % 7 == weekday ? AppColors.ink : AppColors.textDim,
+              ),
+            ),
+          ),
+        ),
+        if (i < 6) const SizedBox(width: 4),
+      ],
+    ],
+  );
 }
