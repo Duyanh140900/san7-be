@@ -11,6 +11,8 @@ import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/countdown.dart';
+import '../../../core/widgets/lime_button.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../../team/team_providers.dart';
 import '../../chat/presentation/chat_launcher.dart';
@@ -162,11 +164,10 @@ class _RequestDetailScreenState extends ConsumerState<RequestDetailScreen> {
     if (d.canRespond && owner) {
       return BottomActionBar(
         children: [
-          FilledButton(
-            onPressed: _busy ? null : () => _accept(d),
-            child: Text(
-              d.post.type == PostType.passPitch ? 'Chấp nhận nhượng sân' : 'Chấp nhận kèo',
-            ),
+          LimeButton(
+            label: d.post.type == PostType.passPitch ? 'Chấp nhận nhượng sân' : 'Chấp nhận kèo',
+            loading: _busy,
+            onPressed: () => _accept(d),
           ),
           SoftButton(
             label: 'Từ chối',
@@ -191,11 +192,11 @@ class _RequestDetailScreenState extends ConsumerState<RequestDetailScreen> {
       final currentTeam = ref.watch(currentTeamIdProvider);
       return BottomActionBar(
         children: [
-          FilledButton(
+          LimeButton(
+            label: 'Xem lịch đội',
             onPressed: () => d.eventId != null && currentTeam == widget.teamId
                 ? context.push(Routes.teamEvent(d.eventId!))
                 : context.go(Routes.teamSchedule),
-            child: const Text('Xem lịch đội'),
           ),
           SoftButton(
             label: 'Nhắn tin',
@@ -254,13 +255,9 @@ class _Content extends StatelessWidget {
               TeamCrest(name: other.name, color: other.color, width: 72),
               const SizedBox(height: 10),
               Text(
-                other.name,
+                other.name.toUpperCase(),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.4,
-                ),
+                style: AppText.display(32),
               ),
               const SizedBox(height: 2),
               Text(
@@ -277,8 +274,8 @@ class _Content extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.surfaceDeep,
+                    borderRadius: BorderRadius.circular(AppRadius.button),
                   ),
                   child: Row(
                     children: [
@@ -322,7 +319,7 @@ class _Content extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: const BoxDecoration(
-                    color: AppColors.background,
+                    color: AppColors.surfaceHigh,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(14),
                       topRight: Radius.circular(14),
@@ -342,8 +339,8 @@ class _Content extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                owner ? 'Kèo của bạn' : 'Kèo của ${p.team.name}',
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                (owner ? 'Kèo của bạn' : 'Kèo của ${p.team.name}').toUpperCase(),
+                style: AppText.display(20),
               ),
               const SizedBox(height: 6),
               _Kv('Thời gian', Fmt.eventTime(p.startAt, p.endAt)),
@@ -405,7 +402,6 @@ class _StatusBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = detail.request;
     final owner = detail.side == RequestDetailDtoSide.owner;
-    final left = Fmt.remaining(r.expiresAt.difference(DateTime.now()));
     final otherName = owner ? r.team.name : detail.post.team.name;
     return switch (r.status) {
       RequestStatusKnown(value: RequestStatusValue.pending) => StatusBanner(
@@ -419,9 +415,13 @@ class _StatusBanner extends StatelessWidget {
                     ? 'Đang chờ bạn xác nhận · tự huỷ sau '
                     : 'Đã gửi. Đang chờ $otherName xác nhận, tự huỷ sau ',
               ),
-              TextSpan(
-                text: left,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+              WidgetSpan(
+                alignment: PlaceholderAlignment.baseline,
+                baseline: TextBaseline.alphabetic,
+                child: Countdown(
+                  target: r.expiresAt,
+                  style: AppText.score(16, color: AppColors.warnText),
+                ),
               ),
             ],
           ),
@@ -483,7 +483,7 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) => Expanded(
     child: Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
+        Text(value, style: AppText.display(26, color: AppColors.lime)),
         Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
       ],
     ),

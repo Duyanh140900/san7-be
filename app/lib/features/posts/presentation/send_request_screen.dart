@@ -9,6 +9,7 @@ import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/form_widgets.dart';
+import '../../../core/widgets/lime_button.dart';
 import '../../../core/widgets/team_crest.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
@@ -141,9 +142,9 @@ class _FormState extends ConsumerState<_Form> {
               LinkButton('Huỷ', onTap: () => context.pop()),
               Expanded(
                 child: Text(
-                  isPass ? 'Nhận sân' : 'Nhận kèo',
+                  (isPass ? 'Nhận sân' : 'Nhận kèo').toUpperCase(),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                  style: AppText.display(22),
                 ),
               ),
               const SizedBox(width: 40),
@@ -161,7 +162,7 @@ class _FormState extends ConsumerState<_Form> {
                     children: [
                       Row(
                         children: [
-                          TeamAvatar(name: post.team.name, color: post.team.crestColor),
+                          TeamCrest(name: post.team.name, color: post.team.crestColor, width: 44),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -309,15 +310,10 @@ class _FormState extends ConsumerState<_Form> {
         ),
         BottomActionBar(
           children: [
-            FilledButton(
-              onPressed: teamId == null || _sending ? null : () => _send(teamId),
-              child: _sending
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : Text(isPass ? 'Gửi nhận sân' : 'Gửi nhận kèo'),
+            LimeButton(
+              label: isPass ? 'Gửi nhận sân' : 'Gửi nhận kèo',
+              loading: _sending,
+              onPressed: teamId == null ? null : () => _send(teamId),
             ),
           ],
         ),

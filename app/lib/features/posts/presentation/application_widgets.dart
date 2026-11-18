@@ -7,6 +7,7 @@ import '../../../core/labels.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/lime_button.dart';
 import '../data/posts_repository.dart';
 import '../posts_providers.dart';
 
@@ -68,14 +69,7 @@ Future<bool> applyToPost(BuildContext context, WidgetRef ref, PostDto post) asyn
               decoration: const InputDecoration(hintText: 'Lời nhắn cho đội trưởng (không bắt buộc)'),
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Gửi ứng tuyển'),
-              ),
-            ),
+            LimeButton(label: 'Gửi ứng tuyển', onPressed: () => Navigator.pop(ctx, true)),
           ],
         ),
       ),

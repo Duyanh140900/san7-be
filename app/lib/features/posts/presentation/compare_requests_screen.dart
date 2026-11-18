@@ -297,9 +297,9 @@ class _Body extends StatelessWidget {
         ),
         if (requests.any((r) => r.message != null)) ...[
           const SizedBox(height: 20),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4),
-            child: Text('Lời nhắn', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text('LỜI NHẮN', style: AppText.display(22)),
           ),
           for (final r in requests)
             if (r.message != null)
@@ -310,7 +310,7 @@ class _Body extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TeamAvatar(name: r.team.name, color: r.team.crestColor, size: 36),
+                      TeamCrest(name: r.team.name, color: r.team.crestColor, width: 36),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -453,9 +453,7 @@ class _Table extends StatelessWidget {
                                           style: TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w600,
-                                            color: row.$2[i].$2
-                                                ? AppColors.greenSoftText
-                                                : AppColors.text,
+                                            color: row.$2[i].$2 ? AppColors.lime : AppColors.text,
                                           ),
                                         ),
                                       ),
@@ -471,10 +469,8 @@ class _Table extends StatelessWidget {
                                     style: TextButton.styleFrom(
                                       backgroundColor: highlightFirst && i == 0
                                           ? AppColors.primary
-                                          : AppColors.background,
-                                      foregroundColor: highlightFirst && i == 0
-                                          ? Colors.white
-                                          : AppColors.primary,
+                                          : AppColors.surfaceHigh,
+                                      foregroundColor: highlightFirst && i == 0 ? AppColors.ink : AppColors.lime,
                                       minimumSize: const Size.fromHeight(38),
                                     ),
                                     onPressed: () =>
@@ -508,6 +504,6 @@ class _Dot extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     width: 6,
     height: 6,
-    decoration: const BoxDecoration(color: AppColors.greenBright, shape: BoxShape.circle),
+    decoration: const BoxDecoration(color: AppColors.lime, shape: BoxShape.circle),
   );
 }
