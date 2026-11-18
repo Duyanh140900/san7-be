@@ -686,11 +686,11 @@ class _Header extends StatelessWidget {
     child: Row(
       children: [
         LinkButton('Huỷ', onTap: () => context.pop()),
-        const Expanded(
+        Expanded(
           child: Text(
-            'Đăng kèo',
+            'ĐĂNG KÈO',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            style: AppText.display(24),
           ),
         ),
         saving
@@ -700,15 +700,22 @@ class _Header extends StatelessWidget {
               )
             : GestureDetector(
                 onTap: onSave,
-                child: const SizedBox(
+                child: SizedBox(
                   height: AppSizes.tapTarget,
                   child: Center(
-                    child: Text(
-                      'Đăng',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.lime,
+                        borderRadius: BorderRadius.circular(AppRadius.button),
+                      ),
+                      child: const Text(
+                        'Đăng',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.ink,
+                        ),
                       ),
                     ),
                   ),
@@ -789,7 +796,7 @@ class _RatioChip extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: fg),
+                  style: AppText.display(22, color: fg),
                 ),
                 Text(
                   caption,
