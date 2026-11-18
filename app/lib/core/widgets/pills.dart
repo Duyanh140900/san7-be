@@ -124,7 +124,7 @@ class FilterPill extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? AppColors.text : AppColors.surface,
+            color: selected ? AppColors.lime : AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.pill),
             boxShadow: elevated
                 ? [
@@ -141,7 +141,7 @@ class FilterPill extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: selected ? Colors.white : AppColors.text,
+              color: selected ? AppColors.ink : AppColors.text,
             ),
           ),
         ),
