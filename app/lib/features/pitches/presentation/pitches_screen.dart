@@ -6,24 +6,24 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../api/exports.dart';
 import '../../../core/format.dart';
-import '../../../core/labels.dart';
 import '../../../core/router/auth_redirect.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_icon.dart';
-import '../../../core/widgets/common.dart';
-import '../../../core/widgets/pills.dart';
+import '../../../core/widgets/brand_mark.dart';
+import '../../../core/widgets/lime_button.dart';
 import '../../../core/widgets/pitch_art.dart';
 import '../pitches_providers.dart';
 import 'pitch_detail_screen.dart';
+import 'pitch_widgets.dart';
 
 /// Tâm Hà Nội: nơi map nhìn khi chưa có vị trí và chưa có sân nào.
 const _hanoi = LatLng(21.0285, 105.8542);
 
 /// "Sân bóng Phúc La" → "Phúc La"
 String shortPitchName(String name) =>
-    name.replaceFirst(RegExp(r'^Sân( bóng)?\s+', caseSensitive: false), '');
+    name.replaceFirst(RegExp(r'^Sân( bóng)?\\s+', caseSensitive: false), '');
 
-/// Màn 3 · Bản đồ đặt sân: ghim sân, bộ lọc, thẻ sân đang chọn với khung giờ nhanh.
+/// Màn 04 · Bản đồ đặt sân: ghim sân v2, thanh tìm kiếm + bộ lọc, thẻ sân đang chọn với khung giờ nhanh.
 class PitchesScreen extends ConsumerStatefulWidget {
   const PitchesScreen({super.key});
 
@@ -116,16 +116,19 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
       context: context,
       useRootNavigator: true,
       showDragHandle: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surfaceCard,
       builder: (ctx) => SafeArea(
         child: ListView(
           shrinkWrap: true,
           children: [
             for (final t in ['', ...times])
               ListTile(
-                title: Text(t.isEmpty ? 'Mọi giờ' : t),
+                title: Text(
+                  t.isEmpty ? 'Mọi giờ' : t,
+                  style: const TextStyle(color: AppColors.textMain),
+                ),
                 trailing: (t.isEmpty ? cur == null : cur == t)
-                    ? const Icon(Icons.check, color: AppColors.primary)
+                    ? const Icon(Icons.check, color: AppColors.lime)
                     : null,
                 onTap: () => Navigator.pop(ctx, t),
               ),
@@ -159,7 +162,7 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
       children: [
         Positioned.fill(
           child: _list
-              ? const ColoredBox(color: AppColors.background)
+              ? const ColoredBox(color: AppColors.night)
               : FlutterMap(
                   mapController: _map,
                   options: MapOptions(
@@ -185,7 +188,10 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
                       userAgentPackageName: 'vn.san7.app',
                     ),
                     const SimpleAttributionWidget(
-                      source: Text('© OpenStreetMap contributors'),
+                      source: Text(
+                        '© OpenStreetMap contributors',
+                        style: TextStyle(color: AppColors.textDim, fontSize: 10),
+                      ),
                       alignment: Alignment.bottomLeft,
                     ),
                     if (me != null)
@@ -198,7 +204,7 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
                           Marker(
                             point: LatLng(p.lat.toDouble(), p.lng.toDouble()),
                             width: 190,
-                            height: 40,
+                            height: 48,
                             child: Center(
                               child: _Pin(
                                 pitch: p,
@@ -216,22 +222,52 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
                   ],
                 ),
         ),
-        // Tìm kiếm và bộ lọc
+        // Tìm kiếm và bộ lọc v2
         Positioned(
           top: top + 8,
           left: 16,
           right: 16,
           child: Column(
             children: [
-              _SearchBox(
-                controller: _q,
-                onSubmitted: (v) => _search.update(
-                  (s) => v.trim().isEmpty ? s.copyWith(clearQ: true) : s.copyWith(q: v.trim()),
-                ),
-                onClear: () {
-                  _q.clear();
-                  _search.update((s) => s.copyWith(clearQ: true));
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: _SearchBox(
+                      controller: _q,
+                      onSubmitted: (v) => _search.update(
+                        (s) => v.trim().isEmpty ? s.copyWith(clearQ: true) : s.copyWith(q: v.trim()),
+                      ),
+                      onClear: () {
+                        _q.clear();
+                        _search.update((s) => s.copyWith(clearQ: true));
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Semantics(
+                    button: true,
+                    label: _list ? 'Xem bản đồ' : 'Xem danh sách',
+                    child: Material(
+                      color: AppColors.lime,
+                      borderRadius: BorderRadius.circular(18),
+                      child: InkWell(
+                        onTap: () => setState(() => _list = !_list),
+                        borderRadius: BorderRadius.circular(18),
+                        child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: Center(
+                            child: Icon(
+                              _list ? Icons.map_outlined : Icons.tune,
+                              color: AppColors.ink,
+                              size: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               SizedBox(
@@ -240,38 +276,44 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
                   scrollDirection: Axis.horizontal,
                   clipBehavior: Clip.none,
                   children: [
-                    FilterPill(
-                      elevated: true,
+                    _V2Chip(
                       label: Fmt.relativeDay(search.day),
                       selected: true,
                       onTap: _pickDay,
                     ),
-                    FilterPill(
-                      elevated: true,
+                    const SizedBox(width: 8),
+                    _V2Chip(
                       label: search.at ?? 'Mọi giờ',
                       selected: search.at != null,
                       onTap: () => _pickTime(pitches),
                     ),
-                    FilterPill(
-                      elevated: true,
+                    const SizedBox(width: 8),
+                    _V2Chip(
+                      label: 'Sân 7',
+                      selected: false,
+                      onTap: () {},
+                    ),
+                    const SizedBox(width: 8),
+                    _V2Chip(
                       label: 'Có đèn',
                       selected: search.light,
                       onTap: () => _search.update((s) => s.copyWith(light: !s.light)),
                     ),
                     if (me != null) ...[
-                      FilterPill(
-                        elevated: true,
+                      const SizedBox(width: 8),
+                      _V2Chip(
                         label: 'Gần tôi',
                         selected: search.useLocation,
                         onTap: () => _search.update((s) => s.copyWith(useLocation: !s.useLocation)),
                       ),
-                      if (search.useLocation)
-                        FilterPill(
-                          elevated: true,
+                      if (search.useLocation) ...[
+                        const SizedBox(width: 8),
+                        _V2Chip(
                           label: 'Dưới 1 km',
                           selected: search.within1km,
                           onTap: () => _search.update((s) => s.copyWith(within1km: !s.within1km)),
                         ),
+                      ],
                     ],
                   ],
                 ),
@@ -281,14 +323,14 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
         ),
         if (result.isLoading)
           Positioned(
-            top: top + 112,
+            top: top + 116,
             left: 0,
             right: 0,
             child: const Center(child: _Busy()),
           ),
         if (_list)
           Positioned.fill(
-            top: top + 112,
+            top: top + 116,
             child: _PitchList(
               pitches: pitches,
               result: result,
@@ -303,7 +345,7 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
           if (me != null)
             Positioned(
               right: 16,
-              bottom: 330,
+              bottom: 310,
               child: _RoundButton(
                 icon: Icons.my_location,
                 label: 'Về vị trí của tôi',
@@ -311,9 +353,9 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
               ),
             ),
           Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
+            left: 12,
+            right: 12,
+            bottom: 12,
             child: _Sheet(
               count: pitches.length,
               nearby: me != null && search.useLocation,
@@ -341,6 +383,43 @@ class _PitchesScreenState extends ConsumerState<PitchesScreen> with WidgetsBindi
   }
 }
 
+class _V2Chip extends StatelessWidget {
+  const _V2Chip({required this.label, required this.selected, required this.onTap});
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    selected: selected,
+    child: Material(
+      color: selected ? AppColors.lime : AppColors.surfaceCard,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: selected ? null : Border.all(color: AppColors.line),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: selected ? AppColors.ink : AppColors.textMain,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 class _SearchBox extends StatelessWidget {
   const _SearchBox({required this.controller, required this.onSubmitted, required this.onClear});
   final TextEditingController controller;
@@ -349,33 +428,35 @@ class _SearchBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 48,
+    height: 50,
     padding: const EdgeInsets.symmetric(horizontal: 14),
     decoration: BoxDecoration(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(14),
-      boxShadow: [
+      color: AppColors.surfaceCard.withValues(alpha: 0.94),
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: AppColors.line),
+      boxShadow: const [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.10),
-          blurRadius: 10,
-          offset: const Offset(0, 2),
+          color: Colors.black45,
+          blurRadius: 14,
+          offset: Offset(0, 4),
         ),
       ],
     ),
     child: Row(
       children: [
-        const AppIcon(AppIcons.search, color: AppColors.textSecondary),
+        const AppIcon(AppIcons.search, color: AppColors.textMuted),
         const SizedBox(width: 10),
         Expanded(
           child: TextField(
             controller: controller,
             textInputAction: TextInputAction.search,
             onSubmitted: onSubmitted,
-            style: const TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 15, color: AppColors.textMain),
             decoration: const InputDecoration(
               border: InputBorder.none,
               isDense: true,
-              hintText: 'Tìm sân, quận, đường…',
+              hintText: 'Tìm sân, khu vực...',
+              hintStyle: TextStyle(color: AppColors.textDim, fontSize: 15),
             ),
           ),
         ),
@@ -385,7 +466,7 @@ class _SearchBox extends StatelessWidget {
               ? const SizedBox.shrink()
               : GestureDetector(
                   onTap: onClear,
-                  child: const Icon(Icons.close, size: 20, color: AppColors.textSecondary),
+                  child: const Icon(Icons.close, size: 20, color: AppColors.textMuted),
                 ),
         ),
       ],
@@ -393,7 +474,7 @@ class _SearchBox extends StatelessWidget {
   );
 }
 
-/// Ghim sân: chấm xanh (còn giờ) hoặc xám (hết), chọn thì nền xanh dương.
+/// Ghim sân v2: nền lime khi chọn, nền trắng hoặc xám khi chưa chọn.
 class _Pin extends StatelessWidget {
   const _Pin({
     required this.pitch,
@@ -411,48 +492,67 @@ class _Pin extends StatelessWidget {
     final full = pitch.freeSlots == 0;
     final label = compact
         ? (full ? '–' : '${pitch.freeSlots}')
-        : '${shortPitchName(pitch.name)} · ${full ? 'hết' : '${pitch.freeSlots} trống'}';
+        : '${shortPitchName(pitch.name)} · ${full ? 'hết' : pitch.freeSlots}';
+
+    final bg = selected
+        ? AppColors.lime
+        : (full ? const Color(0xFF2A3530) : const Color(0xFFF2F7F3));
+    final fg = selected
+        ? AppColors.ink
+        : (full ? const Color(0xFF8FA597) : const Color(0xFF06110B));
+
     return Semantics(
       button: true,
       label: 'Sân $label',
       excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 34),
-          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-          decoration: BoxDecoration(
-            color: selected ? AppColors.primary : AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-            boxShadow: const [
-              BoxShadow(color: AppColors.shadow, blurRadius: 10, offset: Offset(0, 3)),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: selected ? Colors.white : (full ? AppColors.disabled : AppColors.green),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  label,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: selected ? Colors.white : AppColors.text,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                boxShadow: [
+                  BoxShadow(
+                    color: selected ? AppColors.lime.withValues(alpha: 0.45) : Colors.black45,
+                    blurRadius: selected ? 16 : 8,
+                    offset: const Offset(0, 3),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: selected
+                          ? AppColors.ink
+                          : (full ? AppColors.disabled : AppColors.grass),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Flexible(
+                    child: Text(
+                      label,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: fg,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(width: 2, height: 6, color: bg),
+          ],
         ),
       ),
     );
@@ -469,7 +569,7 @@ class _MyDot extends StatelessWidget {
       height: 44,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.primary.withValues(alpha: 0.12),
+        color: AppColors.home.withValues(alpha: 0.20),
       ),
       alignment: Alignment.center,
       child: Container(
@@ -477,8 +577,8 @@ class _MyDot extends StatelessWidget {
         height: 16,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.primary,
-          border: Border.all(color: Colors.white, width: 3),
+          color: AppColors.home,
+          border: Border.all(color: AppColors.textMain, width: 3),
         ),
       ),
     ),
@@ -500,12 +600,13 @@ class _RoundButton extends StatelessWidget {
       child: Container(
         width: 44,
         height: 44,
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceCard,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: AppColors.shadow, blurRadius: 10, offset: Offset(0, 3))],
+          border: Border.all(color: AppColors.line),
+          boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 10, offset: Offset(0, 3))],
         ),
-        child: Icon(icon, color: AppColors.primary, size: 22),
+        child: Icon(icon, color: AppColors.lime, size: 22),
       ),
     ),
   );
@@ -517,12 +618,16 @@ class _Busy extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(8),
-    decoration: const BoxDecoration(color: AppColors.surface, shape: BoxShape.circle),
-    child: const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+    decoration: BoxDecoration(
+      color: AppColors.surfaceCard,
+      shape: BoxShape.circle,
+      border: Border.all(color: AppColors.line),
+    ),
+    child: const BallMark(size: 22, spin: true),
   );
 }
 
-/// Thẻ phía dưới: số sân, sân đang chọn, khung giờ nhanh, nút xem & đặt.
+/// Thẻ nổi hiển thị sân đang chọn và các khung giờ trống (Màn 04).
 class _Sheet extends StatelessWidget {
   const _Sheet({
     required this.count,
@@ -553,64 +658,72 @@ class _Sheet extends StatelessWidget {
     final quick = p == null
         ? const <PitchSlotDto>[]
         : p.slots.where((s) => s.available).take(4).toList();
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-        boxShadow: [BoxShadow(color: AppColors.shadowSoft, blurRadius: 24, offset: Offset(0, -6))],
+      decoration: BoxDecoration(
+        color: AppColors.surfaceCard,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: AppColors.line),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black54,
+            blurRadius: 30,
+            offset: Offset(0, -6),
+          ),
+        ],
       ),
+      padding: const EdgeInsets.all(12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(
-            child: Container(
-              width: 36,
-              height: 5,
-              decoration: BoxDecoration(
-                color: AppColors.pillBorder,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
+          if (error != null) ...[
+            const Center(
+              child: Text(
+                'Lỗi tải danh sách sân',
+                style: TextStyle(color: AppColors.card, fontWeight: FontWeight.w600),
               ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Expanded(
-                child: Text(
-                  nearby ? '$count sân gần bạn' : '$count sân',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                ),
+            const SizedBox(height: 6),
+            Center(
+              child: TextButton(
+                onPressed: onRetry,
+                child: const Text('Thử lại', style: TextStyle(color: AppColors.lime)),
               ),
-              LinkButton('Danh sách', onTap: onList),
-            ],
-          ),
-          if (error != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Column(
-                children: [
-                  Text(
-                    'Không tải được danh sách sân',
-                    style: const TextStyle(color: AppColors.textSecondary),
-                  ),
-                  LinkButton('Thử lại', onTap: onRetry),
-                ],
-              ),
-            )
-          else if (p == null)
-            _EmptyHint(onShowAll: nearby ? onShowAll : null)
-          else ...[
-            const SizedBox(height: 4),
+            ),
+          ] else if (p == null) ...[
+            _EmptyHint(onShowAll: nearby ? onShowAll : null),
+          ] else ...[
             GestureDetector(
               onTap: () => onOpen(p),
               behavior: HitTestBehavior.opaque,
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const PitchArt(size: 64, radius: 12),
+                  Stack(
+                    children: [
+                      const PitchArt(size: 96, radius: 20),
+                      Positioned(
+                        left: 6,
+                        top: 6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.lime,
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                          child: Text(
+                            p.freeSlots == 0 ? 'HẾT SÂN' : '${p.freeSlots} TRỐNG',
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -619,7 +732,11 @@ class _Sheet extends StatelessWidget {
                         Text(
                           p.name,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textMain,
+                          ),
                         ),
                         const SizedBox(height: 3),
                         Text(
@@ -627,21 +744,10 @@ class _Sheet extends StatelessWidget {
                             p.district,
                             if (p.distanceM != null) Fmt.distance(p.distanceM!),
                           ].join(' · '),
-                          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
                         ),
-                        const SizedBox(height: 3),
-                        Text(
-                          [
-                            for (final a in p.amenities.take(2)) Labels.amenity(a),
-                            '${p.courtsCount} sân 7',
-                          ].join(' · '),
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.greenSoftText,
-                          ),
-                        ),
+                        const SizedBox(height: 6),
+                        AmenityTags(p.amenities, small: true),
                       ],
                     ),
                   ),
@@ -651,10 +757,11 @@ class _Sheet extends StatelessWidget {
             const SizedBox(height: 12),
             if (quick.isEmpty)
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
+                padding: EdgeInsets.symmetric(vertical: 8),
                 child: Text(
                   'Hết khung giờ trống trong ngày này',
-                  style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: AppColors.textDim),
                 ),
               )
             else
@@ -673,13 +780,11 @@ class _Sheet extends StatelessWidget {
                 ],
               ),
             const SizedBox(height: 12),
-            FilledButton(onPressed: () => onOpen(p), child: const Text('Xem sân & đặt')),
-            const SizedBox(height: 6),
-            const Center(
-              child: Text(
-                '© OpenStreetMap contributors',
-                style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-              ),
+            LimeButton(
+              label: p.minPrice == null
+                  ? 'Xem sân & đặt'
+                  : 'Xem sân & đặt · ${Fmt.money(p.minPrice!)}',
+              onPressed: () => onOpen(p),
             ),
           ],
         ],
@@ -698,22 +803,26 @@ class _QuickSlot extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     selected: selected,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primary : AppColors.surface,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: selected ? AppColors.primary : AppColors.pillBorder),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: selected ? Colors.white : AppColors.text,
+    child: Material(
+      color: selected ? AppColors.lime : AppColors.surfaceHigh,
+      borderRadius: BorderRadius.circular(AppRadius.button),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.button),
+        child: Container(
+          height: 42,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.button),
+            border: selected ? null : Border.all(color: AppColors.line),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: selected ? AppColors.ink : AppColors.textMain,
+            ),
           ),
         ),
       ),
@@ -732,20 +841,24 @@ class _EmptyHint extends StatelessWidget {
       children: [
         const Text(
           'Không có sân phù hợp bộ lọc',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textMain),
         ),
         const SizedBox(height: 4),
         const Text(
           'Thử đổi ngày, giờ hoặc bỏ bớt bộ lọc.',
-          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 13, color: AppColors.textMuted),
         ),
-        if (onShowAll != null) LinkButton('Xem tất cả sân (không theo vị trí)', onTap: onShowAll),
+        if (onShowAll != null)
+          TextButton(
+            onPressed: onShowAll,
+            child: const Text('Xem tất cả sân', style: TextStyle(color: AppColors.lime)),
+          ),
       ],
     ),
   );
 }
 
-/// Chế độ danh sách của màn 3.
+/// Chế độ danh sách của màn 04.
 class _PitchList extends StatelessWidget {
   const _PitchList({
     required this.pitches,
@@ -773,24 +886,37 @@ class _PitchList extends StatelessWidget {
           Expanded(
             child: Text(
               '${pitches.length} sân · ${Fmt.relativeDay(date)}',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textMain,
+              ),
             ),
           ),
-          LinkButton('Bản đồ', onTap: onToggle),
+          TextButton.icon(
+            onPressed: onToggle,
+            icon: const AppIcon(AppIcons.pin, size: 16, color: AppColors.lime),
+            label: const Text('Bản đồ', style: TextStyle(color: AppColors.lime)),
+          ),
         ],
       ),
       const SizedBox(height: 8),
       if (result.hasError && !result.isLoading)
-        AppCard(
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceCard,
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Column(
             children: [
-              const Text('Không tải được danh sách sân'),
-              LinkButton('Thử lại', onTap: onRetry),
+              const Text('Không tải được danh sách sân', style: TextStyle(color: AppColors.card)),
+              TextButton(onPressed: onRetry, child: const Text('Thử lại', style: TextStyle(color: AppColors.lime))),
             ],
           ),
         )
       else if (pitches.isEmpty && !result.isLoading)
-        AppCard(child: _EmptyHint(onShowAll: onShowAll))
+        _EmptyHint(onShowAll: onShowAll)
       else
         for (final p in pitches) ...[
           _PitchTile(pitch: p, onTap: () => onOpen(p)),
@@ -811,8 +937,13 @@ class _PitchTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: AppCard(
+      child: Container(
         padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceCard,
+          borderRadius: BorderRadius.circular(AppRadius.tile),
+          border: Border.all(color: AppColors.line),
+        ),
         child: Row(
           children: [
             const PitchArt(size: 64, radius: 12),
@@ -824,14 +955,18 @@ class _PitchTile extends StatelessWidget {
                   Text(
                     p.name,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textMain,
+                    ),
                   ),
                   const SizedBox(height: 3),
                   Text(
                     [p.district, if (p.distanceM != null) Fmt.distance(p.distanceM!)].join(' · '),
-                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 4),
                   Text(
                     p.freeSlots == 0
                         ? 'Hết khung giờ trống'
@@ -839,13 +974,13 @@ class _PitchTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: p.freeSlots == 0 ? AppColors.textSecondary : AppColors.greenSoftText,
+                      color: p.freeSlots == 0 ? AppColors.textDim : AppColors.lime,
                     ),
                   ),
                 ],
               ),
             ),
-            const AppIcon(AppIcons.chevronRight, color: AppColors.textSecondary),
+            const AppIcon(AppIcons.chevronRight, color: AppColors.textMuted),
           ],
         ),
       ),

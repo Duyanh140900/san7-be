@@ -37,6 +37,12 @@ final userLocationProvider = FutureProvider<LatLng?>((ref) async {
   }
 });
 
+/// Sân trống tối nay quanh tôi (khối trên Bảng tin).
+final freeSlotsProvider = FutureProvider.autoDispose<List<FreePitchSlotDto>>((ref) async {
+  final loc = await ref.watch(userLocationProvider.future);
+  return ref.watch(pitchesRepositoryProvider).freeSlots(lat: loc?.latitude, lng: loc?.longitude);
+});
+
 /// Bộ lọc tìm sân (màn 3).
 class PitchSearch {
   const PitchSearch({
@@ -119,6 +125,11 @@ final pitchDetailProvider = FutureProvider.autoDispose.family<PitchDto, PitchDay
       .detail(k.id, date: k.date, lat: loc?.latitude, lng: loc?.longitude);
 });
 
+/// Danh sách đánh giá của sân (màn 32).
+final pitchReviewsProvider = FutureProvider.autoDispose.family<List<PitchReviewDto>, String>(
+  (ref, pitchId) => ref.watch(pitchesRepositoryProvider).reviews(pitchId),
+);
+
 typedef BookingKey = ({String teamId, String bookingId});
 
 final bookingProvider = FutureProvider.autoDispose.family<BookingDto, BookingKey>(
@@ -133,6 +144,11 @@ final teamBookingsProvider = FutureProvider.autoDispose.family<List<BookingDto>,
 /// Lịch sử đặt sân (các lượt đã qua) của đội.
 final teamPastBookingsProvider = FutureProvider.autoDispose.family<List<BookingDto>, String>(
   (ref, teamId) => ref.watch(bookingsRepositoryProvider).past(teamId),
+);
+
+/// Thống kê đặt sân cá nhân trong năm (màn 31).
+final bookingSummaryProvider = FutureProvider.autoDispose.family<BookingSummaryDto, int?>(
+  (ref, year) => ref.watch(bookingsRepositoryProvider).summary(year: year),
 );
 
 /// Đội dùng để đặt sân: đội đang xem nếu tôi quản lý nó, không thì đội quản lý đầu tiên.

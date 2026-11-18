@@ -5,17 +5,18 @@ import '../../../api/exports.dart';
 import '../../../core/format.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/lime_button.dart';
 import '../pitches_providers.dart';
 import 'pitch_widgets.dart';
 
-/// Chọn khung giờ mới của cùng sân để đổi giờ. Trả về giờ bắt đầu mới, null nếu huỷ.
+/// Chọn khung giờ mới của cùng sân để đổi giờ (Floodlight Night v2).
 Future<DateTime?> showRescheduleSheet(BuildContext context, BookingDto booking) =>
     showModalBottomSheet<DateTime>(
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
       showDragHandle: true,
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surfaceCard,
       builder: (_) => _RescheduleSheet(booking: booking),
     );
 
@@ -44,10 +45,11 @@ class _RescheduleSheetState extends ConsumerState<_RescheduleSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Đổi giờ', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+            Text('ĐỔI GIỜ', style: AppText.display(22)),
+            const SizedBox(height: 2),
             Text(
               '${b.pitch.name} · hiện tại ${Fmt.slot(b.startAt)}',
-              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
             ),
             const SizedBox(height: 14),
             DayStrip(
@@ -61,7 +63,6 @@ class _RescheduleSheetState extends ConsumerState<_RescheduleSheet> {
             const SizedBox(height: 14),
             if (pitch != null)
               SlotGrid(
-                // Khung hiện tại không chọn lại được
                 slots: [
                   for (final s in pitch.slots)
                     s.startAt == b.startAt
@@ -88,9 +89,9 @@ class _RescheduleSheetState extends ConsumerState<_RescheduleSheet> {
                 data: (_) => const SizedBox.shrink(),
               ),
             const SizedBox(height: 16),
-            FilledButton(
+            LimeButton(
+              label: _slot == null ? 'Chọn khung giờ mới' : 'Đổi sang ${Fmt.slot(_slot!)}',
               onPressed: _slot == null ? null : () => Navigator.pop(context, _slot),
-              child: Text(_slot == null ? 'Chọn khung giờ mới' : 'Đổi sang ${Fmt.slot(_slot!)}'),
             ),
           ],
         ),
