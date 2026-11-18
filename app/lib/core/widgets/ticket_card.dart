@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/tokens.dart';
+import 'floodlight_animations.dart';
 
 /// Chỉ số nhỏ ở nửa dưới vé ("Trình độ" / "TB").
 typedef TicketStat = ({String label, String value});
@@ -41,83 +42,94 @@ class TicketCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.tile),
         child: ColoredBox(
           color: AppColors.lime,
-          child: DefaultTextStyle.merge(
-            style: const TextStyle(color: AppColors.ink),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              caption,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 2,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(time, style: AppText.display(54, color: AppColors.ink)),
-                            const SizedBox(height: 4),
-                            Text(
-                              dateLine,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ?trailing,
-                    ],
-                  ),
-                ),
-                _Perforation(notchColor: notchColor),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (final s in stats)
+          child: ShineSweep(
+            child: DefaultTextStyle.merge(
+              style: const TextStyle(color: AppColors.ink),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                s.label,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                caption,
+                                style: const TextStyle(
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.ink.withValues(alpha: 0.7),
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 2,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                s.value,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                time,
                                 style: AppText.display(
-                                  22,
+                                  54,
                                   color: AppColors.ink,
-                                ).copyWith(fontStyle: FontStyle.normal),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                dateLine,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                    ],
+                        ?trailing,
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  _Perforation(notchColor: notchColor),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final s in stats)
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  s.label,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.ink.withValues(alpha: 0.7),
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  s.value,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppText.display(
+                                    22,
+                                    color: AppColors.ink,
+                                  ).copyWith(fontStyle: FontStyle.normal),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

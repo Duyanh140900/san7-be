@@ -1,3 +1,12 @@
+## Floodlight Night assets & motion
+
+- `PitchImages.forId(id)` selects a stable night-pitch image; `withBottomGradient` keeps copy readable on real photos.
+- `PitchImages` contains paths for the logo, welcome art, four pitch photos, player, trophy and default avatar.
+- `FloodlightBeams`, `KenBurnsImage`, `StaggeredRise` provide hero beams, slow image zoom and staged entries.
+- `ShineSweep` is applied by default to `LimeButton` and `TicketCard`; use `LimeButton(shine: false)` to opt out.
+- `FloatingMotion`, `RadarRipple`, `PulseGlow` support 3D art, search/location and LIVE/hot badges.
+- Every animation observes the device Reduce motion preference.
+
 # Bộ widget dùng chung v2 "Floodlight Night"
 
 Nền tảng cho các màn đợt B. Import từ `app/lib/core/`. Nền tối, chữ sáng; **không dùng mã màu rời**, lấy từ `AppColors`.
