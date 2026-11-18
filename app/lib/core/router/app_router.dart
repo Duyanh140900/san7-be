@@ -6,6 +6,9 @@ import '../../features/attendance/presentation/create_event_screen.dart';
 import '../../features/attendance/presentation/schedule_page.dart';
 import '../../features/auth/presentation/onboarding_screens.dart';
 import '../../features/auth/presentation/splash_screen.dart';
+import '../../features/chat/presentation/chat_screen.dart';
+import '../../features/chat/presentation/inbox_screen.dart';
+import '../../features/feed/presentation/feed_filter_screen.dart';
 import '../../features/feed/presentation/feed_screen.dart';
 import '../../features/funds/presentation/add_fund_tx_screen.dart';
 import '../../features/funds/presentation/fund_pay_screen.dart';
@@ -14,7 +17,6 @@ import '../../features/funds/presentation/funds_page.dart';
 import '../../features/honors/presentation/honors_screen.dart';
 import '../../features/matches/presentation/match_result_screen.dart';
 import '../../features/matches/presentation/team_profile_screen.dart';
-import '../../features/chat/presentation/chat_screen.dart';
 import '../../features/me/presentation/booking_history_screen.dart';
 import '../../features/me/presentation/edit_profile_screen.dart';
 import '../../features/me/presentation/me_screen.dart';
@@ -22,6 +24,8 @@ import '../../features/me/presentation/my_posts_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/pitches/presentation/booking_screen.dart';
 import '../../features/pitches/presentation/pitch_detail_screen.dart';
+import '../../features/pitches/presentation/booking_qr_screen.dart';
+import '../../features/pitches/presentation/pitch_reviews_screen.dart';
 import '../../features/pitches/presentation/pitches_screen.dart';
 import '../../features/post_create/presentation/post_create_screen.dart';
 import '../../features/posts/presentation/compare_requests_screen.dart';
@@ -34,6 +38,9 @@ import '../../features/team/presentation/team_screen.dart';
 import '../../features/matches/presentation/match_confirm_screen.dart';
 import '../../features/matches/presentation/mvp_vote_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
+import '../../features/players/presentation/player_profile_screen.dart';
+import '../../features/team/presentation/report_team_screen.dart';
+
 import '../auth/auth_controller.dart';
 import '../widgets/app_shell.dart';
 import 'auth_redirect.dart';
@@ -59,6 +66,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.postNew,
         pageBuilder: (_, _) =>
             const MaterialPage(fullscreenDialog: true, child: PostCreateScreen()),
+      ),
+      GoRoute(
+        path: Routes.feedFilter,
+        pageBuilder: (_, _) =>
+            const MaterialPage(fullscreenDialog: true, child: FeedFilterScreen()),
       ),
       // Cáp kèo (M2)
       GoRoute(
@@ -91,6 +103,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
+      GoRoute(path: Routes.inbox, builder: (_, _) => const InboxScreen()),
       GoRoute(path: Routes.search, builder: (_, _) => const SearchScreen()),
       GoRoute(path: Routes.me, builder: (_, _) => const MeScreen()),
       GoRoute(path: Routes.bookingHistory, builder: (_, _) => const BookingHistoryScreen()),
@@ -126,6 +139,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/player/:id',
+        builder: (_, state) => PlayerProfileScreen(playerId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/report-team/:teamId/:targetTeamId',
+        builder: (_, state) => ReportTeamScreen(
+          teamId: state.pathParameters['teamId']!,
+          targetTeamId: state.pathParameters['targetTeamId']!,
+          matchId: state.uri.queryParameters['matchId'],
+        ),
+      ),
+      GoRoute(
         path: '/team-profile/:teamId',
         builder: (_, state) => TeamProfileScreen(teamId: state.pathParameters['teamId']!),
       ),
@@ -138,8 +163,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/pitch/:pitchId/reviews',
+        builder: (_, state) => PitchReviewsScreen(
+          pitchId: state.pathParameters['pitchId']!,
+          bookingId: state.uri.queryParameters['bookingId'],
+        ),
+      ),
+      GoRoute(
         path: '/teams/:teamId/bookings/:bookingId',
         builder: (_, state) => BookingScreen(
+          teamId: state.pathParameters['teamId']!,
+          bookingId: state.pathParameters['bookingId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/teams/:teamId/bookings/:bookingId/qr',
+        builder: (_, state) => BookingQrScreen(
           teamId: state.pathParameters['teamId']!,
           bookingId: state.pathParameters['bookingId']!,
         ),
@@ -160,7 +199,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.teamFundPay, builder: (_, _) => const FundPayScreen()),
       GoRoute(
         path: Routes.teamEventNew,
-        pageBuilder: (_, _) =>
+        pageBuilder: (_, state) =>
             const MaterialPage(fullscreenDialog: true, child: CreateEventScreen()),
       ),
       GoRoute(

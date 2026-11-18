@@ -460,7 +460,7 @@ class _AddFundTxScreenState extends ConsumerState<AddFundTxScreen> {
                 ),
                 Switch(
                   value: _finePaid,
-                  activeTrackColor: AppColors.greenBright,
+                  activeTrackColor: AppColors.lime,
                   onChanged: (v) => setState(() => _finePaid = v),
                 ),
               ],
@@ -551,16 +551,16 @@ class _Chip extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 38),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: selected ? AppColors.primarySoft : AppColors.surface,
+        color: selected ? AppColors.lime.withValues(alpha: 0.16) : AppColors.surfaceCard,
         borderRadius: BorderRadius.circular(AppRadius.pill),
-        border: Border.all(color: selected ? AppColors.primary : AppColors.pillBorder),
+        border: Border.all(color: selected ? AppColors.lime : AppColors.lineStrong),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 14,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-          color: selected ? AppColors.primarySoftText : AppColors.text,
+          color: selected ? AppColors.lime : AppColors.textMain,
         ),
       ),
     ),
@@ -605,7 +605,7 @@ class _PeoplePicker extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: on ? AppColors.primary : Colors.transparent,
+                            color: on ? AppColors.lime : Colors.transparent,
                             width: 3,
                           ),
                         ),

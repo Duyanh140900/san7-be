@@ -8,6 +8,7 @@ abstract final class Routes {
   static const onboardingPermissions = '/onboarding/permissions';
   static const addTeam = '/me/add-team';
   static const feed = '/feed';
+  static const feedFilter = '/feed/filter';
   static const pitches = '/pitches';
   static const team = '/team';
   static const teamMembers = '/team/members';
@@ -26,6 +27,7 @@ abstract final class Routes {
   static String postCompare(String teamId, String postId) => '/teams/$teamId/posts/$postId/compare';
   static String request(String teamId, String requestId) => '/teams/$teamId/requests/$requestId';
   static const notifications = '/notifications';
+  static const inbox = '/inbox';
   static const me = '/me';
   static const myPosts = '/me/posts';
   static const bookingHistory = '/me/bookings';
@@ -36,6 +38,9 @@ abstract final class Routes {
       '/teams/$teamId/matches/$matchId/result';
   static String teamProfile(String teamId) => '/team-profile/$teamId';
   static String booking(String teamId, String bookingId) => '/teams/$teamId/bookings/$bookingId';
+  static String bookingQr(String teamId, String bookingId) =>
+      '/teams/$teamId/bookings/$bookingId/qr';
+  static String pitchReviews(String id) => '/pitch/$id/reviews';
   static const search = '/search';
   static String matchConfirm(String teamId, String matchId) =>
       '/teams/$teamId/matches/$matchId/confirm';

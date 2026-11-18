@@ -28,6 +28,15 @@ class TeamRepository {
   Future<TeamDetailDto> detail(String teamId) =>
       apiCall(() => _api.teams.teamDetailDetail(teamId: teamId));
 
+  Future<TeamPublicProfileDto> publicProfile(String teamId) =>
+      apiCall(() => _api.teams.teamsProfile(teamId: teamId));
+
+  Future<void> follow(String teamId) =>
+      apiCall(() => _api.teams.teamsFollow(teamId: teamId));
+
+  Future<void> unfollow(String teamId) =>
+      apiCall(() => _api.teams.teamsUnfollow(teamId: teamId));
+
   Future<TeamDetailDto> update(String teamId, UpdateTeamDto body) =>
       apiCall(() => _api.teams.teamDetailUpdate(teamId: teamId, body: body));
 
@@ -55,6 +64,17 @@ class TeamRepository {
       apiCall(() => _api.members.membersRemove(teamId: teamId, userId: userId));
 
   Future<void> leave(String teamId) => apiCall(() => _api.members.membersLeave(teamId: teamId));
+  Future<List<TeamMemberDto>> joinRequests(String teamId) =>
+      apiCall(() => _api.teams.teamDetailJoinRequests(teamId: teamId));
+
+  Future<TeamSafetyDto> reportTeam(String teamId, CreateTeamReportDto body) =>
+      apiCall(() => _api.teams.teamSafetyReport(teamId: teamId, body: body));
+
+  Future<TeamSafetyDto> blockTeam(String teamId, String blockedTeamId) =>
+      apiCall(() => _api.teams.teamSafetyBlock(teamId: teamId, blockedTeamId: blockedTeamId));
+
+  Future<void> unblockTeam(String teamId, String blockedTeamId) =>
+      apiCall(() => _api.teams.teamSafetyUnblock(teamId: teamId, blockedTeamId: blockedTeamId));
 }
 
 final teamRepositoryProvider = Provider<TeamRepository>(

@@ -20,6 +20,10 @@ final teamDetailProvider = FutureProvider.autoDispose.family<TeamDetailDto, Stri
   (ref, teamId) => ref.watch(teamRepositoryProvider).detail(teamId),
 );
 
+final teamPublicProfileProvider = FutureProvider.autoDispose.family<TeamPublicProfileDto, String>(
+  (ref, teamId) => ref.watch(teamRepositoryProvider).publicProfile(teamId),
+);
+
 final membersProvider = FutureProvider.autoDispose.family<MemberListDto, String>(
   (ref, teamId) => ref.watch(teamRepositoryProvider).members(teamId),
 );
@@ -40,6 +44,9 @@ final fundSummaryProvider = FutureProvider.autoDispose.family<FundSummaryDto, St
 
 final fineRulesProvider = FutureProvider.autoDispose.family<List<FineRuleDto>, String>(
   (ref, teamId) => ref.watch(fundsRepositoryProvider).fineRules(teamId),
+);
+final joinRequestsProvider = FutureProvider.autoDispose.family<List<TeamMemberDto>, String>(
+  (ref, teamId) => ref.watch(teamRepositoryProvider).joinRequests(teamId),
 );
 
 /// Quyền theo vai trò (khớp với guard phía backend).

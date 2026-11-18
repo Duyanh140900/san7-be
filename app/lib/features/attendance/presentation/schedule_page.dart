@@ -74,7 +74,7 @@ class SchedulePage extends ConsumerWidget {
                         const CardHeader('Sắp tới'),
                         const SizedBox(height: 4),
                         for (final (i, e) in list.skip(1).indexed) ...[
-                          if (i > 0) const Divider(height: 1, color: Color(0xFFF0F0F0)),
+                          if (i > 0) const Divider(height: 1, color: AppColors.line),
                           EventRow(event: e, onTap: () => context.push(Routes.teamEvent(e.id))),
                         ],
                       ],
@@ -125,7 +125,7 @@ class EventAttendeesCard extends ConsumerWidget {
                     : null,
               ),
               for (final (i, a) in d.attendees.indexed) ...[
-                if (i > 0) const Divider(height: 1, color: Color(0xFFF0F0F0)),
+                if (i > 0) const Divider(height: 1, color: AppColors.line),
                 AttendeeRow(attendee: a, isMe: a.userId == myId),
               ],
             ],

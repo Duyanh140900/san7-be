@@ -269,7 +269,7 @@ class _PlayerOfMonth extends StatelessWidget {
         children: [
           Text(
             '$n',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textMain),
           ),
           const SizedBox(height: 2),
           Text(label, style: const TextStyle(fontSize: 12, color: AppColors.onDarkMuted)),
@@ -307,7 +307,7 @@ class _PlayerOfMonth extends StatelessWidget {
               fontSize: 24,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.4,
-              color: Colors.white,
+              color: AppColors.textMain,
             ),
           ),
           const SizedBox(height: 4),
@@ -454,7 +454,7 @@ class _Fines extends ConsumerWidget {
                               onTap: !t.paid && canManage ? () => _markPaid(context, ref, t) : null,
                               child: Tag(
                                 t.paid ? 'Đã nộp' : 'Chưa nộp',
-                                bg: t.paid ? AppColors.greenSoft : const Color(0xFFFDECEE),
+                                bg: t.paid ? AppColors.greenSoft : AppColors.card.withValues(alpha: 0.15),
                                 fg: t.paid ? AppColors.greenSoftText : AppColors.red,
                               ),
                             ),

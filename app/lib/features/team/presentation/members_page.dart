@@ -225,7 +225,7 @@ class _SmallButton extends StatelessWidget {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: filled ? Colors.white : AppColors.primary,
+          color: filled ? AppColors.ink : AppColors.lime,
         ),
       ),
     ),
@@ -254,7 +254,7 @@ class _PendingCard extends ConsumerWidget {
         children: [
           CardHeader('Chờ duyệt · ${pending.length}'),
           for (final (i, m) in pending.indexed) ...[
-            if (i > 0) const Divider(height: 1, color: Color(0xFFF0F0F0)),
+            if (i > 0) const Divider(height: 1, color: AppColors.line),
             MemberRow(
               member: m,
               trailing: Row(
@@ -350,7 +350,7 @@ class _MemberList extends ConsumerWidget {
       child: Column(
         children: [
           for (final (i, m) in members.indexed) ...[
-            if (i > 0) const Divider(height: 1, color: Color(0xFFF0F0F0)),
+            if (i > 0) const Divider(height: 1, color: AppColors.line),
             InkWell(
               onTap: canEditRoles && m.userId != myId ? () => onToggle(m.userId) : null,
               child: MemberRow(member: m, isMe: m.userId == myId),

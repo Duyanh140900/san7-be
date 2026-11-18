@@ -15,10 +15,10 @@ AttendanceStatusValue? statusValue(AttendanceStatus? s) => switch (s) {
 
 /// (nhãn, nền, chữ) theo bản vẽ màn 18.
 (String, Color, Color) attendanceStyle(AttendanceStatusValue? s) => switch (s) {
-  AttendanceStatusValue.go => ('Đi', const Color(0xFFE9F6EC), const Color(0xFF1F7A35)),
-  AttendanceStatusValue.maybe => ('Chưa chắc', const Color(0xFFFDF0E6), const Color(0xFFA04800)),
-  AttendanceStatusValue.no => ('Vắng', const Color(0xFFFDECEE), const Color(0xFFC4000F)),
-  null => ('Chưa trả lời', AppColors.background, AppColors.textSecondary),
+  AttendanceStatusValue.go => ('Đi', AppColors.lime.withValues(alpha: 0.16), AppColors.lime),
+  AttendanceStatusValue.maybe => ('Chưa chắc', AppColors.trophy.withValues(alpha: 0.16), AppColors.trophy),
+  AttendanceStatusValue.no => ('Vắng', AppColors.card.withValues(alpha: 0.16), AppColors.card),
+  null => ('Chưa trả lời', AppColors.surfaceHigh, AppColors.textDim),
 };
 
 String eventKindLabel(EventKind k) => switch (k) {
@@ -124,14 +124,15 @@ class AttendanceCounts extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.surfaceHigh,
+        borderRadius: BorderRadius.circular(AppRadius.tile),
+        border: Border.all(color: AppColors.lineStrong),
       ),
       child: Row(
         children: [
-          cell(counts.go, 'Đi', const Color(0xFF1F7A35)),
-          cell(counts.maybe, 'Chưa chắc', const Color(0xFFA04800)),
-          cell(counts.no, 'Vắng', const Color(0xFFC4000F)),
+          cell(counts.go, 'Đi', AppColors.lime),
+          cell(counts.maybe, 'Chưa chắc', AppColors.trophy),
+          cell(counts.no, 'Vắng', AppColors.card),
         ],
       ),
     );
@@ -223,12 +224,8 @@ class EventMainCard extends ConsumerWidget {
               ),
               if (need != null)
                 c.go >= need
-                    ? const Tag('Đủ người', bg: Color(0xFFE9F6EC), fg: Color(0xFF1F7A35))
-                    : Tag(
-                        'Thiếu ${need - c.go}',
-                        bg: const Color(0xFFFDF0E6),
-                        fg: const Color(0xFFA04800),
-                      ),
+                    ? Tag('Đủ người', bg: AppColors.lime.withValues(alpha: 0.16), fg: AppColors.lime)
+                    : Tag('Thiếu ${need - c.go}', bg: AppColors.card.withValues(alpha: 0.16), fg: AppColors.card),
             ],
           ),
           const SizedBox(height: 10),
@@ -289,7 +286,7 @@ class EventRow extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFFC4000F),
+                      color: AppColors.card,
                     ),
                   ),
                   Text(
@@ -312,7 +309,7 @@ class EventRow extends StatelessWidget {
                 ],
               ),
             ),
-            Tag('${event.counts.go} đi', bg: const Color(0xFFE9F6EC), fg: const Color(0xFF1F7A35)),
+            Tag('${event.counts.go} đi', bg: AppColors.lime.withValues(alpha: 0.16), fg: AppColors.lime),
           ],
         ),
       ),
