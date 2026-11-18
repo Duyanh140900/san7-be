@@ -1,0 +1,40 @@
+name: CI/CD Main
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  verify-backend:
+    name: Backend lint & build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  deploy:
+    name: Build & deploy to 10.151.181.180
+    runs-on: [self-hosted, linux, x64, san7]
+    needs: [verify-backend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Docker Compose stack
+        run: bash infra/deploy/deploy-main.sh "$GITHUB_WORKSPACE"
