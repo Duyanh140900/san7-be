@@ -5,6 +5,7 @@ import '../api/api_error.dart';
 import '../format.dart';
 import '../theme/tokens.dart';
 import 'app_toast.dart';
+import 'system_state.dart';
 
 /// Thẻ trắng bo 18 (như bản vẽ).
 class AppCard extends StatelessWidget {
@@ -195,7 +196,8 @@ class Segmented extends StatelessWidget {
   }
 }
 
-/// Hiển thị AsyncValue: đang tải / lỗi kèm nút thử lại / dữ liệu.
+/// Hiển thị AsyncValue: đang tải (bóng quay) / lỗi (mất mạng hoặc "thẻ đỏ", kèm nút thử lại) / dữ liệu.
+/// Dùng các widget trạng thái hệ thống (màn 34), bản gọn để nhét trong danh sách.
 class AsyncView<T> extends StatelessWidget {
   const AsyncView({super.key, required this.value, required this.data, this.onRetry});
 
@@ -207,24 +209,22 @@ class AsyncView<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return switch (value) {
       AsyncData(:final value) => data(value),
-      AsyncError(:final error) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 32),
-        child: Column(
-          children: [
-            Text(
-              ApiError.from(error).message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
-            ),
-            if (onRetry != null) LinkButton('Thử lại', onTap: onRetry),
-          ],
-        ),
-      ),
-      _ => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 40),
-        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-      ),
+      AsyncError(:final error) => _errorView(ApiError.from(error)),
+      _ => const LoadingState(compact: true),
     };
+  }
+
+  Widget _errorView(ApiError e) {
+    if (e.offline) return OfflineState(onRetry: onRetry, compact: true);
+    final server = (e.statusCode ?? 0) >= 500;
+    return ErrorState(
+      onRetry: onRetry,
+      compact: true,
+      code: server ? e.statusCode : null,
+      message: server
+          ? 'Có lỗi khi tải dữ liệu. Đội kỹ thuật đã được báo. Bạn thử lại sau ít phút nhé.'
+          : e.message,
+    );
   }
 }
 

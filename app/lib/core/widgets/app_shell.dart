@@ -6,6 +6,7 @@ import '../realtime/realtime_client.dart';
 import '../router/auth_redirect.dart';
 import '../theme/tokens.dart';
 import 'app_icon.dart';
+import 'brand_mark.dart';
 
 /// Khung có thanh tab 5 mục: Bảng tin, Đặt sân, [+ Đăng kèo], Đội, Bảng vàng.
 class AppShell extends ConsumerWidget {
@@ -28,6 +29,8 @@ class AppShell extends ConsumerWidget {
   }
 }
 
+/// Thanh tab nổi dưới màn hình (bản vẽ v2): viên thuốc tối, 4 mục
+/// Bảng tin / Đặt sân / Đội / Bảng vàng, giữa là nút lime "Đăng kèo" (quả bóng quay chậm).
 class AppTabBar extends StatelessWidget {
   const AppTabBar({
     super.key,
@@ -44,41 +47,49 @@ class AppTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     return Container(
-      padding: EdgeInsets.fromLTRB(8, 6, 8, bottomInset > 0 ? bottomInset : 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
-        border: const Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _Tab(
-            icon: AppIcons.home,
-            label: 'Bảng tin',
-            selected: currentBranch == 0,
-            onTap: () => onBranch(0),
-          ),
-          _Tab(
-            icon: AppIcons.pin,
-            label: 'Đặt sân',
-            selected: currentBranch == 1,
-            onTap: () => onBranch(1),
-          ),
-          _CreateButton(onTap: onCreatePost),
-          _Tab(
-            icon: AppIcons.team,
-            label: 'Đội',
-            selected: currentBranch == 2,
-            onTap: () => onBranch(2),
-          ),
-          _Tab(
-            icon: AppIcons.trophy,
-            label: 'Bảng vàng',
-            selected: currentBranch == 3,
-            onTap: () => onBranch(3),
-          ),
-        ],
+      color: AppColors.night,
+      padding: EdgeInsets.fromLTRB(12, 10, 12, bottomInset > 0 ? bottomInset : 12),
+      child: Container(
+        height: 70,
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceCard.withValues(alpha: 0.95),
+          borderRadius: BorderRadius.circular(26),
+          border: Border.all(color: const Color(0x14FFFFFF)),
+          boxShadow: const [
+            BoxShadow(color: Color(0x80000000), blurRadius: 40, offset: Offset(0, 18)),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _Tab(
+              icon: AppIcons.home,
+              label: 'Bảng tin',
+              selected: currentBranch == 0,
+              onTap: () => onBranch(0),
+            ),
+            _Tab(
+              icon: AppIcons.pin,
+              label: 'Đặt sân',
+              selected: currentBranch == 1,
+              onTap: () => onBranch(1),
+            ),
+            _CreateButton(onTap: onCreatePost),
+            _Tab(
+              icon: AppIcons.team,
+              label: 'Đội',
+              selected: currentBranch == 2,
+              onTap: () => onBranch(2),
+            ),
+            _Tab(
+              icon: AppIcons.trophy,
+              label: 'Bảng vàng',
+              selected: currentBranch == 3,
+              onTap: () => onBranch(3),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -99,7 +110,7 @@ class _Tab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.primary : AppColors.textSecondary;
+    final color = selected ? AppColors.primary : AppColors.textDim;
     return Semantics(
       button: true,
       selected: selected,
@@ -109,16 +120,17 @@ class _Tab extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 60, minHeight: AppSizes.tapTarget),
+          constraints: const BoxConstraints(minWidth: 58, minHeight: 56),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AppIcon(icon, color: color),
+              AppIcon(icon, color: color, size: 22),
               const SizedBox(height: 3),
               Text(
                 label,
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: color),
+                maxLines: 1,
+                style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: color),
               ),
             ],
           ),
@@ -142,18 +154,30 @@ class _CreateButton extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: SizedBox(
-          width: 60,
-          height: AppSizes.tapTarget,
-          child: Center(
-            child: Container(
-              width: 48,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(12),
+          width: 64,
+          height: 70,
+          child: OverflowBox(
+            maxHeight: 100,
+            child: Transform.translate(
+              offset: const Offset(0, -14),
+              child: Container(
+                width: 62,
+                height: 62,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.lime,
+                  boxShadow: [
+                    const BoxShadow(color: AppColors.night, spreadRadius: 6),
+                    BoxShadow(
+                      color: AppColors.lime.withValues(alpha: 0.5),
+                      blurRadius: 30,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: const BallMark(size: 40, spin: true),
               ),
-              alignment: Alignment.center,
-              child: const AppIcon(AppIcons.plus, color: Colors.white),
             ),
           ),
         ),

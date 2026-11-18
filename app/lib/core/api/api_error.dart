@@ -2,11 +2,14 @@ import 'package:dio/dio.dart';
 
 /// Lỗi đã chuyển sang câu tiếng Việt để hiện cho người dùng.
 class ApiError implements Exception {
-  const ApiError(this.message, {this.code, this.statusCode});
+  const ApiError(this.message, {this.code, this.statusCode, this.offline = false});
 
   final String message;
   final String? code;
   final int? statusCode;
+
+  /// Không có kết nối tới máy chủ (mất mạng) → hiện màn "Mất điện sân rồi!"
+  final bool offline;
 
   factory ApiError.from(Object error) {
     if (error is ApiError) return error;
@@ -25,6 +28,7 @@ class ApiError implements Exception {
         DioExceptionType.sendTimeout => const ApiError('Mạng chậm, thử lại sau'),
         DioExceptionType.connectionError => const ApiError(
           'Không kết nối được máy chủ. Kiểm tra mạng.',
+          offline: true,
         ),
         _ => ApiError('Có lỗi xảy ra (${error.response?.statusCode ?? '—'})'),
       };
