@@ -8,6 +8,7 @@ import type {
   MessageDto,
   MessagePageDto,
   ChatReadDto,
+  InboxDto,
   SendMessageDto,
 } from './chat.dto.js';
 
@@ -107,6 +108,32 @@ export class ChatService {
       update: { userId, lastReadAt },
     });
     return { lastReadAt };
+  }
+
+  async inbox(userId: string): Promise<InboxDto> {
+    const teams = await this.prisma.teamMember.findMany({
+      where: { userId, status: 'active' }, select: { teamId: true },
+    });
+    const teamIds = teams.map((item) => item.teamId);
+    if (!teamIds.length) return { items: [], unreadTotal: 0 };
+    const matches = await this.prisma.match.findMany({
+      where: { OR: [{ homeTeamId: { in: teamIds } }, { awayTeamId: { in: teamIds } }] },
+      include: {
+        homeTeam: { select: { id: true, name: true, crestColor: true } },
+        awayTeam: { select: { id: true, name: true, crestColor: true } },
+        messages: { include: { user: { select: senderSelect } }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 1 },
+        chatReads: { where: { userId }, select: { teamId: true, lastReadAt: true } },
+      },
+    });
+    const items = await Promise.all(matches.map(async (match) => {
+      const myTeamId = teamIds.includes(match.homeTeamId) ? match.homeTeamId : match.awayTeamId;
+      const opponent = myTeamId === match.homeTeamId ? match.awayTeam : match.homeTeam;
+      const readAt = match.chatReads.find((row) => row.teamId === myTeamId)?.lastReadAt;
+      const unreadCount = await this.prisma.matchMessage.count({ where: { matchId: match.id, teamId: { not: myTeamId }, ...(readAt ? { createdAt: { gt: readAt } } : {}) } });
+      return { matchId: match.id, teamId: opponent.id, teamName: opponent.name, crestColor: opponent.crestColor, lastMessage: match.messages[0] ? this.toDto(match.messages[0]) : null, updatedAt: match.messages[0]?.createdAt ?? match.createdAt, unreadCount };
+    }));
+    items.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+    return { items, unreadTotal: items.reduce((total, item) => total + item.unreadCount, 0) };
   }
 
   private toDto(row: {

@@ -41,3 +41,18 @@ export class MessagePageDto {
 export class ChatReadDto {
   @ApiProperty({ type: String, format: 'date-time' }) lastReadAt: Date;
 }
+
+export class InboxConversationDto {
+  @ApiProperty({ format: 'uuid' }) matchId: string;
+  @ApiProperty({ format: 'uuid' }) teamId: string;
+  @ApiProperty() teamName: string;
+  @ApiProperty() crestColor: string;
+  @ApiPropertyOptional({ type: MessageDto }) lastMessage?: MessageDto | null;
+  @ApiProperty({ type: String, format: 'date-time' }) updatedAt: Date;
+  @ApiProperty({ type: 'integer' }) unreadCount: number;
+}
+
+export class InboxDto {
+  @ApiProperty({ type: [InboxConversationDto] }) items: InboxConversationDto[];
+  @ApiProperty({ type: 'integer' }) unreadTotal: number;
+}

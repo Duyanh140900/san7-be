@@ -20,6 +20,7 @@ import {
   MessageDto,
   MessagePageDto,
   ChatReadDto,
+  InboxDto,
   SendMessageDto,
 } from './chat.dto.js';
 import { ChatService } from './chat.service.js';
@@ -68,4 +69,14 @@ export class ChatReadController {
   ): Promise<ChatReadDto> {
     return this.chat.read(user.userId, matchId);
   }
+}
+
+@ApiTags('chat')
+@ApiBearerAuth()
+@Controller('inbox')
+export class InboxController {
+  constructor(private readonly chat: ChatService) {}
+  @Get()
+  @ApiOkResponse({ type: InboxDto })
+  list(@CurrentUser() user: AuthUser): Promise<InboxDto> { return this.chat.inbox(user.userId); }
 }
